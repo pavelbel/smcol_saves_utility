@@ -656,17 +656,8 @@
     {
         "count": "map_size_y",
         "cols": "map_size_x",
-        "struct":
-        {
-            "path_value":
-            {
-                "bit_struct":
-                {
-                    "region_id" : {"size": 4, "type": "int"},
-                    "visitor" : {"size": 4, "type": "nation_4bit_type"}
-                }
-            }
-        }
+        "size": 1,
+        "type": "bits"
     },
     "SEEN":
     {
