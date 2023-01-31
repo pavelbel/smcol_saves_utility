@@ -19,7 +19,7 @@ Some additions were made:
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
 
-It's first record (section) is *metadata*. It is not stored directly in SAV file. *metadata* is used to represent field values in human readable form (instead of raw hex or bits). You can add new types here and use it for data fields below. For example:
+It's first record (section) is *__metadata*. It is not stored directly in SAV file. *__metadata* is used to represent field values in human readable form (instead of raw hex or bits). You can add new types here and use it for data fields below. For example:
 * *nation_type* represents nation id fields values in text form (England, France, Aztec, Sioux, Tupi...) instead of hex values ("01", "02", "05", "0A", "0B")
 * *cargo_type* represents cargo id fields values in text form (tobacco, silver, cloth...) instead of 4-bit values (0010, 0111, 1011...)
 
@@ -31,7 +31,7 @@ The next records map regions of SAV file data. The record can be:
      `"cargo_hold": {"size": 1, "cols": 6, "type": "int"}`
      leads to:
      `"cargo_hold": [100, 100, 100, 50, 0, 0]`
-  *  with *save_meta* flag (to save the value to metadata dict and use it later - for colonies or units count for example)
+  *  with *save_meta* flag (to save the value to *metadata* dict and use it later - for colonies or units count for example)
 * structured - with *struct* field, describing it's inner structure with byte-mapping:
   ```
   "expeditionary_force": {

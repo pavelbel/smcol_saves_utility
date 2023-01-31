@@ -1,5 +1,8 @@
 import json
 import os
+import sys
+import hashlib
+
 from bitarray import bitarray, util
 
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
@@ -290,55 +293,27 @@ def lowercase_dict(in_dict: dict):
     return {x.lower() if isinstance(x, str) else x : y for (x, y) in in_dict.items()}
 
 
-def handle_metadata(entry_metadata, metadata):
+def handle_metadata(entry_metadata):
     """Handle metadata - save it to metadata object"""
 
+    metadata = {}
     # extract types from entry_metadata
     for entry_name, entry_data in entry_metadata.items():
         if isinstance(entry_data, dict):
             metadata[entry_name] = lowercase_dict(entry_data)
             metadata[entry_name + '_inv'] = reverse_dict(entry_data)
 
-
-def handle_bit_struct(sav_data, bit_struct_entry_data, metadata):
-    # Handle bit_struct data (with no sub structs)
-    in_res_raw_data = sav_data
-    curr_bit_offset = 0
-    in_res_data = {}
-
-    out_str = ''
-    for bb in sav_data:
-        out_str += f"{bb:08b}"[::-1]
-
-    for entry_key, entry_value in bit_struct_entry_data.items():
-        curr_entry_bit_size = entry_value['size'] # Сделать правильно!
-        in_res_data[entry_key] = out_str[curr_bit_offset : curr_bit_offset+curr_entry_bit_size][::-1]
-        curr_bit_offset += curr_entry_bit_size
-
-        # if curr_bit_offset // 8 == (curr_bit_offset + curr_entry_bit_size - 1) // 8:
-        #     # Зайдействован один байт
-        #     curr_byte_val = sav_data[curr_bit_offset // 8]
-        #     inbyte_bit_offset = curr_bit_offset % 8
-        #     while inbyte_bit_offset < curr_entry_bit_size:
-        #
-        #         inbyte_bit_offset += 1
-        # else:
-        #     # Зайдействовано больше одного байта
-        #     pass
-
-    return in_res_data
+    return metadata
 
 
 def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, log_file=None):
     """Read structured SAV data to JSON file IN NEW FORMAT"""
 
-    #read_res = []
     read_res = {}
 
     curr_data_offset = data_offset
     for entry_name, entry_data in sav_structure.items():
-        if entry_name == "metadata":
-            handle_metadata(entry_data, metadata)
+        if entry_name.startswith('__'):
             continue
 
         curr_entry_size = get_entry_size(entry_data, metadata)
@@ -353,8 +328,6 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                 if 'struct' in entry_data:
                     in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, log_file=log_file)
                     #save_as_string = False
-                # elif 'bit_struct' in entry_data:
-                #     in_res_data = handle_bit_struct(sav_data[curr_data_offset:curr_data_offset + curr_entry_size], entry_data['bit_struct'], metadata)
                 else:
                     in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
                     if entry_data.get('save_meta', False):
@@ -399,31 +372,16 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     """Сериализация JSON-структурированных SAV данных обратно в bytes"""
 
     res_data = b''
-    # if not isinstance(read_struct_data, dict):
-    #     if isinstance(read_struct_data, list):
-    #         for entry in read_struct_data:
-    #             res_data += dump_sav_structure(entry)
-    #     else:
-    #         res_data += bytes.fromhex(read_struct_data)
-    # else:
-    #     for entry_name, entry_data in read_struct_data.items():
-    #         if isinstance(entry_data, dict):
-    #             res_data += dump_sav_structure(entry_data)
-    #         elif isinstance(entry_data, list):
-    #             for in_entry in entry_data:
-    #                 res_data += dump_sav_structure(in_entry)
-    #         else:
-    #             res_data += bytes.fromhex(entry_data)
-
     if 'bit_struct' in data_structure:
         res_data += serialize(read_struct_data, data_structure, metadata)
         return res_data
-
-    if isinstance(read_struct_data, list):
+    elif isinstance(read_struct_data, list):
         for entry in read_struct_data:
             res_data += dump_sav_structure(entry, data_structure, metadata)
     elif isinstance(read_struct_data, dict):
         for entry_name, entry_data in read_struct_data.items():
+            if entry_name.startswith('__'):
+                continue
             if 'struct' in data_structure[entry_name]:
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:
@@ -434,9 +392,22 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     return res_data
 
 
+# def hash_dict(in_dict):
+#     #return frozenset(in_dict.items())
+#     with open(r"D:\pppaa", mode='wt') as sf:
+#         sf.write(str(in_dict))
+#
+#     dhash = hashlib.md5()
+#     encoded = json.dumps(in_dict).encode()
+#     dhash.update(encoded)
+#     return dhash.hexdigest()
+
+
 if __name__ == '__main__':
     with open(SAV_STRUCT_JSON_FILENAME, mode='rt') as sjf:
         sav_structure = json.load(sjf)
+
+    #sav_structure_hash = hash_dict(sav_structure)
 
     with open(SAV_FILENAME, mode='rb') as sf:
         sav_data = sf.read()
@@ -445,8 +416,9 @@ if __name__ == '__main__':
     #     print_sav_structure(sav_structure, sav_data, {}, log_file=svft)
 
     #read_struct_data = read_sav_structure_old(sav_structure, sav_data, {})
-    read_metadata = {}
+    read_metadata = handle_metadata(sav_structure['__metadata'])
     read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
+    read_struct_data['__sav_structure'] = sav_structure
 
     # for entry in read_struct_data:
     #     print(entry, read_struct_data[entry])
@@ -467,8 +439,11 @@ if __name__ == '__main__':
     with open(sav_json_data_filename, mode='rt') as sjf:
         read_struct_data = json.load(sjf)
 
+    loaded_sav_structure = read_struct_data['__sav_structure']
+    loaded_metadata = handle_metadata(loaded_sav_structure['__metadata'])
+
     # Serialize and dump JSON data to original binary SAV format
-    enc_sav_data = dump_sav_structure(read_struct_data, sav_structure, read_metadata)
+    enc_sav_data = dump_sav_structure(read_struct_data, loaded_sav_structure, loaded_metadata)
     saved_filename = os.path.splitext(SAV_FILENAME)[0][:-2] + '07.SAV'
     with open(saved_filename, mode='wb') as svftenc:
         svftenc.write(enc_sav_data)
