@@ -1,5 +1,7 @@
 # Sid Meier's Colonization (1994) SAV files utility pack
 
+**Forewarning**: sorry for my english! Not a native speaker. Will be glad if someone makes pull requests to correct the text
+
 The aim of this work is to make study and edit process of SAV files easy and comfortable. The ultimate goal is to fully describe SAV file structure, outline it in universal format and prepare utility pack for working with SAV files for enhancing the gameplay of this brilliant game.
 
 ## What is being done:
@@ -13,3 +15,95 @@ It is stored in _smcol_sav_struct.json_ file. The structure itself was copied fr
 
 Some additions were made:
 - Warehouse Expansion level info was correctly mapped (byte 0x95 in colony record)
+
+### _smcol_sav_struct.json_ file structure
+It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
+
+It's first record (section) is *metadata*. It is not stored directly in SAV file. *metadata* is used to represent field values in human readable form (instead of raw hex or bits). You can add new types here and use it for data fields below. For example:
+* *nation_type* represents nation id fields values in text form (England, France, Aztec, Sioux, Tupi...) instead of hex values ("01", "02", "05", "0A", "0B")
+* *cargo_type* represents cargo id fields values in text form (tobacco, silver, cloth...) instead of 4-bit values (0010, 0111, 1011...)
+
+The next records map regions of SAV file data. The record can be:
+* simple - with a size entry value in bytes or bits
+  *  with just *size* entry in bytes (for ex `"unknown00": {"size": 3}`) - will be parsed as hex string (`"unknown00": "1A 49 00"`)
+  *  with *size* and *type* hint (`"year": {"size": 2, "type": "int"}`) - will be parsed as a value of desired type (`"year": 1694`)
+  *  with *count/cols* entries (rows and cols count of data) - will be parsed as an 1d-array or 2d-array:
+     `"cargo_hold": {"size": 1, "cols": 6, "type": "int"}`
+     leads to:
+     `"cargo_hold": [100, 100, 100, 50, 0, 0]`
+  *  with *save_meta* flag (to save the value to metadata dict and use it later - for colonies or units count for example)
+* structured - with *struct* field, describing it's inner structure with byte-mapping:
+  ```
+  "expeditionary_force": {
+      "struct": {
+          "regulars": {"size": 2, "type": "int"},
+          "dragoons": {"size": 2, "type": "int"},
+          "man-o-wars": {"size": 2, "type": "int"},
+          "artillery": {"size": 2, "type": "int"}
+      }        
+  }
+  ```
+  will be parsed as:
+  ```
+  "expeditionary_force": {
+      "regulars": 64,
+      "dragoons": 21,
+      "man-o-wars": 11,
+      "artillery": 20
+  }  
+  ```
+  Structured fields allow use of *count/cols* entries, but not *size* (it will be computed manually) or *type*.
+  
+* bit-structured - with *bit_struct* field, describing it's inner structure with bit-mapping:
+  ```
+  "buildings":
+  {
+      "bit_struct":
+      {
+          "fortification": {"size": 3, "type": "fort_type"},
+          "armory": {"size": 3, "type": "level_3bit_type"},
+          "docks": {"size": 3, "type": "level_3bit_type"},
+          "town_hall": {"size": 3, "type": "level_3bit_type"},
+          "schoolhouse": {"size": 3, "type": "level_3bit_type"},
+          "warehouse": {"size": 1, "type": "bit_bool"},
+          "unused05a": {"size": 1, "type": "bit_bool"},
+          "stables": {"size": 1, "type": "bit_bool"},
+          "custom_house": {"size": 1, "type": "bit_bool"},
+          "printing_press": {"size": 2, "type": "level_2bit_type"},
+          "weavers_house": {"size": 3, "type": "level_3bit_type"},
+          "tobacconists_house": {"size": 3, "type": "level_3bit_type"},
+          "rum_distillers_house": {"size": 3, "type": "level_3bit_type"},
+          "capitol (unused)": {"size": 2, "type": "level_2bit_type"},
+          "fur_traders_house": {"size": 3, "type": "level_3bit_type"},
+          "carpenters_shop": {"size": 2, "type": "level_2bit_type"},
+          "church": {"size": 2, "type": "level_2bit_type"},
+          "blacksmiths_house": {"size": 3, "type": "level_3bit_type"},
+          "unused05b": {"size": 6}          
+      }
+  }
+  ```
+  will be parsed as:
+  ```
+  "buildings": {
+      "fortification": "none",
+      "armory": "0",
+      "docks": "0",
+      "town_hall": "1",
+      "schoolhouse": "0",
+      "warehouse": true,
+      "unused05a": false,
+      "stables": false,
+      "custom_house": false,
+      "printing_press": "0",
+      "weavers_house": "1",
+      "tobacconists_house": "1",
+      "rum_distillers_house": "1",
+      "capitol (unused)": "0",
+      "fur_traders_house": "1",
+      "carpenters_shop": "1",
+      "church": "0",
+      "blacksmiths_house": "1",
+      "unused05b": "000000"
+  }
+  ```
+  Bit-structured fields allow use of *count/cols* entries, but not *size* (it will be computed manually) or *type*. All *size* values of bit-structure's sub records will be interpreted as bits.
