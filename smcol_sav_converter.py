@@ -1,6 +1,5 @@
 import json
 import os
-from loc_print import *
 from bitarray import bitarray, util
 
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
