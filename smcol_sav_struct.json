@@ -180,14 +180,6 @@
             "spring": "00 00"
         },
 
-        "fort_type":
-        {
-            "none": "000",
-            "stockade": "001",
-            "fort": "011",
-            "fortress": "111"
-        },
-
         "level_3bit_type":
         {
             "0": "000",
@@ -367,7 +359,7 @@
             {
                 "bit_struct":
                 {
-                    "fortification": {"size": 3, "type": "fort_type"},
+                    "fortification": {"size": 3, "type": "level_3bit_type"},
                     "armory": {"size": 3, "type": "level_3bit_type"},
                     "docks": {"size": 3, "type": "level_3bit_type"},
                     "town_hall": {"size": 3, "type": "level_3bit_type"},

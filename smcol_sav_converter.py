@@ -7,7 +7,7 @@ from bitarray import bitarray, util
 
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
-SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY05.SAV'
+SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 #SAV_FILENAME = r'COLONY00.SAV'
 
 
@@ -418,7 +418,7 @@ if __name__ == '__main__':
     #read_struct_data = read_sav_structure_old(sav_structure, sav_data, {})
     read_metadata = handle_metadata(sav_structure['__metadata'])
     read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
-    read_struct_data['__sav_structure'] = sav_structure
+    read_struct_data['__structure'] = sav_structure
 
     # for entry in read_struct_data:
     #     print(entry, read_struct_data[entry])
@@ -439,7 +439,7 @@ if __name__ == '__main__':
     with open(sav_json_data_filename, mode='rt') as sjf:
         read_struct_data = json.load(sjf)
 
-    loaded_sav_structure = read_struct_data['__sav_structure']
+    loaded_sav_structure = read_struct_data['__structure']
     loaded_metadata = handle_metadata(loaded_sav_structure['__metadata'])
 
     # Serialize and dump JSON data to original binary SAV format
