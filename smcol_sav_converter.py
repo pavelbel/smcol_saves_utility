@@ -136,17 +136,20 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         full_bit_str = bitarray()
         #full_data_str = ''
         if not isinstance(data, list):
+            data = [[data]]
+        elif not isinstance(data[0], list):
             data = [data]
 
-        for data_entry in data:
-            for data_key, data_value in data_entry.items():
-                curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
-                if 'type' in bit_struct_data[data_key]:
-                    #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
-                    full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
-                else:
-                    #full_data_str += data_value.replace(' ', '')[:curr_entry_bit_size][::-1]
-                    full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
+        for data_row in data:
+            for data_entry in data_row:
+                for data_key, data_value in data_entry.items():
+                    curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
+                    if 'type' in bit_struct_data[data_key]:
+                        #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
+                        full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
+                    else:
+                        #full_data_str += data_value.replace(' ', '')[:curr_entry_bit_size][::-1]
+                        full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
 
         full_bit_str.bytereverse()
         bytes_data = full_bit_str.tobytes()
@@ -352,6 +355,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     #in_res_data = in_res_data.hex(sep=' ').upper()
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
+                if entry_data.get('compact', False) and isinstance(in_res_data, dict):
+                    in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
+
                 if entry_col == 0:
                     row_list = in_res_data
                 elif entry_col == 1:
@@ -448,6 +454,8 @@ if __name__ == '__main__':
     # Save structured SAV data to JSON file sav_json_data_filename
     with open(sav_json_data_filename, mode='wt') as svftj:
         json.dump(read_struct_data, svftj, indent=4)
+
+    sys.exit(0)
 
     # Do something with the JSON data in sav_json_data_filename
     stop_here_and_do_something = True
