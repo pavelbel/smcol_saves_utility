@@ -1,6 +1,7 @@
 {
     "__metadata":
     {
+        "__hint_1": "difficulty levels captions",
         "difficulty_type":
         {
             "Discoverer": "00",
@@ -113,6 +114,7 @@
             "Free colonist": "1C"
         },
 
+        "__hint_2": "byte-sized nation type",
         "nation_type":
         {
             "England": "00",
@@ -130,6 +132,7 @@
             "None": "FF"
         },
 
+        "__hint_3": "4 bits-sized nation type",
         "nation_4bit_type":
         {
             "England": "0000",
@@ -180,6 +183,7 @@
             "spring": "00 00"
         },
 
+        "__hint_4": "general type for 3-level buildings like armory, blackmith etc",
         "level_3bit_type":
         {
             "0": "000",
@@ -188,6 +192,7 @@
             "3": "111"
         },
 
+        "__hint_5": "general type for 2-level buildings like carpenters shop and printing press",
         "level_2bit_type":
         {
             "0": "00",
@@ -198,13 +203,14 @@
     },
     "HEAD":
     {
+        "__hint": "This is just a hint or a comment. It doesn't have effect on the SAV decoding",
         "struct":
         {
-            "colonize": {"size": 9, "type": "str"},
+            "colonize": {"size": 9, "type": "str", "__hint": "a constant string"},
             "unknown00": {"size": 3},
             "map_size_x": {"size": 2, "save_meta": true, "type": "int"},
             "map_size_y": {"size": 2, "save_meta": true, "type": "int"},
-            "tut1": {"size": 1},
+            "tut1": {"size": 1, "__hint": "a bit_struct, not important"},
             "unknown03": {"size": 1},
             "game_options":
             {
@@ -246,11 +252,11 @@
             "season": {"size": 2, "type": "season_type"},
             "turn": {"size": 2, "type": "int"},
             "unknown40": {"size": 2},
-            "active_unit": {"size": 2, "type": "int"},
+            "active_unit": {"size": 2, "type": "int", "__hint": "index of an active unit in UNITs section"},
             "unknown41": {"size": 6},
-            "tribe_count": {"size": 2, "save_meta": true, "type": "int"},
-            "unit_count": {"size": 2, "save_meta": true, "type": "int"},
-            "colony_count": {"size": 2, "save_meta": true, "type": "int"},
+            "tribe_count": {"size": 2, "save_meta": true, "type": "int", "__hint": "tribes count, saving to meta for later use"},
+            "unit_count": {"size": 2, "save_meta": true, "type": "int", "__hint": "units count, saving to meta for later use"},
+            "colony_count": {"size": 2, "save_meta": true, "type": "int", "__hint": "colonies count, saving to meta for later use"},
             "unknown42": {"size": 6},
             "difficulty": {"size": 1, "type": "difficulty_type"},
             "unknown43": {"size": 2},
@@ -270,6 +276,7 @@
             },
             "backup_force":
             {
+                "__hint": "army of a power ready to help you in fight for independance",
                 "struct":
                 {
                     "regulars": {"size": 2, "type": "int"},
@@ -281,6 +288,7 @@
             "unknown46": {"size": 32},
             "event":
             {
+                "__hint": "bit flags for events shown in a 'wood box'",
                 "bit_struct":
                 {
                     "discovery_of_the_new_world": {"size": 1, "type": "bit_bool"},
@@ -306,6 +314,7 @@
     },
     "PLAYER":
     {
+        "__hint": "nations in fact, not player",
         "count": 4,
         "struct":
         {
@@ -318,9 +327,10 @@
         }
 
     },
-    "OTHER": {"size": 24},
+    "OTHER": {"size": 24, "__hint": "unexplored"},
     "COLONY":
     {
+        "__hint": "count taken from HEAD section, see above",
         "count": "colony_count",
         "struct":
         {
@@ -333,6 +343,7 @@
             "profession": {"size": 1, "count": 1, "cols": 32, "type": "profession_type"},
             "duration":
             {
+                "__hint": "duration of colonist's work at their jobs",
                 "count": 16,
                 "bit_struct":
                 {
@@ -342,6 +353,7 @@
             },
             "tiles":
             {
+                "__hint": "each value is an index of a colonist from 'population' field working on current tile",
                 "struct":
                 {
                     "tile_N": {"size": 1},
@@ -380,7 +392,7 @@
                     "unused05b": {"size": 6}          
                 }
             },
-            "custom_house":
+            "custom_house_flags":
             {
                 "bit_struct":
                 {
@@ -405,7 +417,7 @@
             "unknown11": {"size": 6},
             "hammers": {"size": 2, "type": "int"},
             "building_in_production": {"size": 1},
-            "warehouse_level":  {"size": 1, "type": "int"},
+            "warehouse_level":  {"size": 1, "type": "int", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
             "unknown12": {"size": 4},
             "stock":
             {
@@ -450,7 +462,7 @@
                 }
             },
             "unknown15": {"size": 1},
-            "moves": {"size": 1, "type": "int"},
+            "moves": {"size": 1, "type": "int", "__hint": "'moves' count already made. One 'move' is one move by road"},
             "unknown16": {"size": 2},
             "orders": {"size": 1},
             "goto_x": {"size": 1, "type": "int"},
@@ -468,7 +480,7 @@
             },
             "cargo_hold": {"size": 1, "cols": 6, "type": "int"},
             "turns_worked": {"size": 1, "type": "int"},
-            "profession": {"size": 1, "type": "profession_type"},
+            "profession": {"size": 1, "type": "profession_type", "__hint": "can be 'expert farmer' for ships, it's ok"},
             "transport_chain":
             {
                 "struct":
@@ -499,7 +511,7 @@
             "prob_founding_father_count_end": {"size": 2},
             "villages_burned": {"size": 1, "type": "int"},
             "unknown23": {"size": 5},
-            "artillery_count": {"size": 2, "type": "int"},
+            "artillery_bought_count": {"size": 2, "type": "int"},
             "boycott_bitmap":
             {
                 "bit_struct":

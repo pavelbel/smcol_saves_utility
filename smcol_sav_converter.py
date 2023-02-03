@@ -7,7 +7,8 @@ from bitarray import bitarray, util
 
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
-SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
+#SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
+SAV_FILENAME = r'COLONY07.SAV'
 #SAV_FILENAME = r'COLONY00.SAV'
 
 
@@ -299,6 +300,9 @@ def handle_metadata(entry_metadata):
     metadata = {}
     # extract types from entry_metadata
     for entry_name, entry_data in entry_metadata.items():
+        if entry_name.startswith('__'):
+            continue
+
         if isinstance(entry_data, dict):
             metadata[entry_name] = lowercase_dict(entry_data)
             metadata[entry_name + '_inv'] = reverse_dict(entry_data)
@@ -444,7 +448,7 @@ if __name__ == '__main__':
 
     # Serialize and dump JSON data to original binary SAV format
     enc_sav_data = dump_sav_structure(read_struct_data, loaded_sav_structure, loaded_metadata)
-    saved_filename = os.path.splitext(SAV_FILENAME)[0][:-2] + '07.SAV'
+    saved_filename = os.path.splitext(SAV_FILENAME)[0][:-2] + '07_new.SAV'
     with open(saved_filename, mode='wb') as svftenc:
         svftenc.write(enc_sav_data)
 
