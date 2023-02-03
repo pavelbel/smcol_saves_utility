@@ -87,7 +87,12 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
         if isinstance(val, bytes):
             return int.from_bytes(val, 'little', signed=True)
         elif isinstance(val, bitarray):
-            return util.ba2int(val)
+            return util.ba2int(val, signed=True)
+    elif to_type == "uint":
+        if isinstance(val, bytes):
+            return int.from_bytes(val, 'little', signed=False)
+        elif isinstance(val, bitarray):
+            return util.ba2int(val, signed=False)
     elif to_type == "str":
         return val.decode(encoding='ascii').split(sep='\x00')[0] #replace(b'\x00', b'')
     elif to_type == "bits":
@@ -97,8 +102,8 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
         out_str = out_str[:-1]
         return out_str + (' (bits)' if to_print_typename else '')
     elif to_type == "coords":
-        x = int.from_bytes(val[0:1], 'little', signed=True)
-        y = int.from_bytes(val[1:2], 'little', signed=True)
+        x = int.from_bytes(val[0:1], 'little', signed=False)
+        y = int.from_bytes(val[1:2], 'little', signed=False)
         return f"{x}, {y}"
     elif to_type == "bit_bool":
         if val == bitarray('1'):
@@ -153,7 +158,15 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
             bytes_data = data.to_bytes(data_structure["size"], byteorder='little', signed=True)
             return bytes_data
         elif to_type == bitarray:
-            return util.int2ba(data, length=data_structure["size"])
+            return util.int2ba(data, length=data_structure["size"], signed=True)
+        else:
+            raise Exception(f"ERROR: unknown target type: '{to_type}'")
+    if data_structure["type"] == "uint":
+        if to_type == bytes:
+            bytes_data = data.to_bytes(data_structure["size"], byteorder='little', signed=False)
+            return bytes_data
+        elif to_type == bitarray:
+            return util.int2ba(data, length=data_structure["size"], signed=False)
         else:
             raise Exception(f"ERROR: unknown target type: '{to_type}'")
     elif data_structure["type"] == "str":
@@ -167,7 +180,7 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         return bytes_data
     elif data_structure["type"] == "coords":
         vals_strs = data.replace(' ', '').split(sep=',')
-        bytes_data = int(vals_strs[0]).to_bytes(1, byteorder='little', signed=True) + int(vals_strs[1]).to_bytes(1, byteorder='little', signed=True)
+        bytes_data = int(vals_strs[0]).to_bytes(1, byteorder='little', signed=False) + int(vals_strs[1]).to_bytes(1, byteorder='little', signed=False)
         return bytes_data
     elif data_structure["type"] == "bit_bool":
         if data == True:
