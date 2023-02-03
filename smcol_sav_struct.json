@@ -1,6 +1,15 @@
 {
     "__metadata":
     {
+        "__hint_A1": "This section doesn't have part in SAV file structure. Here you define custom data types and constants for later use",
+        "__hint_A2": "There are built-in types you can use for the data fields:",
+        "__hint_A3": "- int: signed int, any length, bits or bytes",
+        "__hint_A4": "- uint: usigned int, any length, bits or bytes",
+        "__hint_A5": "- coords: a pair of 1 byte uints",
+        "__hint_A6": "- str: a ASCII string",
+        "__hint_A7": "- bits: a sequence of bits, big endian, any length in bytes",
+        "__hint_A8": "- bit_bool: a 1 bit boolean - 1 for true, 0 for false",
+
         "__hint_1": "difficulty levels captions",
         "difficulty_type":
         {
