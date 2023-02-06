@@ -213,7 +213,8 @@
             "fortified": "05",
             "fortify": "06",
             "plow": "08",
-            "road": "09",        
+            "road": "09",
+            "unknowna": "0A",
             "unknownb": "0B",
             "unknownc": "0C"
         },
