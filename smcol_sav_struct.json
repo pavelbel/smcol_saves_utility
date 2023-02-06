@@ -327,6 +327,7 @@
             "unknown45": {"size": 10},
             "expeditionary_force":
             {
+                "no_indent": true,
                 "struct":
                 {
                     "regulars": {"size": 2, "type": "uint"},
@@ -338,6 +339,7 @@
             "backup_force":
             {
                 "__hint": "army of a power ready to help you in fight for independance",
+                "no_indent": true,
                 "struct":
                 {
                     "regulars": {"size": 2, "type": "uint"},
@@ -395,7 +397,7 @@
         "count": "colony_count",
         "struct":
         {
-            "x, y": {"size": 2, "type": "coords"},
+            "x, y": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "name": {"size": 24, "type": "str"},
             "nation_id": {"size": 1, "type": "nation_type"},
             "unknown08": {"size": 4},
@@ -405,6 +407,7 @@
             "duration":
             {
                 "__hint": "duration of colonist's work at their jobs",
+                "no_indent": true,
                 "count": 16,
                 "bit_struct":
                 {
@@ -512,10 +515,11 @@
         "count": "unit_count",
         "struct":
         {
-            "x, y": {"size": 2, "type": "coords"},
+            "x, y": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "type": {"size": 1, "type": "unit_type"},
             "nation_info":
             {
+                "no_indent": true,
                 "bit_struct":
                 {
                     "nation_id": {"size": 4, "type": "nation_4bit_type"},
@@ -533,17 +537,19 @@
             "cargo_items":
             {
                 "count": 3,
+                "no_indent": true,
                 "bit_struct":
                 {
                     "cargo_1": {"size": 4, "type": "cargo_type"},
                     "cargo_2": {"size": 4, "type": "cargo_type"}
                 }
             },
-            "cargo_hold": {"size": 1, "cols": 6, "type": "uint"},
+            "cargo_hold": {"size": 1, "cols": 6, "type": "uint", "no_indent": true},
             "turns_worked": {"size": 1, "type": "uint"},
             "profession": {"size": 1, "type": "profession_type", "__hint": "can be 'expert farmer' for ships, it's ok"},
             "transport_chain":
             {
+                "no_indent": true,
                 "struct":
                 {
                     "next_unit_idx": {"size": 2, "type": "int"},
@@ -559,7 +565,7 @@
         {
             "unknown19": {"size": 1},
             "tax_rate": {"size": 1, "type": "uint"},
-            "recruit": {"size": 1, "cols": 3, "type": "profession_type"},
+            "recruit": {"size": 1, "cols": 3, "type": "profession_type", "no_indent": true},
             "unused07": {"size": 1},
             "recruit_count": {"size": 1, "type": "uint"},
             "founding_fathers": {"size": 4, "type": "bits"},
@@ -620,11 +626,11 @@
             {
                 "struct":
                 {
-                    "eu_prc": {"size": 1, "cols": 16, "type": "uint"},
-                    "nr": {"size": 2, "cols": 16, "type": "int"},
-                    "gold": {"size": 4, "cols": 16, "type": "int"},
-                    "tons": {"size": 4, "cols": 16, "type": "int"},
-                    "tons2": {"size": 4, "cols": 16, "type": "int"}
+                    "eu_prc": {"size": 1, "cols": 16, "type": "uint", "no_indent": true},
+                    "nr": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
+                    "gold": {"size": 4, "cols": 16, "type": "int", "no_indent": true},
+                    "tons": {"size": 4, "cols": 16, "type": "int", "no_indent": true},
+                    "tons2": {"size": 4, "cols": 16, "type": "int", "no_indent": true}
                 }
             }
         }
@@ -634,7 +640,7 @@
         "count": "tribe_count",
         "struct":
         {
-            "x, y": {"size": 2, "type": "coords"},
+            "x, y": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "nation_id": {"size": 1, "type": "nation_type"},
             "ALCS":
             {
@@ -668,13 +674,14 @@
         "count": 8,
         "struct":
         {
-            "capitol (x, y)": {"size": 2, "type": "coords"},            
+            "capitol (x, y)": {"size": 1, "type": "uint", "cols": 2, "no_indent": true},
             "tech": {"size": 1},
             "unknown31": {"size": 11},
-            "tons": {"size": 2, "cols": 16, "type": "uint"},
+            "tons": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
             "unknown32": {"size": 12},
             "relation_by_nations":
             {
+                "no_indent": true,
                 "struct":
                 {
                     "England": {"size": 1, "type": "relation_type"},
@@ -684,7 +691,7 @@
                 }
             },
             "unknown33": {"size": 8},
-            "alarm_by_player": {"size": 2, "cols": 4, "type": "uint"}
+            "alarm_by_player": {"size": 2, "cols": 4, "type": "uint", "no_indent": true}
         }
     },
     "STUFF":
