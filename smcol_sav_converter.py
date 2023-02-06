@@ -4,6 +4,7 @@ import sys
 import hashlib
 
 from bitarray import bitarray, util
+from partial_indent_json_encoder import *
 
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
@@ -136,17 +137,20 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         full_bit_str = bitarray()
         #full_data_str = ''
         if not isinstance(data, list):
+            data = [[data]]
+        elif not isinstance(data[0], list):
             data = [data]
 
-        for data_entry in data:
-            for data_key, data_value in data_entry.items():
-                curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
-                if 'type' in bit_struct_data[data_key]:
-                    #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
-                    full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
-                else:
-                    #full_data_str += data_value.replace(' ', '')[:curr_entry_bit_size][::-1]
-                    full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
+        for data_row in data:
+            for data_entry in data_row:
+                for data_key, data_value in data_entry.items():
+                    curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
+                    if 'type' in bit_struct_data[data_key]:
+                        #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
+                        full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
+                    else:
+                        #full_data_str += data_value.replace(' ', '')[:curr_entry_bit_size][::-1]
+                        full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
 
         full_bit_str.bytereverse()
         bytes_data = full_bit_str.tobytes()
@@ -352,6 +356,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     #in_res_data = in_res_data.hex(sep=' ').upper()
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
+                # if entry_data.get('compact', False) and isinstance(in_res_data, dict):
+                #     in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
+
                 if entry_col == 0:
                     row_list = in_res_data
                 elif entry_col == 1:
@@ -391,7 +398,6 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     res_data = b''
     if 'bit_struct' in data_structure:
         res_data += serialize(read_struct_data, data_structure, metadata)
-        return res_data
     elif isinstance(read_struct_data, list):
         for entry in read_struct_data:
             res_data += dump_sav_structure(entry, data_structure, metadata)
@@ -409,45 +415,56 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     return res_data
 
 
-# def hash_dict(in_dict):
-#     #return frozenset(in_dict.items())
-#     with open(r"D:\pppaa", mode='wt') as sf:
-#         sf.write(str(in_dict))
-#
-#     dhash = hashlib.md5()
-#     encoded = json.dumps(in_dict).encode()
-#     dhash.update(encoded)
-#     return dhash.hexdigest()
+def prepare_sav_struct_for_optional_indent(read_struct_data, data_structure):
+
+    if isinstance(read_struct_data, dict):
+        for entry_name, entry_data in read_struct_data.items():
+            if entry_name.startswith('__'):
+                continue
+            if data_structure[entry_name].get('no_indent', False):
+                read_struct_data[entry_name] = NoIndent(read_struct_data[entry_name])
+            elif 'struct' in data_structure[entry_name]:
+                prepare_sav_struct_for_optional_indent(read_struct_data[entry_name], data_structure[entry_name]['struct'])
+            elif 'bit_struct' in data_structure[entry_name]:
+                prepare_sav_struct_for_optional_indent(read_struct_data[entry_name], data_structure[entry_name]['bit_struct'])
+            elif isinstance(entry_data, list):
+                prepare_sav_struct_for_optional_indent(entry_data, data_structure[entry_name])
+    elif isinstance(read_struct_data, list):
+        for i, entry in enumerate(read_struct_data):
+            if isinstance(entry, list):
+                read_struct_data[i] = NoIndent(entry)
+            if isinstance(entry, dict):
+                prepare_sav_struct_for_optional_indent(entry, data_structure)
+    else:
+        pass
+
+    pass
 
 
 if __name__ == '__main__':
     with open(SAV_STRUCT_JSON_FILENAME, mode='rt') as sjf:
         sav_structure = json.load(sjf)
 
-    #sav_structure_hash = hash_dict(sav_structure)
-
     with open(SAV_FILENAME, mode='rb') as sf:
         sav_data = sf.read()
 
-    # with open(SAV_FILENAME+".txt", mode='wt') as svft:
-    #     print_sav_structure(sav_structure, sav_data, {}, log_file=svft)
-
-    #read_struct_data = read_sav_structure_old(sav_structure, sav_data, {})
     read_metadata = handle_metadata(sav_structure['__metadata'])
     read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
     read_struct_data['__structure'] = sav_structure
-
-    # for entry in read_struct_data:
-    #     print(entry, read_struct_data[entry])
-
-    # read_struct_data['UNIT'][12]['type'] = "1D"
-    # read_struct_data['UNIT'][12]['x'] = "17"
 
     sav_json_data_filename = SAV_FILENAME + ".json"
 
     # Save structured SAV data to JSON file sav_json_data_filename
     with open(sav_json_data_filename, mode='wt') as svftj:
         json.dump(read_struct_data, svftj, indent=4)
+
+    prepare_sav_struct_for_optional_indent(read_struct_data, sav_structure)
+
+    sav_json_data_filename = SAV_FILENAME + "_no_ind.json"
+    with open(sav_json_data_filename, mode='wt') as svftj:
+        json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
+
+    #sys.exit(0)
 
     # Do something with the JSON data in sav_json_data_filename
     stop_here_and_do_something = True
