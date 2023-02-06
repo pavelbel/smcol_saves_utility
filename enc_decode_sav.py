@@ -1,8 +1,8 @@
 import os
 import json
 import sys
-from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure
-
+from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, prepare_sav_struct_for_optional_indent
+from partial_indent_json_encoder import *
 
 def get_input(input_hint: str, res_type=str, check_fun=lambda x: True, error_str=''):
     """Ввод значения c клавиатуры с преобразованием в нужный тип и повторами в случае некорректных значений"""
@@ -33,9 +33,11 @@ def decode_sav_file(sav_filename: str, sav_structure: dict):
 
         decoded_sav_json_data_filename = sav_filename + '.json'
 
+        prepare_sav_struct_for_optional_indent(read_struct_data, sav_structure)
+
         # Save structured SAV data to JSON file sav_json_data_filename
         with open(decoded_sav_json_data_filename, mode='wt') as svftj:
-            json.dump(read_struct_data, svftj, indent=4)
+            json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
 
     except Exception as ex:
         print(f"ERROR: SAV file '{sav_filename}' decoding failure: {ex}")
