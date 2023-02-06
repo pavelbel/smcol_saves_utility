@@ -415,39 +415,17 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     return res_data
 
 
-# def hash_dict(in_dict):
-#     #return frozenset(in_dict.items())
-#     with open(r"D:\pppaa", mode='wt') as sf:
-#         sf.write(str(in_dict))
-#
-#     dhash = hashlib.md5()
-#     encoded = json.dumps(in_dict).encode()
-#     dhash.update(encoded)
-#     return dhash.hexdigest()
-
-
 if __name__ == '__main__':
     with open(SAV_STRUCT_JSON_FILENAME, mode='rt') as sjf:
         sav_structure = json.load(sjf)
 
-    #sav_structure_hash = hash_dict(sav_structure)
-
     with open(SAV_FILENAME, mode='rb') as sf:
         sav_data = sf.read()
 
-    # with open(SAV_FILENAME+".txt", mode='wt') as svft:
-    #     print_sav_structure(sav_structure, sav_data, {}, log_file=svft)
 
-    #read_struct_data = read_sav_structure_old(sav_structure, sav_data, {})
     read_metadata = handle_metadata(sav_structure['__metadata'])
     read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
     read_struct_data['__structure'] = sav_structure
-
-    # for entry in read_struct_data:
-    #     print(entry, read_struct_data[entry])
-
-    # read_struct_data['UNIT'][12]['type'] = "1D"
-    # read_struct_data['UNIT'][12]['x'] = "17"
 
     sav_json_data_filename = SAV_FILENAME + ".json"
 
