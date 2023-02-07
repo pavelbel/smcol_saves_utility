@@ -365,6 +365,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
 
                 # if entry_data.get('compact', False) and isinstance(in_res_data, dict):
                 #     in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
+                #     #in_res_data = [str(dt[1]) for dt in in_res_data.items()]
 
                 if entry_col == 0:
                     row_list = in_res_data
@@ -442,6 +443,8 @@ def prepare_sav_struct_for_optional_indent(read_struct_data, data_structure):
                 read_struct_data[i] = NoIndent(entry)
             if isinstance(entry, dict):
                 prepare_sav_struct_for_optional_indent(entry, data_structure)
+    elif read_struct_data is None:
+        pass  # Nothing to do here, data is None
     else:
         pass
 
@@ -461,17 +464,17 @@ if __name__ == '__main__':
 
     sav_json_data_filename = SAV_FILENAME + ".json"
 
-    # Save structured SAV data to JSON file sav_json_data_filename
-    with open(sav_json_data_filename, mode='wt') as svftj:
-        json.dump(read_struct_data, svftj, indent=4)
-
     prepare_sav_struct_for_optional_indent(read_struct_data, sav_structure)
 
-    sav_json_data_filename = SAV_FILENAME + "_no_ind.json"
+    # Save structured SAV data to JSON file sav_json_data_filename
     with open(sav_json_data_filename, mode='wt') as svftj:
         json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
 
-    #sys.exit(0)
+    # sav_json_data_filename = SAV_FILENAME + "_no_ind.json"
+    # with open(sav_json_data_filename, mode='wt') as svftj:
+    #     json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
+
+    sys.exit(0)
 
     # Do something with the JSON data in sav_json_data_filename
     stop_here_and_do_something = True
