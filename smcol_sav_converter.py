@@ -115,11 +115,18 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
             print(f"WARNING: wrong value '{val}' in a bit bool field")
             return False
     elif to_type in metadata:
-        if isinstance(val, bitarray):
-            return metadata[to_type + '_inv'][val.to01()]
-        else:
-            hex_val = val.hex(sep=' ').upper()
-            return metadata[to_type + '_inv'][hex_val]
+        inv_type = to_type + '_inv'
+        try:
+            if isinstance(val, bitarray):
+                key_name = val.to01()
+            else:
+                key_name = val.hex(sep=' ').upper()
+            return metadata[inv_type][key_name]
+        except KeyError as kex:
+            print(f"ERROR: no value '{key_name}' of type '{to_type}'")
+            raise
+        except:
+            raise
     else:
         if to_type is not None:
             print(f"WARNING: Unknown type: {to_type}")
