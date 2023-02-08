@@ -25,21 +25,6 @@ def get_entry_count(entry, metadata):
     return curr_entry_count, curr_entry_cols
 
 
-# def get_entry_size_old(entry, metadata):
-#     if entry.get('size', None) is not None:
-#         return entry['size']
-#
-#     try:
-#         ssize = 0
-#         for inner_entry in entry['struct']:
-#             ie_r, ie_c = get_entry_count(inner_entry, metadata)
-#             ssize += get_entry_size_old(inner_entry, metadata) * ie_r * ie_c
-#     except Exception as ex:
-#         print(f"ERROR: Cannot calculate size of '{entry['name']}': {ex}")
-#         return None
-#     return ssize
-
-
 def get_entry_size(entry, metadata):
     if entry.get('size', None) is not None:
         return entry['size']
@@ -57,6 +42,8 @@ def get_entry_size(entry, metadata):
             print("WARNING: bit len of a field is not aligned! Aligning manually")
             ssize += 8 - ssize % 8
         ssize //= 8
+    else:
+        raise  # Cannot calculate size of the field given
 
     return ssize
 
@@ -78,7 +65,7 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
         for struct_entry_key, struct_entry_value in bit_struct_data.items():
             curr_entry_bit_size = struct_entry_value['size']  # Сделать правильно!
             curr_bit_substr = bit_arr[curr_bit_offset: curr_bit_offset + curr_entry_bit_size][::-1]
-            if 'type' in struct_entry_value:
+            if ('type' in struct_entry_value) and (struct_entry_value['type'] != 'bits'):
                 in_res_data[struct_entry_key] = deserialize(curr_bit_substr, struct_entry_value, metadata)
             else:
                 in_res_data[struct_entry_key] = curr_bit_substr.to01()
@@ -140,19 +127,29 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
     if "bit_struct" in data_structure:
         bit_struct_data = data_structure["bit_struct"]
 
-        # Собираем битовую строку от самога младшегно бита до самого старшего
         full_bit_str = bitarray()
-        #full_data_str = ''
-        if not isinstance(data, list):
-            data = [[data]]
-        elif not isinstance(data[0], list):
-            data = [data]
+        if data_structure.get('compact', False):
+            if not isinstance(data[0], list):
+                data = [[data]]
+            elif not isinstance(data[0][0], list):
+                data = [data]
+        else:
+            if not isinstance(data, list):
+                data = [[data]]
+            elif not isinstance(data[0], list):
+                data = [data]
 
         for data_row in data:
             for data_entry in data_row:
+                if data_structure.get('compact', False):
+                    full_data_entry = {}
+                    for i, key_name in enumerate(bit_struct_data):
+                        full_data_entry[key_name] = data_entry[i]
+                    data_entry = full_data_entry
+
                 for data_key, data_value in data_entry.items():
                     curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
-                    if 'type' in bit_struct_data[data_key]:
+                    if ('type' in bit_struct_data[data_key]) and (bit_struct_data[data_key]['type'] != 'bits'):
                         #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
                         full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
                     else:
@@ -219,101 +216,6 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         return bytes.fromhex(data)
 
 
-# def print_sav_structure_old(sav_structure, sav_data, metadata, prefix='', data_offset=0, log_file=None):
-#     """Print structured SAV data"""
-#
-#     prefix_str = prefix# + ' ' if len(prefix) > 0 else ''
-#     curr_data_offset = data_offset
-#     for entry in sav_structure:
-#         curr_entry_size = get_entry_size_old(entry, metadata)
-#         curr_entry_count, curr_entry_cols = get_entry_count(entry, metadata)
-#         #total_entry_size = curr_entry_count * curr_entry_size
-#
-#         for entry_ex in range(curr_entry_count):
-#             if curr_entry_count < 10:
-#                 entry_ex_str = f"{entry_ex+1}"
-#             elif curr_entry_count < 100:
-#                 entry_ex_str = f"{entry_ex+1:2}"
-#             elif curr_entry_count < 1000:
-#                 entry_ex_str = f"{entry_ex+1:3}"
-#             else:
-#                 entry_ex_str = f"{entry_ex+1}"
-#
-#             num_str = f" ({entry_ex_str} of {curr_entry_count})" if curr_entry_count > 1 else ""
-#             loc_print(f"[{curr_data_offset:4X}]{prefix_str}{entry['name']}{num_str}: ", end='', file=log_file)
-#             for entry_col in range(curr_entry_cols):
-#                 if entry.get('struct', None) is not None:
-#                     loc_print(file=log_file)
-#                     print_sav_structure_old(entry['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, log_file=log_file)
-#                     loc_print(prefix + '> ' + '-------------', end=' ', file=log_file)
-#                 else:
-#                     entry_ex_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
-#                     if entry.get('save_meta', False):
-#                         metadata[entry['name']] = entry_ex_data
-#                     loc_print(f"{to_str(entry_ex_data, entry.get('type', None), to_print_typename=entry_col==curr_entry_cols-1)}", end=' ', file=log_file)
-#                 curr_data_offset += curr_entry_size
-#
-#             loc_print(file=log_file)
-
-
-# def read_sav_structure_old(sav_structure, sav_data, metadata, prefix='', data_offset=0, log_file=None):
-#     """Read structured SAV data to JSON file"""
-#
-#     #read_res = []
-#     read_res = {}
-#
-#     curr_data_offset = data_offset
-#     for entry in sav_structure:
-#         curr_entry_size = get_entry_size_old(entry, metadata)
-#         curr_entry_count, curr_entry_cols = get_entry_count(entry, metadata)
-#         #total_entry_size = curr_entry_count * curr_entry_size
-#
-#         full_list = None
-#         for entry_ex in range(curr_entry_count):
-#             row_list = None
-#             for entry_col in range(curr_entry_cols):
-#                 save_as_string = True
-#                 if entry.get('struct', None) is not None:
-#                     in_res_data = read_sav_structure_old(entry['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, log_file=log_file)
-#                     save_as_string = False
-#                 else:
-#                     in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
-#                     if entry.get('save_meta', False):
-#                         metadata[entry['name']] = in_res_data
-#                     in_res_data = in_res_data.hex(sep=' ').upper()
-#
-#                 if entry_col == 0:
-#                     row_list = in_res_data
-#                 elif entry_col == 1:
-#                     if save_as_string:
-#                         row_list += ' ' + in_res_data
-#                     else:
-#                         row_list = [row_list, in_res_data]
-#                 else:
-#                     if save_as_string:
-#                         row_list += ' ' + in_res_data
-#                     else:
-#                         row_list = [row_list, in_res_data]
-#
-#                     #row_list.append(in_res_data)
-#
-#                 curr_data_offset += curr_entry_size
-#
-#             if entry_ex == 0:
-#                 full_list = row_list
-#             elif entry_ex == 1:
-#                 full_list = [full_list, row_list]
-#             else:
-#                 full_list.append(row_list)
-#
-#         #read_res.append({entry['name']: full_list})
-#         read_res[entry['name']] = full_list
-#         #read_res.append((entry['name'], full_list))
-#         #read_res.append({'name': entry['name'], 'data': full_list})
-#
-#     return read_res
-
-
 def reverse_dict(in_dict: dict):
     """Reverse dict"""
     return {y: x for (x, y) in in_dict.items()}
@@ -350,7 +252,11 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
         if entry_name.startswith('__'):
             continue
 
-        curr_entry_size = get_entry_size(entry_data, metadata)
+        try:
+            curr_entry_size = get_entry_size(entry_data, metadata)
+        except:
+            raise Exception(f"ERROR: cannot calculate size of field '{entry_name}'")
+
         curr_entry_count, curr_entry_cols = get_entry_count(entry_data, metadata)
         #total_entry_size = curr_entry_count * curr_entry_size
 
@@ -369,9 +275,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     #in_res_data = in_res_data.hex(sep=' ').upper()
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
-                # if entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                #     #in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
-                #     in_res_data = [str(dt[1]) for dt in in_res_data.items()]
+                if entry_data.get('compact', False) and isinstance(in_res_data, dict):
+                    #in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
+                    in_res_data = [dt[1] for dt in in_res_data.items()]
 
                 if entry_col == 0:
                     row_list = in_res_data
@@ -420,6 +326,12 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
             if entry_name.startswith('__'):
                 continue
             if 'struct' in data_structure[entry_name]:
+                if data_structure[entry_name].get('compact', False):
+                    full_entry_data = {}
+                    for i, key_name in enumerate(data_structure[entry_name]['struct']):
+                        full_entry_data[key_name] = entry_data[i]
+                    entry_data = full_entry_data
+
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name], metadata)
