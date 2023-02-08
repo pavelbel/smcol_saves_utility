@@ -9,8 +9,8 @@ from partial_indent_json_encoder import *
 SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
-SAV_FILENAME = r'COLONY07.SAV'
-#SAV_FILENAME = r'COLONY00.SAV'
+# SAV_FILENAME = r'COLONY07.SAV'
+SAV_FILENAME = r'COLONY00.SAV'
 
 
 def get_entry_count(entry, metadata):
@@ -123,8 +123,8 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
                 key_name = val.hex(sep=' ').upper()
             return metadata[inv_type][key_name]
         except KeyError as kex:
-            print(f"ERROR: no value '{key_name}' of type '{to_type}'")
-            raise
+            print(f"WARNING: no value '{key_name}' of type '{to_type}', leaving it 'as is'")
+            return deserialize(val, {}, metadata)
         except:
             raise
     else:
@@ -202,7 +202,13 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
             print(f"WARNING: wrong value '{data}' in a bit_bool field. Setting it to False")
             return bitarray('0')
     elif data_structure["type"] in metadata:
-        data_str = metadata[data_structure["type"]][data.lower() if isinstance(data, str) else data]
+        key_name = data.lower() if isinstance(data, str) else data
+        try:
+            data_str = metadata[data_structure["type"]][key_name]
+        except KeyError as kex:
+            print(f"WARNING: no value '{key_name}' of type '{data_structure['type']}', leaving it 'as is'")
+            data_str = data
+
         if to_type == bytes:
             return bytes.fromhex(data_str)
         elif to_type == bitarray:
@@ -364,8 +370,8 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 # if entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                #     in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
-                #     #in_res_data = [str(dt[1]) for dt in in_res_data.items()]
+                #     #in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
+                #     in_res_data = [str(dt[1]) for dt in in_res_data.items()]
 
                 if entry_col == 0:
                     row_list = in_res_data
@@ -474,7 +480,7 @@ if __name__ == '__main__':
     # with open(sav_json_data_filename, mode='wt') as svftj:
     #     json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
 
-    sys.exit(0)
+    # sys.exit(0)
 
     # Do something with the JSON data in sav_json_data_filename
     stop_here_and_do_something = True
