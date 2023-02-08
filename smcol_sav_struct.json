@@ -548,7 +548,14 @@
                     "unknown14": {"size": 4}
                 }
             },
-            "unknown15": {"size": 1},
+            "unknown15":
+            {
+                "bit_struct":
+                {
+                    "unknown15a": {"size": 7},
+                    "art_damaged": {"size": 1, "type": "bit_bool"}
+                }
+            },
             "moves": {"size": 1, "type": "uint", "__hint": "'moves' count already made. One 'move' is one move by road"},
             "unknown16": {"size": 2},
             "orders": {"size": 1, "type": "orders_type"},
