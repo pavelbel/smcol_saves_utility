@@ -431,6 +431,7 @@
                 "__hint": "duration of colonist's work at their jobs",
                 "no_indent": true,
                 "count": 16,
+                "compact": true,
                 "bit_struct":
                 {
                     "dur_1": {"size": 4, "type": "uint"},
@@ -567,6 +568,7 @@
             {
                 "count": 3,
                 "no_indent": true,
+                "compact": true,
                 "bit_struct":
                 {
                     "cargo_1": {"size": 4, "type": "cargo_type"},

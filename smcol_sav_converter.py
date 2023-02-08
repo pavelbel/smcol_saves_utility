@@ -10,7 +10,7 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 # SAV_FILENAME = r'COLONY07.SAV'
-SAV_FILENAME = r'COLONY00.SAV'
+SAV_FILENAME = r'COLONY01.SAV'
 
 
 def get_entry_count(entry, metadata):
@@ -316,6 +316,9 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     """Сериализация JSON-структурированных SAV данных обратно в bytes"""
 
     res_data = b''
+    if read_struct_data is None:
+        return res_data
+
     if 'bit_struct' in data_structure:
         res_data += serialize(read_struct_data, data_structure, metadata)
     elif isinstance(read_struct_data, list):
