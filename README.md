@@ -29,6 +29,8 @@ It is stored in _smcol_sav_struct.json_ file. The structure itself was copied fr
 
 Some additions were made:
 - Warehouse Expansion level info was correctly mapped (byte 0x95 in colony record)
+- Profession field value for Treasure unit is it's gold amount (x100), i.e. 0x32 = 50d = 5000 gold
+- Artillery damaged flag discovered. Now we can "repair" it! (for a price in wood and tools of course). Though this flag means something else for ships
 
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
