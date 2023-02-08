@@ -575,7 +575,7 @@
             },
             "cargo_hold": {"size": 1, "cols": 6, "type": "uint", "no_indent": true},
             "turns_worked": {"size": 1, "type": "uint"},
-            "profession": {"size": 1, "type": "profession_type", "__hint": "can be 'expert farmer' for ships, it's ok"},
+            "profession_or_treasure_amount": {"size": 1, "type": "profession_type", "__hint": "Can be 'expert farmer' for ships, it's ok. A amount of gold for Treasure units (100's, i.e. 0x32 = 50d = 5000 gold)"},
             "transport_chain":
             {
                 "no_indent": true,
