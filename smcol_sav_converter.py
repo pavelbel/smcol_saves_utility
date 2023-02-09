@@ -10,8 +10,7 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 # SAV_FILENAME = r'COLONY07.SAV'
-SAV_FILENAME = r'COLONY01.SAV'
-
+SAV_FILENAME = r'COLONY07.SAV'
 
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
@@ -146,7 +145,7 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
                     # for i, key_name in enumerate(bit_struct_data):
                     #     full_data_entry[key_name] = data_entry[i]
                     # data_entry = full_data_entry
-                    data_entry = unzip_compact_data(data_entry, bit_struct_data)
+                    data_entry = unzip_compact_data(data_entry, bit_struct_data, metadata)
 
                 for data_key, data_value in data_entry.items():
                     curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
@@ -239,6 +238,8 @@ def handle_metadata(entry_metadata):
         if isinstance(entry_data, dict):
             metadata[entry_name] = lowercase_dict(entry_data)
             metadata[entry_name + '_inv'] = reverse_dict(entry_data)
+        else:
+            metadata[entry_name] = entry_data
 
     return metadata
 
@@ -277,7 +278,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 if entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                    in_res_data = ':'.join([str(dt[1]) for dt in in_res_data.items()])
+                    in_res_data = metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
                     #in_res_data = [dt[1] for dt in in_res_data.items()]
 
                 if entry_col == 0:
@@ -313,9 +314,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
     return read_res
 
 
-def unzip_compact_data(data, data_structure):
+def unzip_compact_data(data, data_structure, metadata):
     full_data = {}
-    data_sep = data.split(':')
+    data_sep = data.split(metadata['compact_delimeter'])
     if len(data_structure) != len(data_sep):
         raise "ERROR: wrong data in compact field!"
 
@@ -357,7 +358,7 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
                     # for i, key_name in enumerate(data_structure[entry_name]['struct']):
                     #     full_entry_data[key_name] = entry_data[i]
                     # entry_data = full_entry_data
-                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'])
+                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], metadata)
 
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:
