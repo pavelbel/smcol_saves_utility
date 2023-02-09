@@ -874,10 +874,10 @@
         "bit_struct":
         {
             "score": {"size": 4, "type": "region_id_4bit_type"},
-            "visible_to_en": {"size": 1, "type": "visible_to_english_1bit_type"},
-            "visible_to_fr": {"size": 1, "type": "visible_to_french_1bit_type"},
-            "visible_to_sp": {"size": 1, "type": "visible_to_spanish_1bit_type"},
-            "visible_to_du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
+            "vis2en": {"size": 1, "type": "visible_to_english_1bit_type"},
+            "vis2fr": {"size": 1, "type": "visible_to_french_1bit_type"},
+            "vis2sp": {"size": 1, "type": "visible_to_spanish_1bit_type"},
+            "vis2du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
         }
     },
     "unknown38": {"size": 1502}

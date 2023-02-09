@@ -244,77 +244,15 @@ def handle_metadata(entry_metadata):
     return metadata
 
 
-def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, log_file=None):
-    """Read structured SAV data to JSON file IN NEW FORMAT"""
-
-    read_res = {}
-
-    curr_data_offset = data_offset
-    for entry_name, entry_data in sav_structure.items():
-        if entry_name.startswith('__'):
-            continue
-
-        try:
-            curr_entry_size = get_entry_size(entry_data, metadata)
-        except:
-            raise Exception(f"ERROR: cannot calculate size of field '{entry_name}'")
-
-        curr_entry_count, curr_entry_cols = get_entry_count(entry_data, metadata)
-        #total_entry_size = curr_entry_count * curr_entry_size
-
-        full_list = None
-        for entry_ex in range(curr_entry_count):
-            row_list = None
-            for entry_col in range(curr_entry_cols):
-                #save_as_string = True
-                if 'struct' in entry_data:
-                    in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, log_file=log_file)
-                    #save_as_string = False
-                else:
-                    in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
-                    if entry_data.get('save_meta', False):
-                        metadata[entry_name] = in_res_data
-                    #in_res_data = in_res_data.hex(sep=' ').upper()
-                    in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
-
-                if entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                    in_res_data = metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
-                    #in_res_data = [dt[1] for dt in in_res_data.items()]
-
-                if entry_col == 0:
-                    row_list = in_res_data
-                elif entry_col == 1:
-                    # if save_as_string:
-                    #     row_list += ' ' + in_res_data
-                    # else:
-                        row_list = [row_list, in_res_data]
-                else:
-                    # if save_as_string:
-                    #     row_list += ' ' + in_res_data
-                    # else:
-                        #row_list = [row_list, in_res_data]
-                    row_list.append(in_res_data)
-
-                    #row_list.append(in_res_data)
-
-                curr_data_offset += curr_entry_size
-
-            if entry_ex == 0:
-                full_list = row_list
-            elif entry_ex == 1:
-                full_list = [full_list, row_list]
-            else:
-                full_list.append(row_list)
-
-        #read_res.append({entry['name']: full_list})
-        read_res[entry_name] = full_list
-        #read_res.append((entry['name'], full_list))
-        #read_res.append({'name': entry['name'], 'data': full_list})
-
-    return read_res
+def zip_compact_data(in_res_data, metadata):
+    return metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
 
 
 def unzip_compact_data(data, data_structure, metadata):
+    # если флаг compact был проигнонирован
+    if isinstance(data, dict):
+        return data
+
     full_data = {}
     data_sep = data.split(metadata['compact_delimeter'])
     if len(data_structure) != len(data_sep):
@@ -336,6 +274,59 @@ def unzip_compact_data(data, data_structure, metadata):
     return full_data
 
 
+def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, ignore_compact=False):
+    """Read structured SAV data to JSON file IN NEW FORMAT"""
+
+    read_res = {}
+
+    curr_data_offset = data_offset
+    for entry_name, entry_data in sav_structure.items():
+        if entry_name.startswith('__'):
+            continue
+
+        try:
+            curr_entry_size = get_entry_size(entry_data, metadata)
+        except:
+            raise Exception(f"ERROR: cannot calculate size of field '{entry_name}'")
+
+        curr_entry_count, curr_entry_cols = get_entry_count(entry_data, metadata)
+
+        full_list = None
+        for entry_ex in range(curr_entry_count):
+            row_list = None
+            for entry_col in range(curr_entry_cols):
+                if 'struct' in entry_data:
+                    in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, ignore_compact=ignore_compact)
+                else:
+                    in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
+                    if entry_data.get('save_meta', False):
+                        metadata[entry_name] = in_res_data
+                    in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
+
+                if not ignore_compact and entry_data.get('compact', False) and isinstance(in_res_data, dict):
+                    in_res_data = zip_compact_data(in_res_data, metadata)
+
+                if entry_col == 0:
+                    row_list = in_res_data
+                elif entry_col == 1:
+                    row_list = [row_list, in_res_data]
+                else:
+                    row_list.append(in_res_data)
+
+                curr_data_offset += curr_entry_size
+
+            if entry_ex == 0:
+                full_list = row_list
+            elif entry_ex == 1:
+                full_list = [full_list, row_list]
+            else:
+                full_list.append(row_list)
+
+        read_res[entry_name] = full_list
+
+    return read_res
+
+
 def dump_sav_structure(read_struct_data, data_structure, metadata):
     """Сериализация JSON-структурированных SAV данных обратно в bytes"""
 
@@ -354,10 +345,6 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
                 continue
             if 'struct' in data_structure[entry_name]:
                 if data_structure[entry_name].get('compact', False):
-                    # full_entry_data = {}
-                    # for i, key_name in enumerate(data_structure[entry_name]['struct']):
-                    #     full_entry_data[key_name] = entry_data[i]
-                    # entry_data = full_entry_data
                     entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], metadata)
 
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
@@ -392,7 +379,7 @@ def prepare_sav_struct_for_optional_indent(read_struct_data, data_structure):
     elif read_struct_data is None:
         pass  # Nothing to do here, data is None
     else:
-        pass
+        pass  # Same here... probably)
 
     pass
 
@@ -405,7 +392,7 @@ if __name__ == '__main__':
         sav_data = sf.read()
 
     read_metadata = handle_metadata(sav_structure['__metadata'])
-    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
+    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True)
     read_struct_data['__structure'] = sav_structure
 
     sav_json_data_filename = SAV_FILENAME + ".json"
