@@ -128,24 +128,25 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         bit_struct_data = data_structure["bit_struct"]
 
         full_bit_str = bitarray()
-        if data_structure.get('compact', False):
-            if not isinstance(data[0], list):
-                data = [[data]]
-            elif not isinstance(data[0][0], list):
-                data = [data]
-        else:
-            if not isinstance(data, list):
-                data = [[data]]
-            elif not isinstance(data[0], list):
-                data = [data]
+        # if data_structure.get('compact', False):
+        #     if not isinstance(data[0], list):
+        #         data = [[data]]
+        #     elif not isinstance(data[0][0], list):
+        #         data = [data]
+        # else:
+        if not isinstance(data, list):
+            data = [[data]]
+        elif not isinstance(data[0], list):
+            data = [data]
 
         for data_row in data:
             for data_entry in data_row:
                 if data_structure.get('compact', False):
-                    full_data_entry = {}
-                    for i, key_name in enumerate(bit_struct_data):
-                        full_data_entry[key_name] = data_entry[i]
-                    data_entry = full_data_entry
+                    # full_data_entry = {}
+                    # for i, key_name in enumerate(bit_struct_data):
+                    #     full_data_entry[key_name] = data_entry[i]
+                    # data_entry = full_data_entry
+                    data_entry = unzip_compact_data(data_entry, bit_struct_data)
 
                 for data_key, data_value in data_entry.items():
                     curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
@@ -276,8 +277,8 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 if entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                    #in_res_data = ''.join([str(dt[1]) for dt in in_res_data.items()])
-                    in_res_data = [dt[1] for dt in in_res_data.items()]
+                    in_res_data = ':'.join([str(dt[1]) for dt in in_res_data.items()])
+                    #in_res_data = [dt[1] for dt in in_res_data.items()]
 
                 if entry_col == 0:
                     row_list = in_res_data
@@ -312,6 +313,28 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
     return read_res
 
 
+def unzip_compact_data(data, data_structure):
+    full_data = {}
+    data_sep = data.split(':')
+    if len(data_structure) != len(data_sep):
+        raise "ERROR: wrong data in compact field!"
+
+    for i, key_name in enumerate(data_structure):
+        full_data[key_name] = data_sep[i]
+        if 'type' in data_structure[key_name]:
+            if data_structure[key_name]['type'] in ['int', 'uint']:
+                full_data[key_name] = int(full_data[key_name])
+            elif data_structure[key_name]['type'] == 'bit_bool':
+                if full_data[key_name].lower() in ['true', 't']:
+                    full_data[key_name] = True
+                elif full_data[key_name].lower() in ['false', 'f']:
+                    full_data[key_name] = False
+                else:
+                    raise Exception(f"ERROR: wrong value '{full_data[key_name]}' in a bit_bool field!")
+
+    return full_data
+
+
 def dump_sav_structure(read_struct_data, data_structure, metadata):
     """Сериализация JSON-структурированных SAV данных обратно в bytes"""
 
@@ -330,10 +353,11 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
                 continue
             if 'struct' in data_structure[entry_name]:
                 if data_structure[entry_name].get('compact', False):
-                    full_entry_data = {}
-                    for i, key_name in enumerate(data_structure[entry_name]['struct']):
-                        full_entry_data[key_name] = entry_data[i]
-                    entry_data = full_entry_data
+                    # full_entry_data = {}
+                    # for i, key_name in enumerate(data_structure[entry_name]['struct']):
+                    #     full_entry_data[key_name] = entry_data[i]
+                    # entry_data = full_entry_data
+                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'])
 
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:

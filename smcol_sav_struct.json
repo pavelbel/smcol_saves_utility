@@ -29,25 +29,25 @@
 
         "terrain_5bit_type":
         {
-            "tun_": "00000",
-            "des_": "00001",
-            "pln_": "00010",
-            "pri_": "00011",
-            "grs_": "00100",
-            "svn_": "00101",
-            "swm_": "00110",
-            "mrs_": "00111",
-            "tunF": "01000",
-            "desF": "01001",
-            "plnF": "01010",
-            "priF": "01011",
-            "grsF": "01100",
-            "svnF": "01101",
-            "swmF": "01110",
-            "mrsF": "01111",
-            "aaaa": "11000",
-            "~~~~": "11001",
-            "~.~.": "11010"            
+            "tu ": "00000",
+            "de ": "00001",
+            "pl ": "00010",
+            "pr ": "00011",
+            "gr ": "00100",
+            "sa ": "00101",
+            "sw ": "00110",
+            "mr ": "00111",
+            "tuF": "01000",
+            "deF": "01001",
+            "plF": "01010",
+            "prF": "01011",
+            "grF": "01100",
+            "saF": "01101",
+            "swF": "01110",
+            "mrF": "01111",
+            "arc": "11000",
+            "~~~": "11001",
+            "~.~": "11010"            
         },
 
         "hills_river_3bit_type":
@@ -290,7 +290,17 @@
         "struct":
         {
             "colonize": {"size": 9, "type": "str", "__hint": "a constant string"},
-            "unknown00": {"size": 3},
+            "unknown00":
+            {
+                "size": 3,
+                "__compact": true,
+                "__struct":
+                {
+                    "byte1": {"size": 1, "type": "int"},
+                    "byte2": {"size": 1, "type": "bits"},
+                    "byte3": {"size": 1}
+                }
+            },
             "map_size_x": {"size": 2, "save_meta": true, "type": "uint"},
             "map_size_y": {"size": 2, "save_meta": true, "type": "uint"},
             "tut1": {"size": 1, "__hint": "a bit_struct, not important"},
