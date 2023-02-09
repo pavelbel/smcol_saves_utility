@@ -10,6 +10,9 @@
         "__hint_A7": "- bits: a sequence of bits, big endian, any length in bytes",
         "__hint_A8": "- bit_bool: a 1 bit boolean - 1 for true, 0 for false",
 
+        "__hint_234": "Value of 'compact_delimeter' is used for joining compact record's field values. You must not use it anywhere inside custom types keys or values!",
+        "compact_delimeter": ".",
+
         "__hint_1": "difficulty levels captions",
         "difficulty_type":
         {
@@ -47,7 +50,7 @@
             "mrF": "01111",
             "arc": "11000",
             "~~~": "11001",
-            "~.~": "11010"            
+            "~:~": "11010"            
         },
 
         "hills_river_3bit_type":
@@ -59,6 +62,72 @@
             "^^": "101",
             "~~": "110"
         },
+
+        "has_unit_1bit_type":
+        {
+            "U": "1",
+            " ": "0"
+        },
+
+        "has_city_1bit_type":
+        {
+            "C": "1",
+            " ": "0"
+        },
+
+        "suppress_1bit_type":
+        {
+            "_": "1",
+            " ": "0"
+        },
+
+        "road_1bit_type":
+        {
+            "=": "1",
+            " ": "0"
+        },
+
+        "purchased_1bit_type":
+        {
+            "*": "1",
+            " ": "0"
+        },
+
+        "pacific_1bit_type":
+        {
+            "~": "1",
+            " ": "0"
+        },
+
+        "plowed_1bit_type":
+        {
+            "P": "1",
+            " ": "0"
+        },
+
+        "visible_to_english_1bit_type":
+        {
+            "E": "1",
+            " ": "0"
+        },        
+
+        "visible_to_french_1bit_type":
+        {
+            "F": "1",
+            " ": "0"
+        },
+
+        "visible_to_spanish_1bit_type":
+        {
+            "S": "1",
+            " ": "0"
+        },        
+
+        "visible_to_dutch_1bit_type":
+        {
+            "D": "1",
+            " ": "0"
+        },        
 
         "unit_type":
         {
@@ -759,8 +828,8 @@
         "compact": true,
         "bit_struct":
         {
-            "T": {"size": 5, "type": "terrain_5bit_type"},
-            "~^": {"size": 3, "type": "hills_river_3bit_type"}
+            "tile": {"size": 5, "type": "terrain_5bit_type"},
+            "hill_river": {"size": 3, "type": "hills_river_3bit_type"}
         }
     },
     "MASK":
@@ -768,7 +837,19 @@
         "count": "map_size_y",
         "cols": "map_size_x",
         "size": 1,
-        "type": "bits"
+        "__type": "bits",
+        "compact": true,
+        "bit_struct":
+        {
+            "has_unit": {"size": 1, "type": "has_unit_1bit_type"},
+            "has_city": {"size": 1, "type": "has_city_1bit_type"},
+            "suppress": {"size": 1, "type": "suppress_1bit_type"},
+            "road": {"size": 1, "type": "road_1bit_type"},
+            "purchased": {"size": 1, "type": "purchased_1bit_type"},
+            "pacific": {"size": 1, "type": "pacific_1bit_type"},
+            "plowed": {"size": 1, "type": "plowed_1bit_type"},
+            "unused": {"size": 1, "type": "suppress_1bit_type"}
+        }
     },
     "PATH":
     {
@@ -787,8 +868,17 @@
     {
         "count": "map_size_y",
         "cols": "map_size_x",
-        "size": 1,
-        "type": "bits"
+        "__size": 1,
+        "__type": "bits",
+        "compact": true,
+        "bit_struct":
+        {
+            "score": {"size": 4, "type": "region_id_4bit_type"},
+            "visible_to_en": {"size": 1, "type": "visible_to_english_1bit_type"},
+            "visible_to_fr": {"size": 1, "type": "visible_to_french_1bit_type"},
+            "visible_to_sp": {"size": 1, "type": "visible_to_spanish_1bit_type"},
+            "visible_to_du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
+        }
     },
     "unknown38": {"size": 1502}
 }
