@@ -274,10 +274,20 @@ def unzip_compact_data(data, data_structure, metadata):
     return full_data
 
 
-def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, ignore_compact=False):
+def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, ignore_compact=False, sections_to_read=None):
     """Read structured SAV data to JSON file IN NEW FORMAT"""
 
     read_res = {}
+
+    # filter sections_to_read to save only existing entries
+    if isinstance(sections_to_read, list):
+        real_sections_to_read = []
+        for sec in sections_to_read:
+            if sec in sav_structure:
+                real_sections_to_read.append(sec)
+        if len(real_sections_to_read) == 0:
+            return read_res
+        sections_to_read = real_sections_to_read
 
     curr_data_offset = data_offset
     for entry_name, entry_data in sav_structure.items():
@@ -301,7 +311,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
                     if entry_data.get('save_meta', False):
                         metadata[entry_name] = in_res_data
-                    in_res_data = deserialize(in_res_data, entry_data, metadata)#, to_print_typename=entry_col == curr_entry_cols - 1)
+                    in_res_data = deserialize(in_res_data, entry_data, metadata)  #, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 if not ignore_compact and entry_data.get('compact', False) and isinstance(in_res_data, dict):
                     in_res_data = zip_compact_data(in_res_data, metadata)
@@ -322,7 +332,13 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
             else:
                 full_list.append(row_list)
 
-        read_res[entry_name] = full_list
+        if sections_to_read is None:
+            read_res[entry_name] = full_list
+        elif isinstance(sections_to_read, list) and entry_name in sections_to_read:
+            read_res[entry_name] = full_list
+            sections_to_read.remove(entry_name)
+            if len(sections_to_read) == 0:
+                break
 
     return read_res
 
@@ -392,7 +408,7 @@ if __name__ == '__main__':
         sav_data = sf.read()
 
     read_metadata = handle_metadata(sav_structure['__metadata'])
-    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True)
+    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)  #, ignore_compact=True, sections_to_read=['HEAD', 'UNIT', 'jo'])
     read_struct_data['__structure'] = sav_structure
 
     sav_json_data_filename = SAV_FILENAME + ".json"
