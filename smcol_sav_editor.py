@@ -5,13 +5,13 @@ from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_st
 from get_input import *
 
 
-def read_json_sav_data(sav_filename: str, sav_structure: dict):
+def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=None):
     try:
         with open(sav_filename, mode='rb') as sf:
             sav_data = sf.read()
 
         read_metadata = handle_metadata(sav_structure['__metadata'])
-        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata)
+        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True, sections_to_read=sections_to_read)
         json_sav_data['__structure'] = sav_structure
     except Exception as ex:
         return None
@@ -76,6 +76,7 @@ def edit_sav_file(sav_filename: str, sav_structure, json_sav_data=None):
     if json_sav_data is None:
         json_sav_data = read_json_sav_data(sav_filename, sav_structure)
 
+    print()
     if json_sav_data is not None:
         print(f"SAV file '{sav_filename}' loading SUCCESS")
     else:
@@ -128,7 +129,7 @@ if __name__ == '__main__':
                 else:
                     continue
 
-                curr_read_json_sav_data = read_json_sav_data(dir_entry.path, json_sav_structure)
+                curr_read_json_sav_data = read_json_sav_data(dir_entry.path, json_sav_structure, sections_to_read=['HEAD', 'PLAYER'])
                 sav_files_list.append((dir_entry.name, file_type, curr_read_json_sav_data))
 
         if len(sav_files_list) == 0:
