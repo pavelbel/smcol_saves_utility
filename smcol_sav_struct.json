@@ -522,14 +522,14 @@
                 "__hint": "each value is an index of a colonist from 'population' field working on current tile",
                 "struct":
                 {
-                    "tile_N": {"size": 1},
-                    "tile_E": {"size": 1},
-                    "tile_S": {"size": 1},
-                    "tile_W": {"size": 1},
-                    "tile_NW": {"size": 1},
-                    "tile_NE": {"size": 1},
-                    "tile_SE": {"size": 1},
-                    "tile_SW": {"size": 1}
+                    "tile_N": {"size": 1, "type": "int"},
+                    "tile_E": {"size": 1, "type": "int"},
+                    "tile_S": {"size": 1, "type": "int"},
+                    "tile_W": {"size": 1, "type": "int"},
+                    "tile_NW": {"size": 1, "type": "int"},
+                    "tile_NE": {"size": 1, "type": "int"},
+                    "tile_SE": {"size": 1, "type": "int"},
+                    "tile_SW": {"size": 1, "type": "int"}
                 }
             },
             "unknown10": {"size": 12},
