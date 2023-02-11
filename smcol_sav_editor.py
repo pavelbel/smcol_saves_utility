@@ -3,7 +3,7 @@ import datetime
 import sys
 import json
 from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure
-from get_input import *
+from smcol_sav_common import *
 
 
 def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=None):
@@ -198,6 +198,10 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files EDITOR ==")
 
+    default_settings = {"colonize_path": ".", "editor": {}}
+    settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
+    settings = load_settings(settings_json_filename, default_settings)
+
     json_struct_filename = 'smcol_sav_struct.json'
     is_sav_structure_loaded = False
     try:
@@ -212,7 +216,7 @@ if __name__ == '__main__':
     while True:
         sav_files_list = []
 
-        with os.scandir('.') as scan_res:
+        with os.scandir(settings['colonize_path']) as scan_res:
             for dir_entry in scan_res:
                 if dir_entry.is_dir():
                     continue

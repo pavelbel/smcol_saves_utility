@@ -3,7 +3,7 @@ import json
 import sys
 from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, prepare_sav_struct_for_optional_indent
 from partial_indent_json_encoder import *
-from get_input import *
+from smcol_sav_common import *
 
 def decode_sav_file(sav_filename: str, sav_structure: dict):
     try:
@@ -11,7 +11,7 @@ def decode_sav_file(sav_filename: str, sav_structure: dict):
             sav_data = sf.read()
 
         read_metadata = handle_metadata(sav_structure['__metadata'])
-        read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)
+        read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=settings['enc_decoder']['ignore_compact'])
         read_struct_data['__structure'] = sav_structure
 
         decoded_sav_json_data_filename = sav_filename + '.json'
@@ -52,6 +52,10 @@ def encode_sav_file(json_sav_filename: str):
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
 
+    default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False}}
+    settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
+    settings = load_settings(settings_json_filename, default_settings)
+
     json_struct_filename = 'smcol_sav_struct.json'
     is_sav_structure_loaded = False
     try:
@@ -65,7 +69,7 @@ if __name__ == '__main__':
     while True:
         sav_files_list = []
 
-        with os.scandir('.') as scan_res:
+        with os.scandir(settings['colonize_path']) as scan_res:
             for dir_entry in scan_res:
                 if dir_entry.is_dir():
                     continue
@@ -84,7 +88,7 @@ if __name__ == '__main__':
                         if col_str != b'COLONIZE':
                             continue
 
-                sav_files_list.append((dir_entry.name, file_type))
+                sav_files_list.append({"name": dir_entry.name, "path": dir_entry.path, "type": file_type})
 
         if len(sav_files_list) == 0:
             print("NO SAV or SAV.JSON files in current directory. Place this file to COLONIZE folder.")
@@ -93,15 +97,15 @@ if __name__ == '__main__':
         print()
         print("SAV and SAV.JSON files in the current folder:")
         for i, sav_file_data in enumerate(sav_files_list, start=1):
-            print(f"{i}. {sav_file_data[0]}")
+            print(f"{i}. {sav_file_data['name']}")
 
         sav_idx = get_input("Enter file index to decode or encode it or press ENTER to quit: ", res_type=int, error_str="Wrong SAV file index:", check_fun=lambda x: 1 <= x <= len(sav_files_list))
         if sav_idx is None:
             break
 
-        chosen_filename = sav_files_list[sav_idx-1][0]
+        chosen_filename = sav_files_list[sav_idx-1]['path']
 
-        if sav_files_list[sav_idx-1][1] == 'sav':
+        if sav_files_list[sav_idx-1]['type'] == 'sav':
             if is_sav_structure_loaded:
                 decode_sav_file(chosen_filename, json_sav_structure)
             else:
