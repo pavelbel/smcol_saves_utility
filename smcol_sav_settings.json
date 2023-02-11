@@ -1,6 +1,6 @@
 {
     "__hint0": "COLONIZE folder path to read and write SAV files",
-    "__colonize_path": "D:/Games/GOG.com/Colonization/MPS/COLONIZE",
+    "colonize_path": "D:/Games/GOG.com/Colonization/MPS/COLONIZE",
     
     "__hint1": "editor - special settings for smcol_sav_editor.py",
     "editor": {},
