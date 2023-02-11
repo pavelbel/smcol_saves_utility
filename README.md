@@ -5,22 +5,27 @@
 The aim of this work is to make study and edit process of SAV files easy and comfortable. The ultimate goal is to fully describe SAV file structure, outline it in universal format and prepare utility pack for working with SAV files for enhancing the gameplay of this brilliant game.
 
 ## What is being done:
-- outline the SAV file structure in easy readable and editable universal JSON format (_smcol_sav_struct.json_)
-- utility *enc_decode_sav.py* for parsing binary SAV file data and saving it to human readable/editable JSON format
-- the same utility for reading SAV file data FROM human readable/editable JSON format **and writing it back** to native SAV format (yes!)
-- utility for editing SAV files (certain fields such as: remove stokade, arm indian converts, plant forests etc)
+- (COMPLETE) outline the SAV file structure in easy readable and editable universal JSON format (_smcol_sav_struct.json_)
+- (COMPLETE) utility *enc_decode_sav.py* for parsing binary SAV file data and saving it to human readable/editable JSON format
+- (COMPLETE) the same utility for reading SAV file data FROM human readable/editable JSON format **and writing it back** to native SAV format (yes!)
+- (IN PROGRESS) utility for editing SAV files (certain fields such as: remove stokade, arm indian converts, plant forests etc)
+
+## Utility _smcol_sav_editor.py_
+== IN DEVELOPMENT ==
+The utility to edit SAV files. __Warning__: this is not a cheat utility! It won't give you mountains of gold or remove fortifications from enemies' colonies (though you can do it all and much more with _enc_decode_sav.py_)! All changes it is supposed to make are relatively fair (in my opinion), much anticipated (like removinig of YOUR colonies' fortifications and planting forests) and refreshing for the gameplay (like arming indian converts or assimilating them)
 
 ## Utility _enc_decode_sav.py_
 Functionality:
 * Read Colonization's native binary SAV files, decode them and save in a human readable/editable SAV.JSON format
 * Encode SAV.JSON files back to binary SAV format
 
-It means that you can decode your saved game file, then easily edit the generated SAV.JSON file without HEX editor etc, encode it to SAV, load it and continue playing!
+It means that you can decode your saved game file, then easily edit the generated SAV.JSON file without HEX editor etc, encode it to SAV, load it and continue playing with your changes applied!
 
 To run:
 * Install [Python interpreter](https://www.python.org)
 * Additionally install bitarray module with pip (google how to do this please)
-* Place files *enc_decode_sav.py*, *smcol_sav_converter.py* and *smcol_sav_struct.json* to COLONIZE folder of your Colonization installation
+* Place all the files of __smcol_saves_utility__ to some folder
+* Open _smcol_sav_settings.json_ file in a text editor and set value of a _colonize_path_ record to the path of the COLONIZE folder of your Colonization installation
 * Run *enc_decode_sav.py* whether using command `python enc_decode_sav.py` or just clicking on it (depends on how you configured your Python installation)
 * Follow onscreen instructions
 
