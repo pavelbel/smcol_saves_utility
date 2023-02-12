@@ -12,13 +12,12 @@ def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=
             sav_data = sf.read()
 
         read_metadata = handle_metadata(sav_structure['__metadata'])
-        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True,
-                                           sections_to_read=sections_to_read)
+        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True, sections_to_read=sections_to_read)
         json_sav_data['__structure'] = sav_structure
     except Exception as ex:
         return None
     else:
-        return json_sav_data
+        return json_sav_data, read_metadata
 
 
 def save_sav_data(sav_filename: str, json_sav_data: dict):
@@ -36,10 +35,14 @@ def save_sav_data(sav_filename: str, json_sav_data: dict):
         except:
             os.rename(sav_filename, bak_sav_filename)
             break
+    else:
+        bak_sav_filename = None
 
     #saved_filename = sav_filename + '.enc'
     with open(sav_filename, mode='wb') as svftenc:
         svftenc.write(enc_sav_data)
+
+    return bak_sav_filename
 
 
 def get_caption_data(json_sav_data: dict):
@@ -56,11 +59,14 @@ def get_caption_data(json_sav_data: dict):
             caption_data['country_name'] = pl['country_name']
             caption_data['colonies'] = pl['founded_colonies']
             caption_data['gold'] = json_sav_data['NATION'][i]['gold']
+            caption_data['player_nation_id'] = i
             break
     else:
+        caption_data['name'] = 'no'
         caption_data['country_name'] = 'no'
         caption_data['colonies'] = 0
         caption_data['gold'] = 0
+        caption_data['player_nation_id'] = None
 
     return caption_data
 
@@ -70,24 +76,35 @@ class SAVEditor:
         self.sav_filename = sav_filename
         self.sav_structure = sav_structure
         self.json_sav_data = None
+        self.metadata = None
         self.caption_data = None
         self.is_initialized = False
         self.unsaved_changes = []
         self.load()
 
     def load(self):
-        self.json_sav_data = read_json_sav_data(self.sav_filename, self.sav_structure)
+        self.json_sav_data, self.metadata = read_json_sav_data(self.sav_filename, self.sav_structure)
         self.is_initialized = self.json_sav_data is not None
         self.caption_data = get_caption_data(self.json_sav_data)
         self.unsaved_changes = []
 
     def save(self):
-        save_sav_data(self.sav_filename, self.json_sav_data)
+        bak_filename = save_sav_data(self.sav_filename, self.json_sav_data)
         self.unsaved_changes = []
+        return bak_filename
+
+    def get_player_nation(self):
+        if not self.is_initialized or self.caption_data['player_nation_id'] is None:
+            return None
+
+        # return self.metadata['nation_type_inv'][self.caption_data['player_nation_id']]
+        return list(self.metadata['nation_type_inv'].values())[self.caption_data['player_nation_id']]
 
     def __getitem__(self, item):
         return self.json_sav_data[item]
 
+    def __setitem__(self, key, value):
+        self.json_sav_data[key] = value
 
 def extract_coords_from_str(coords_str: str):
     coords_splt = coords_str.split(',')
@@ -147,7 +164,7 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
 def run_reload_routine(sav_editor: SAVEditor):
     if len(sav_editor.unsaved_changes) > 0:
         ans = get_input("There are unsaved changes. Do you want to skip them? [y/n]: ", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
-        if ans[0].lower() == 'n':
+        if ans is None or ans[0].lower() == 'n':
             print("Reloading canceled")
             return
 
@@ -158,21 +175,78 @@ def run_reload_routine(sav_editor: SAVEditor):
 
 def run_save_routine(sav_editor: SAVEditor):
     try:
-        sav_editor.save()
+        bak_filename = sav_editor.save()
     except Exception as ex:
         print(f"ERROR: saving FAILED!: {ex}")
     else:
-        print(f"Saving SUCCESS!")
+        print(f"Saving SUCCESS!", end=' ')
+        if bak_filename:
+            print(f"Backup saved to '{bak_filename}'")
+        else:
+            print("Failed to make a backup!")
 
 
 def run_show_changes_routine(sav_editor: SAVEditor):
     print()
     if len(sav_editor.unsaved_changes) > 0:
-        print('== Changes made ==')
+        print('== Pending changes ==')
         for uc in sav_editor.unsaved_changes:
             print(f"* {uc}")
     else:
         print("== No changes made ==")
+
+
+def run_remove_stokade_routine(sav_editor: SAVEditor):
+    print()
+    print('== Remove fortifications ==')
+    print("  (from player's colonies)  ")
+
+    # Получить список колоний игрока
+    if not isinstance(sav_editor['COLONY'], list):
+        sav_editor['COLONY'] = [sav_editor['COLONY']]
+
+    if settings['editor']['remove_fortifications_only_in_player_colonies']:
+        player_nation = sav_editor.get_player_nation()
+    else:
+        player_nation = None
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and colony['nation_id'] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No colonies found!")
+        return
+
+    fortifications = ['no', 'stockade', 'fort', 'fortress']
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            print(f"{i:2}. {col['name']}: {fortifications[int(col['buildings']['fortification'])]}")
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx-1]
+        if int(curr_colony['buildings']['fortification']) == 0:
+            print(f"Colony '{curr_colony['name']}' doesn't have any fortification")
+            continue
+
+        ans_yn = get_input(f"Colony '{curr_colony['name']}' has fortification: {fortifications[int(curr_colony['buildings']['fortification'])]}. Remove it? [y/n]", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
+        if ans_yn is None or ans_yn[0].lower() == 'n':
+            print(f"Fortification removing cancelled")
+            continue
+
+        curr_colony['buildings']['fortification'] = '0'
+
+        res_str = f"Fortification removed in '{curr_colony['name']}'"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
+
 
 
 def edit_sav_file(sav_filename: str, sav_structure: dict):
@@ -187,7 +261,8 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
     routines = [(run_reload_routine, "Reload SAV file"),
                 (run_save_routine, "Save SAV file"),
                 (run_show_changes_routine, "See pending changes"),
-                (run_plant_forest_routine, "Plant a forest")]
+                (run_plant_forest_routine, "Plant a forest"),
+                (run_remove_stokade_routine, "Remove fortification")]
 
     while True:
         print()
@@ -215,7 +290,8 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files EDITOR ==")
 
-    default_settings = {"colonize_path": ".", "editor": {}}
+    default_settings = {"colonize_path": ".",
+                        "editor": {"remove_fortifications_only_in_player_colonies": True}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, default_settings)
 
@@ -244,7 +320,7 @@ if __name__ == '__main__':
                 else:
                     continue
 
-                curr_read_json_sav_data = read_json_sav_data(dir_entry.path, json_sav_structure, sections_to_read=['HEAD', 'PLAYER', 'NATION'])
+                curr_read_json_sav_data, _ = read_json_sav_data(dir_entry.path, json_sav_structure, sections_to_read=['HEAD', 'PLAYER', 'NATION'])
                 sav_files_list.append((dir_entry.name, file_type, curr_read_json_sav_data))
 
         if len(sav_files_list) == 0:
