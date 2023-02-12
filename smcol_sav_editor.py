@@ -72,18 +72,18 @@ class SAVEditor:
         self.json_sav_data = None
         self.caption_data = None
         self.is_initialized = False
-        self.is_unsaved_changes = False
+        self.unsaved_changes = []
         self.load()
 
     def load(self):
         self.json_sav_data = read_json_sav_data(self.sav_filename, self.sav_structure)
         self.is_initialized = self.json_sav_data is not None
         self.caption_data = get_caption_data(self.json_sav_data)
-        self.is_unsaved_changes = False
+        self.unsaved_changes = []
 
     def save(self):
         save_sav_data(self.sav_filename, self.json_sav_data)
-        self.is_unsaved_changes = False
+        self.unsaved_changes = []
 
     def __getitem__(self, item):
         return self.json_sav_data[item]
@@ -120,9 +120,9 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
         if coords_str is None:
             break
 
-        tile_xy = extract_coords_from_str(coords_str)
+        tile_x, tile_y = extract_coords_from_str(coords_str)
 
-        curr_tile = sav_editor['TILE'][tile_xy[1]][tile_xy[0]]['tile']
+        curr_tile = sav_editor['TILE'][tile_y][tile_x]['tile']
         if curr_tile in ['~~~', '~:~']:
             print('ERROR: cannot plant a forest on ocean!')
             continue
@@ -136,14 +136,16 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
             continue
 
         # Planting forest!
-        sav_editor['TILE'][tile_xy[1]][tile_xy[0]]['tile'] = curr_tile[:2] + 'F' + curr_tile[3:]
-        sav_editor['MASK'][tile_xy[1]][tile_xy[0]]['plowed'] = ' '
-        sav_editor.is_unsaved_changes = True
-        print(f"Forest planted on tile '{tile_xy}'!")
+        sav_editor['TILE'][tile_y][tile_x]['tile'] = curr_tile[:2] + 'F' + curr_tile[3:]
+        sav_editor['MASK'][tile_y][tile_x]['plowed'] = ' '
+
+        res_str = f"Forest planted on tile {(tile_x, tile_y)}"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
 
 
 def run_reload_routine(sav_editor: SAVEditor):
-    if sav_editor.is_unsaved_changes:
+    if len(sav_editor.unsaved_changes) > 0:
         ans = get_input("There are unsaved changes. Do you want to skip them? [y/n]: ", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
         if ans[0].lower() == 'n':
             print("Reloading canceled")
@@ -163,6 +165,16 @@ def run_save_routine(sav_editor: SAVEditor):
         print(f"Saving SUCCESS!")
 
 
+def run_show_changes_routine(sav_editor: SAVEditor):
+    print()
+    if len(sav_editor.unsaved_changes) > 0:
+        print('== Changes made ==')
+        for uc in sav_editor.unsaved_changes:
+            print(f"* {uc}")
+    else:
+        print("== No changes made ==")
+
+
 def edit_sav_file(sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -174,6 +186,7 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 
     routines = [(run_reload_routine, "Reload SAV file"),
                 (run_save_routine, "Save SAV file"),
+                (run_show_changes_routine, "See pending changes"),
                 (run_plant_forest_routine, "Plant a forest")]
 
     while True:
@@ -182,10 +195,14 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 
         print("Actions list:")
         for num, rout in enumerate(routines, start=1):
-            print(f"{num}. {rout[1]}")
+            print(f"{num:2}. {rout[1]}")
 
         action_idx = get_input("Enter action index or press ENTER to quit: ", res_type=int, error_str="Wrong action index:", check_fun=lambda x: 1 <= x <= len(routines))
         if action_idx is None:
+            if len(sav_editor.unsaved_changes) > 0:
+                ans = get_input("There are unsaved changes. Do you want to skip them? [y/n]: ", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
+                if ans[0].lower() == 'n':
+                    continue
             break
 
         routines[action_idx - 1][0](sav_editor)
@@ -238,7 +255,7 @@ if __name__ == '__main__':
         print("SAV and SAV.JSON files in the current folder:")
         bad_saves_idxs = []
         for i, sav_file_data in enumerate(sav_files_list, start=1):
-            print(f"{i}. {sav_file_data[0]}", end=': ')
+            print(f"{i:2}. {sav_file_data[0]}", end=': ')
             caption_data = get_caption_data(sav_file_data[2])
             if caption_data is None:
                 print('Corrupt')
