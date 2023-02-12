@@ -10,7 +10,7 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 # SAV_FILENAME = r'COLONY07.SAV'
-SAV_FILENAME = r'COLONY07.SAV'
+SAV_FILENAME = r'COLONY02.SAV'
 
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
@@ -102,22 +102,26 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
             return False
     elif to_type in metadata:
         inv_type = to_type + '_inv'
+        if isinstance(val, bitarray):
+            key_name = val.to01()
+        else:
+            key_name = val.hex(sep=' ').upper()
+
         try:
-            if isinstance(val, bitarray):
-                key_name = val.to01()
-            else:
-                key_name = val.hex(sep=' ').upper()
             return metadata[inv_type][key_name]
         except KeyError as kex:
             print(f"WARNING: no value '{key_name}' of type '{to_type}', leaving it 'as is'")
-            return deserialize(val, {}, metadata)
+            return key_name
         except:
             raise
     else:
         if to_type is not None:
             print(f"WARNING: Unknown type: {to_type}")
 
-        return val.hex(sep=' ').upper()
+        if isinstance(val, bitarray):
+            return val.to01()
+        else:
+            return val.hex(sep=' ').upper()
 
 
 def serialize(data, data_structure, metadata: dict, to_type=bytes):
@@ -437,7 +441,7 @@ if __name__ == '__main__':
 
     # Serialize and dump JSON data to original binary SAV format
     enc_sav_data = dump_sav_structure(read_struct_data, loaded_sav_structure, loaded_metadata)
-    saved_filename = os.path.splitext(SAV_FILENAME)[0][:-2] + '07_new.SAV'
+    saved_filename = os.path.splitext(SAV_FILENAME)[0][:-2] + '_mod.SAV'
     with open(saved_filename, mode='wb') as svftenc:
         svftenc.write(enc_sav_data)
 
