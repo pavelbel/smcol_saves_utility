@@ -30,6 +30,14 @@
             "WITHDRAWN": "02"
         },
 
+        "tech_type":
+        {
+            "Semi-Nomadic": "00",
+            "Agrarian": "01",
+            "Advanced": "02",
+            "Civilized": "03"
+        },
+
         "terrain_5bit_type":
         {
             "tu ": "00000",
@@ -271,7 +279,8 @@
         {
             "not met": "00",
             "war": "20",
-            "peace": "60"
+            "peace": "60",
+            "unknown_rel": "66"
         },
 
         "cargo_type":
@@ -785,7 +794,7 @@
         "struct":
         {
             "capitol (x, y)": {"size": 1, "type": "uint", "cols": 2, "no_indent": true},
-            "tech": {"size": 1},
+            "tech": {"size": 1, "type": "tech_type"},
             "unknown31": {"size": 11},
             "tons": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
             "unknown32": {"size": 12},
