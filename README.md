@@ -8,18 +8,29 @@ The aim of this work is to make study and edit process of SAV files easy and com
 - (COMPLETE) outline the SAV file structure in easy readable and editable universal JSON format (_smcol_sav_struct.json_)
 - (COMPLETE) utility *enc_decode_sav.py* for parsing binary SAV file data and saving it to human readable/editable JSON format
 - (COMPLETE) the same utility for reading SAV file data FROM human readable/editable JSON format **and writing it back** to native SAV format (yes!)
-- (IN PROGRESS) utility for editing SAV files (certain fields such as: remove stokade, arm indian converts, plant forests etc)
+- (IN DEVELOPMENT) utility for editing SAV files (certain fields such as: remove stokade, arm indian converts, plant forests etc)
 
 ## Utility _smcol_sav_editor.py_
 == IN DEVELOPMENT ==
-The utility to edit SAV files. __Warning__: this is not a cheat utility! It won't give you mountains of gold or remove fortifications from enemies' colonies (though you can do it all and much more with _enc_decode_sav.py_)! All changes it is supposed to make are relatively fair (in my opinion), much anticipated (like removinig of YOUR colonies' fortifications and planting forests) and refreshing for the gameplay (like arming indian converts or assimilating them)
+
+The utility to edit SAV files. __Warning__: this is not a cheat utility! It won't give you unlimited gold or turn all AI's ships to caravels (though you can do it all and much more with _enc_decode_sav.py_)! All changes it is supposed to make are relatively fair (in my opinion), much anticipated (like removinig of yout colonies' fortifications and planting forests) and refreshing for the gameplay (like arming indian converts or assimilating them)
+Functionality:
+* Plant forests
+* Remove fortifications in colonies
+* (IN DEVELOPMENT) Remove drydocks in colonies (if you don't want your ships to go there for repairs)
+* (IN DEVELOPMENT) Increase warehouses capacity
+* (IN DEVELOPMENT) Carrier growth for indian converts:
+  * assimilate them as *Indentured Servants* (after several turns of work in a colony)
+  * arm them with muskets and/or horses to fight by your side
+* (IN DEVELOPMENT) Repair damaged artillery (half a cost of building)
+* (IN DEVELOPMENT) Clean and plow tiles under AI's colonies (why doesn't AI do it?)
 
 ## Utility _enc_decode_sav.py_
 Functionality:
 * Read Colonization's native binary SAV files, decode them and save in a human readable/editable SAV.JSON format
 * Encode SAV.JSON files back to binary SAV format
 
-It means that you can decode your saved game file, then easily edit the generated SAV.JSON file without HEX editor etc, encode it to SAV, load it and continue playing with your changes applied!
+It means that you can decode your saved game file, then easily edit the generated SAV.JSON file without HEX editor etc, then encode it back to SAV, load it and continue playing with your changes applied!
 
 To run:
 * Install [Python interpreter](https://www.python.org)
