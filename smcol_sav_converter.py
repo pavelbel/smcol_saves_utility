@@ -248,8 +248,13 @@ def handle_metadata(entry_metadata):
     return metadata
 
 
-def zip_compact_data(in_res_data, metadata):
-    return metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
+def zip_compact_data(in_res_data, metadata, compact_mode=True):
+    if isinstance(compact_mode, bool):
+        return metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
+    elif isinstance(compact_mode, list):
+        return ''.join([str(dt[1][:compact_mode[i]]) for i, dt in enumerate(in_res_data.items())])
+    else:
+        raise Exception(f"Unknown compact_mode: '{compact_mode}'")
 
 
 def unzip_compact_data(data, data_structure, metadata):
@@ -318,7 +323,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = deserialize(in_res_data, entry_data, metadata)  #, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 if not ignore_compact and entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                    in_res_data = zip_compact_data(in_res_data, metadata)
+                    in_res_data = zip_compact_data(in_res_data, metadata, entry_data['compact'])
 
                 if entry_col == 0:
                     row_list = in_res_data
