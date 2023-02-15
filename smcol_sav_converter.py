@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import hashlib
+from itertools import accumulate
 
 from bitarray import bitarray, util
 from partial_indent_json_encoder import *
@@ -10,7 +11,7 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 # SAV_FILENAME = r'COLONY07.SAV'
-SAV_FILENAME = r'COLONY02.SAV'
+SAV_FILENAME = r'COLONY01.SAV'
 
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
@@ -145,11 +146,7 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         for data_row in data:
             for data_entry in data_row:
                 if data_structure.get('compact', False):
-                    # full_data_entry = {}
-                    # for i, key_name in enumerate(bit_struct_data):
-                    #     full_data_entry[key_name] = data_entry[i]
-                    # data_entry = full_data_entry
-                    data_entry = unzip_compact_data(data_entry, bit_struct_data, metadata)
+                    data_entry = unzip_compact_data(data_entry, bit_struct_data, metadata, compact_mode=data_structure['compact'])
 
                 for data_key, data_value in data_entry.items():
                     curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
@@ -257,15 +254,25 @@ def zip_compact_data(in_res_data, metadata, compact_mode=True):
         raise Exception(f"Unknown compact_mode: '{compact_mode}'")
 
 
-def unzip_compact_data(data, data_structure, metadata):
+def unzip_compact_data(data, data_structure, metadata, compact_mode=True):
     # если флаг compact был проигнонирован
     if isinstance(data, dict):
         return data
 
     full_data = {}
-    data_sep = data.split(metadata['compact_delimeter'])
-    if len(data_structure) != len(data_sep):
-        raise "ERROR: wrong data in compact field!"
+
+    if isinstance(compact_mode, bool):
+        data_sep = data.split(metadata['compact_delimeter'])
+        if len(data_structure) != len(data_sep):
+            raise "ERROR: 'compact' field value doesn't match data!"
+    elif isinstance(compact_mode, list):
+        if sum(compact_mode) != len(data):
+            raise "ERROR: 'compact' field value doesn't match data!"
+        compact_mode_accum = [0] + list(accumulate(compact_mode))
+        data_sep = [data[compact_mode_accum[i]:compact_mode_accum[i+1]] for i in range(len(compact_mode))]
+        pass
+    else:
+        raise Exception(f"Unknown compact_mode: '{compact_mode}'")
 
     for i, key_name in enumerate(data_structure):
         full_data[key_name] = data_sep[i]
@@ -370,7 +377,7 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
                 continue
             if 'struct' in data_structure[entry_name]:
                 if data_structure[entry_name].get('compact', False):
-                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], metadata)
+                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], metadata, compact_mode=data_structure[entry_name]['compact'])
 
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:
@@ -417,7 +424,7 @@ if __name__ == '__main__':
         sav_data = sf.read()
 
     read_metadata = handle_metadata(sav_structure['__metadata'])
-    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)  #, ignore_compact=True, sections_to_read=['HEAD', 'UNIT', 'jo'])
+    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)  #, ignore_compact=True) #, sections_to_read=['HEAD', 'UNIT', 'jo'])
     read_struct_data['__structure'] = sav_structure
 
     sav_json_data_filename = SAV_FILENAME + ".json"

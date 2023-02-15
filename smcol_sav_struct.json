@@ -519,7 +519,7 @@
                 "__hint": "duration of colonist's work at their jobs",
                 "no_indent": true,
                 "count": 16,
-                "__compact": true,
+                "compact": true,
                 "bit_struct":
                 {
                     "dur_1": {"size": 4, "type": "uint"},
@@ -656,7 +656,7 @@
             {
                 "count": 3,
                 "no_indent": true,
-                "__compact": true,
+                "compact": true,
                 "bit_struct":
                 {
                     "cargo_1": {"size": 4, "type": "cargo_type"},
@@ -834,7 +834,7 @@
     {
         "count": "map_size_y",
         "cols": "map_size_x",
-        "compact": true,
+        "compact": [3, 2],
         "bit_struct":
         {
             "tile": {"size": 5, "type": "terrain_5bit_type"},
@@ -866,7 +866,7 @@
         "cols": "map_size_x",
         "__size": 1,
         "__type": "bits",
-        "compact": true,
+        "compact": [2, 2],
         "bit_struct":
         {
             "region_id": {"size": 4, "type": "region_id_4bit_type"},
@@ -879,7 +879,7 @@
         "cols": "map_size_x",
         "__size": 1,
         "__type": "bits",
-        "compact": true,
+        "compact": [2, 1, 1, 1, 1],
         "bit_struct":
         {
             "score": {"size": 4, "type": "region_id_4bit_type"},
