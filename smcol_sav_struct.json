@@ -109,7 +109,7 @@
 
         "plowed_1bit_type":
         {
-            "P": "1",
+            "#": "1",
             " ": "0"
         },
 
@@ -371,7 +371,7 @@
             "unknown00":
             {
                 "size": 3,
-                "__compact": true,
+                "__compact": ":",
                 "__struct":
                 {
                     "byte1": {"size": 1, "type": "int"},
@@ -519,7 +519,7 @@
                 "__hint": "duration of colonist's work at their jobs",
                 "no_indent": true,
                 "count": 16,
-                "compact": true,
+                "compact": ", ",
                 "bit_struct":
                 {
                     "dur_1": {"size": 4, "type": "uint"},
@@ -642,7 +642,7 @@
                 "bit_struct":
                 {
                     "unknown15a": {"size": 7},
-                    "art_damaged": {"size": 1, "type": "bit_bool"}
+                    "damaged": {"size": 1, "type": "bit_bool"}
                 }
             },
             "moves": {"size": 1, "type": "uint", "__hint": "'moves' count already made. One 'move' is one move by road"},

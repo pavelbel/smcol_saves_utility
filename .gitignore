@@ -1,4 +1,8 @@
 # Default ignored files
 /.idea
+/build
+/dist
 /__pycache__
 COLONY*
+*.exe
+*.spec

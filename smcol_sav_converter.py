@@ -11,7 +11,7 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 #SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct_old.json'
 #SAV_FILENAME = r'D:\Games\GOG.com\Colonization\MPS\COLONIZE\COLONY03.SAV'
 # SAV_FILENAME = r'COLONY07.SAV'
-SAV_FILENAME = r'COLONY01.SAV'
+SAV_FILENAME = r'COLONY00.SAV'
 
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
@@ -246,7 +246,9 @@ def handle_metadata(entry_metadata):
 
 
 def zip_compact_data(in_res_data, metadata, compact_mode=True):
-    if isinstance(compact_mode, bool):
+    if isinstance(compact_mode, str):
+        return compact_mode.join([str(dt[1]) for dt in in_res_data.items()])
+    elif isinstance(compact_mode, bool):
         return metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
     elif isinstance(compact_mode, list):
         return ''.join([str(dt[1][:compact_mode[i]]) for i, dt in enumerate(in_res_data.items())])
@@ -261,13 +263,21 @@ def unzip_compact_data(data, data_structure, metadata, compact_mode=True):
 
     full_data = {}
 
-    if isinstance(compact_mode, bool):
+    if isinstance(compact_mode, str):
+        # Prepare separator without spaces
+        clean_sep = compact_mode.replace(' ', '')
+        if len(clean_sep) == 0:
+            clean_sep = ' '
+        data_sep = data.split(clean_sep)
+        if len(data_structure) != len(data_sep):
+            raise Exception("ERROR: 'compact' field value doesn't match data!")
+    elif isinstance(compact_mode, bool):
         data_sep = data.split(metadata['compact_delimeter'])
         if len(data_structure) != len(data_sep):
-            raise "ERROR: 'compact' field value doesn't match data!"
+            raise Exception("ERROR: 'compact' field value doesn't match data!")
     elif isinstance(compact_mode, list):
         if sum(compact_mode) != len(data):
-            raise "ERROR: 'compact' field value doesn't match data!"
+            raise Exception("ERROR: 'compact' field value doesn't match data!")
         compact_mode_accum = [0] + list(accumulate(compact_mode))
         data_sep = [data[compact_mode_accum[i]:compact_mode_accum[i+1]] for i in range(len(compact_mode))]
         pass
