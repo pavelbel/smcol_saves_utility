@@ -331,6 +331,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
         if entry_name.startswith('__'):
             continue
 
+        if ignore_compact:
+            entry_data.pop('compact', None)
+
         try:
             curr_entry_size = get_entry_size(entry_data, metadata)
         except:
