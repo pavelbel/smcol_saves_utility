@@ -125,6 +125,26 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
             return val.hex(sep=' ').upper()
 
 
+def prepare_data_for_iter(data, data_structure):
+    new_data = None
+    if 'compact' in data_structure and isinstance(data_structure['compact'], bool) and data_structure['compact']:
+        if not isinstance(data[0], list):
+            new_data = [[data]]
+        elif not isinstance(data[0][0], list):
+            new_data = [data]
+        else:
+            new_data = data
+    else:
+        if not isinstance(data, list):
+            new_data = [[data]]
+        elif not isinstance(data[0], list):
+            new_data = [data]
+        else:
+            new_data = data
+
+    return new_data
+
+
 def serialize(data, data_structure, metadata: dict, to_type=bytes):
     """Encode data to bytes"""
 
@@ -132,21 +152,12 @@ def serialize(data, data_structure, metadata: dict, to_type=bytes):
         bit_struct_data = data_structure["bit_struct"]
 
         full_bit_str = bitarray()
-        # if data_structure.get('compact', False):
-        #     if not isinstance(data[0], list):
-        #         data = [[data]]
-        #     elif not isinstance(data[0][0], list):
-        #         data = [data]
-        # else:
-        if not isinstance(data, list):
-            data = [[data]]
-        elif not isinstance(data[0], list):
-            data = [data]
+        data = prepare_data_for_iter(data, data_structure)
 
         for data_row in data:
             for data_entry in data_row:
                 if data_structure.get('compact', False):
-                    data_entry = unzip_compact_data(data_entry, bit_struct_data, metadata, compact_mode=data_structure['compact'])
+                    data_entry = unzip_compact_data(data_entry, bit_struct_data, compact_mode=data_structure['compact'])
 
                 for data_key, data_value in data_entry.items():
                     curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
@@ -245,18 +256,18 @@ def handle_metadata(entry_metadata):
     return metadata
 
 
-def zip_compact_data(in_res_data, metadata, compact_mode=True):
+def zip_compact_data(in_res_data, compact_mode=True):
     if isinstance(compact_mode, str):
         return compact_mode.join([str(dt[1]) for dt in in_res_data.items()])
     elif isinstance(compact_mode, bool):
-        return metadata['compact_delimeter'].join([str(dt[1]) for dt in in_res_data.items()])
+        return [dt[1] for dt in in_res_data.items()]
     elif isinstance(compact_mode, list):
         return ''.join([str(dt[1][:compact_mode[i]]) for i, dt in enumerate(in_res_data.items())])
     else:
         raise Exception(f"Unknown compact_mode: '{compact_mode}'")
 
 
-def unzip_compact_data(data, data_structure, metadata, compact_mode=True):
+def unzip_compact_data(data, data_structure, compact_mode=True):
     # если флаг compact был проигнонирован
     if isinstance(data, dict):
         return data
@@ -272,9 +283,9 @@ def unzip_compact_data(data, data_structure, metadata, compact_mode=True):
         if len(data_structure) != len(data_sep):
             raise Exception("ERROR: 'compact' field value doesn't match data!")
     elif isinstance(compact_mode, bool):
-        data_sep = data.split(metadata['compact_delimeter'])
-        if len(data_structure) != len(data_sep):
+        if len(data_structure) != len(data):
             raise Exception("ERROR: 'compact' field value doesn't match data!")
+        data_sep = data
     elif isinstance(compact_mode, list):
         if sum(compact_mode) != len(data):
             raise Exception("ERROR: 'compact' field value doesn't match data!")
@@ -340,7 +351,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = deserialize(in_res_data, entry_data, metadata)  #, to_print_typename=entry_col == curr_entry_cols - 1)
 
                 if not ignore_compact and entry_data.get('compact', False) and isinstance(in_res_data, dict):
-                    in_res_data = zip_compact_data(in_res_data, metadata, entry_data['compact'])
+                    in_res_data = zip_compact_data(in_res_data, entry_data['compact'])
 
                 if entry_col == 0:
                     row_list = in_res_data
@@ -387,7 +398,7 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
                 continue
             if 'struct' in data_structure[entry_name]:
                 if data_structure[entry_name].get('compact', False):
-                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], metadata, compact_mode=data_structure[entry_name]['compact'])
+                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], compact_mode=data_structure[entry_name]['compact'])
 
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
             else:

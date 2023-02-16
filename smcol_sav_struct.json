@@ -10,9 +10,6 @@
         "__hint_A7": "- bits: a sequence of bits, big endian, any length in bytes",
         "__hint_A8": "- bit_bool: a 1 bit boolean - 1 for true, 0 for false",
 
-        "__hint_234": "Value of 'compact_delimeter' is used for joining compact record's field values. You must not use it anywhere inside custom types keys or values!",
-        "compact_delimeter": ".",
-
         "__hint_1": "difficulty levels captions",
         "difficulty_type":
         {
@@ -519,7 +516,7 @@
                 "__hint": "duration of colonist's work at their jobs",
                 "no_indent": true,
                 "count": 16,
-                "compact": ", ",
+                "compact": true,
                 "bit_struct":
                 {
                     "dur_1": {"size": 4, "type": "uint"},
