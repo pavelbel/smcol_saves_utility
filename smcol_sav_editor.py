@@ -72,8 +72,8 @@ def get_caption_data(json_sav_data: dict):
 
 
 class SAVEditor:
-    def __init__(self, sav_filename: str, sav_structure: dict):
-        self.sav_filename = sav_filename
+    def __init__(self, in_sav_filepath: str, sav_structure: dict):
+        self.sav_filepath = in_sav_filepath
         self.sav_structure = sav_structure
         self.json_sav_data = None
         self.metadata = None
@@ -82,14 +82,20 @@ class SAVEditor:
         self.unsaved_changes = []
         self.load()
 
+    def filename(self):
+        return os.path.split(self.sav_filepath)[1]
+
+    def filepath(self):
+        return self.sav_filepath
+
     def load(self):
-        self.json_sav_data, self.metadata = read_json_sav_data(self.sav_filename, self.sav_structure)
+        self.json_sav_data, self.metadata = read_json_sav_data(self.sav_filepath, self.sav_structure)
         self.is_initialized = self.json_sav_data is not None
         self.caption_data = get_caption_data(self.json_sav_data)
         self.unsaved_changes = []
 
     def save(self):
-        bak_filename = save_sav_data(self.sav_filename, self.json_sav_data)
+        bak_filename = save_sav_data(self.sav_filepath, self.json_sav_data)
         self.unsaved_changes = []
         return bak_filename
 
@@ -170,7 +176,7 @@ def run_reload_routine(sav_editor: SAVEditor):
 
     sav_editor.load()
     if sav_editor.is_initialized:
-        print(f"SAV file '{sav_editor.sav_filename}' reload SUCCESS")
+        print(f"SAV file '{sav_editor.filename()}' reload SUCCESS")
 
 
 def run_save_routine(sav_editor: SAVEditor):
@@ -249,13 +255,13 @@ def run_remove_stokade_routine(sav_editor: SAVEditor):
 
 
 
-def edit_sav_file(sav_filename: str, sav_structure: dict):
+def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
-    sav_editor = SAVEditor(sav_filename, sav_structure)
+    sav_editor = SAVEditor(in_sav_filename, sav_structure)
 
     if not sav_editor.is_initialized:
-        print(f"SAV file '{sav_editor.sav_filename}' loading ERROR!")
+        print(f"SAV file '{os.path.split(sav_editor.filename())[1]}' loading ERROR!")
         return
 
     routines = [(run_reload_routine, "Reload SAV file"),
@@ -266,7 +272,7 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 
     while True:
         print()
-        print(f"== {sav_filename}: {sav_editor.caption_data['country_name']}, {sav_editor.caption_data['season'].capitalize()} of {sav_editor.caption_data['year']}, {sav_editor.caption_data['difficulty']} {sav_editor.caption_data['name']}, {sav_editor.caption_data['gold']} gold ==")
+        print(f"== {sav_editor.filename()}: {sav_editor.caption_data['country_name']}, {sav_editor.caption_data['season'].capitalize()} of {sav_editor.caption_data['year']}, {sav_editor.caption_data['difficulty']} {sav_editor.caption_data['name']}, {sav_editor.caption_data['gold']} gold ==")
 
         print("Actions list:")
         for num, rout in enumerate(routines, start=1):
@@ -282,7 +288,7 @@ def edit_sav_file(sav_filename: str, sav_structure: dict):
 
         routines[action_idx - 1][0](sav_editor)
         if not sav_editor.is_initialized:
-            print(f"SAV file '{sav_editor.sav_filename}' BROKEN or ABSENT!")
+            print(f"SAV file '{sav_editor.filename()}' BROKEN or ABSENT!")
 
     return
 
@@ -321,7 +327,8 @@ if __name__ == '__main__':
                     continue
 
                 curr_read_json_sav_data, _ = read_json_sav_data(dir_entry.path, json_sav_structure, sections_to_read=['HEAD', 'PLAYER', 'NATION'])
-                sav_files_list.append((dir_entry.name, file_type, curr_read_json_sav_data))
+                #sav_files_list.append((dir_entry.name, file_type, curr_read_json_sav_data))
+                sav_files_list.append({"name": dir_entry.name, "path": dir_entry.path, "type": file_type, "data": curr_read_json_sav_data})
 
         if len(sav_files_list) == 0:
             print("NO SAV files in current directory. Place this file to COLONIZE folder.")
@@ -331,8 +338,8 @@ if __name__ == '__main__':
         print("SAV and SAV.JSON files in the current folder:")
         bad_saves_idxs = []
         for i, sav_file_data in enumerate(sav_files_list, start=1):
-            print(f"{i:2}. {sav_file_data[0]}", end=': ')
-            caption_data = get_caption_data(sav_file_data[2])
+            print(f"{i:2}. {sav_file_data['name']}", end=': ')
+            caption_data = get_caption_data(sav_file_data['data'])
             if caption_data is None:
                 print('Corrupt')
                 bad_saves_idxs.append(i)
@@ -347,6 +354,6 @@ if __name__ == '__main__':
             print("This SAV file is corrupt!")
             continue
 
-        chosen_filename = sav_files_list[sav_idx-1][0]
+        chosen_filepath = sav_files_list[sav_idx - 1]['path']
 
-        edit_sav_file(chosen_filename, json_sav_structure)
+        edit_sav_file(chosen_filepath, json_sav_structure)
