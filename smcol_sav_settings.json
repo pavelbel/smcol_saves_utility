@@ -5,7 +5,7 @@
     "__hint1": "editor - special settings for smcol_sav_editor.py",
     "editor":
     {
-        "remove_fortifications_only_in_player_colonies": false
+        "remove_fortifications_only_in_player_colonies": true
     },
 
     "__hint2": "enc_decoder - special settings for enc_decode_sav.py",

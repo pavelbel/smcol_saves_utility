@@ -205,7 +205,8 @@ def run_show_changes_routine(sav_editor: SAVEditor):
 def run_remove_stokade_routine(sav_editor: SAVEditor):
     print()
     print('== Remove fortifications ==')
-    print("  (from player's colonies)  ")
+    if settings['editor']['remove_fortifications_only_in_player_colonies']:
+        print("  (from player's colonies)  ")
 
     # Получить список колоний игрока
     if not isinstance(sav_editor['COLONY'], list):
