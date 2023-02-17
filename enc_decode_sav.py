@@ -69,29 +69,33 @@ if __name__ == '__main__':
     while True:
         sav_files_list = []
 
-        with os.scandir(settings['colonize_path']) as scan_res:
-            for dir_entry in scan_res:
-                if dir_entry.is_dir():
-                    continue
+        try:
+            with os.scandir(settings['colonize_path']) as scan_res:
+                for dir_entry in scan_res:
+                    if dir_entry.is_dir():
+                        continue
 
-                file_type = None
-                if dir_entry.name.lower().endswith(".sav"):
-                    file_type = 'sav'
-                elif dir_entry.name.lower().endswith(".sav.json"):
-                    file_type = 'sav_json'
-                else:
-                    continue
+                    file_type = None
+                    if dir_entry.name.lower().endswith(".sav"):
+                        file_type = 'sav'
+                    elif dir_entry.name.lower().endswith(".sav.json"):
+                        file_type = 'sav_json'
+                    else:
+                        continue
 
-                if file_type == 'sav':
-                    with open(dir_entry.path, mode='rb') as f:
-                        col_str = f.read(8)
-                        if col_str != b'COLONIZE':
-                            continue
+                    if file_type == 'sav':
+                        with open(dir_entry.path, mode='rb') as f:
+                            col_str = f.read(8)
+                            if col_str != b'COLONIZE':
+                                continue
+                    sav_files_list.append({"name": dir_entry.name, "path": dir_entry.path, "type": file_type})
+        except:
+            print(f"ERROR: Failed to scan '{settings['colonize_path']}' folder. Does it exist?")
+            sys.exit(0)
 
-                sav_files_list.append({"name": dir_entry.name, "path": dir_entry.path, "type": file_type})
 
         if len(sav_files_list) == 0:
-            print("NO SAV or SAV.JSON files in current directory. Place this file to COLONIZE folder.")
+            print("NO SAV files in current directory. Open the 'smcol_sav_settings.json' file and set 'colonize_path' value to COLONIZE folder of your Colonization installation")
             sys.exit(0)
 
         print()
