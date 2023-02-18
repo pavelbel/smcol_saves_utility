@@ -13,6 +13,8 @@ SAV_STRUCT_JSON_FILENAME = r'smcol_sav_struct.json'
 # SAV_FILENAME = r'COLONY07.SAV'
 SAV_FILENAME = r'COLONY00.SAV'
 
+builtin_types = ['hex', 'bits', 'bit_bool', 'int', 'uint', 'coords', 'str']
+
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
     if isinstance(curr_entry_count, str):
@@ -270,7 +272,7 @@ def unzip_compact_data(data, data_structure, compact_mode=True):
     return full_data
 
 
-def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, ignore_compact=False, sections_to_read=None):
+def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset=0, ignore_compact=False, ignore_custom_type=False, sections_to_read=None):
     """Read structured SAV data to JSON file IN NEW FORMAT"""
 
     read_res = {}
@@ -293,6 +295,9 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
         if ignore_compact:
             entry_data.pop('compact', None)
 
+        if ignore_custom_type and entry_data.get('type', 'hex') not in builtin_types:
+            entry_data.pop('type', None)
+
         try:
             curr_entry_size = get_entry_size(entry_data, metadata)
         except:
@@ -305,7 +310,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
             row_list = None
             for entry_col in range(curr_entry_cols):
                 if 'struct' in entry_data:
-                    in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, ignore_compact=ignore_compact)
+                    in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, ignore_compact=ignore_compact, ignore_custom_type=ignore_custom_type)
                 elif "bit_struct" in entry_data:
                     bit_struct_data = entry_data["bit_struct"]
                     curr_bit_offset = 0
@@ -317,6 +322,10 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
 
                     for struct_entry_key, struct_entry_value in bit_struct_data.items():
                         curr_entry_bit_size = struct_entry_value['size']  # Сделать правильно!
+
+                        if ignore_custom_type and struct_entry_value.get('type', 'bits') not in builtin_types:
+                            struct_entry_value.pop('type', None)
+
                         curr_bit_substr = bit_arr[curr_bit_offset: curr_bit_offset + curr_entry_bit_size][::-1]
                         if ('type' in struct_entry_value) and (struct_entry_value['type'] != 'bits'):
                             in_res_data[struct_entry_key] = deserialize(curr_bit_substr, struct_entry_value, metadata)
@@ -446,7 +455,7 @@ if __name__ == '__main__':
         sav_data = sf.read()
 
     read_metadata = handle_metadata(sav_structure['__metadata'])
-    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)  #, ignore_compact=True) #, sections_to_read=['HEAD', 'UNIT', 'jo'])
+    read_struct_data = read_sav_structure(sav_structure, sav_data, read_metadata)  #, ignore_compact=True)  #, ignore_custom_type=True)  #, sections_to_read=['HEAD', 'UNIT', 'jo'])
     read_struct_data['__structure'] = sav_structure
 
     sav_json_data_filename = SAV_FILENAME + ".json"
