@@ -53,25 +53,7 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
 
     to_type = struct_data.get('type', None)
 
-    if "bit_struct" in struct_data:
-        bit_struct_data = struct_data["bit_struct"]
-        curr_bit_offset = 0
-        in_res_data = {}
-
-        bit_arr = bitarray()
-        bit_arr.frombytes(val)
-        bit_arr.bytereverse()
-
-        for struct_entry_key, struct_entry_value in bit_struct_data.items():
-            curr_entry_bit_size = struct_entry_value['size']  # Сделать правильно!
-            curr_bit_substr = bit_arr[curr_bit_offset: curr_bit_offset + curr_entry_bit_size][::-1]
-            if ('type' in struct_entry_value) and (struct_entry_value['type'] != 'bits'):
-                in_res_data[struct_entry_key] = deserialize(curr_bit_substr, struct_entry_value, metadata)
-            else:
-                in_res_data[struct_entry_key] = curr_bit_substr.to01()
-            curr_bit_offset += curr_entry_bit_size
-        return in_res_data
-    elif to_type == "int":
+    if to_type == "int":
         if isinstance(val, bytes):
             return int.from_bytes(val, 'little', signed=True)
         elif isinstance(val, bitarray):
@@ -148,30 +130,7 @@ def prepare_data_for_iter(data, data_structure):
 def serialize(data, data_structure, metadata: dict, to_type=bytes):
     """Encode data to bytes"""
 
-    if "bit_struct" in data_structure:
-        bit_struct_data = data_structure["bit_struct"]
-
-        full_bit_str = bitarray()
-        data = prepare_data_for_iter(data, data_structure)
-
-        for data_row in data:
-            for data_entry in data_row:
-                if data_structure.get('compact', False):
-                    data_entry = unzip_compact_data(data_entry, bit_struct_data, compact_mode=data_structure['compact'])
-
-                for data_key, data_value in data_entry.items():
-                    curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
-                    if ('type' in bit_struct_data[data_key]) and (bit_struct_data[data_key]['type'] != 'bits'):
-                        #full_data_str += serialize(data_value, bit_struct_data[data_key], metadata)[:curr_entry_bit_size][::-1].to01()
-                        full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
-                    else:
-                        #full_data_str += data_value.replace(' ', '')[:curr_entry_bit_size][::-1]
-                        full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
-
-        full_bit_str.bytereverse()
-        bytes_data = full_bit_str.tobytes()
-        return bytes_data
-    elif "type" not in data_structure:
+    if "type" not in data_structure:
         return bytes.fromhex(data)
     if data_structure["type"] == "int":
         if to_type == bytes:
@@ -347,6 +306,23 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
             for entry_col in range(curr_entry_cols):
                 if 'struct' in entry_data:
                     in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, ignore_compact=ignore_compact)
+                elif "bit_struct" in entry_data:
+                    bit_struct_data = entry_data["bit_struct"]
+                    curr_bit_offset = 0
+                    in_res_data = {}
+
+                    bit_arr = bitarray()
+                    bit_arr.frombytes(sav_data[curr_data_offset:curr_data_offset + curr_entry_size])
+                    bit_arr.bytereverse()
+
+                    for struct_entry_key, struct_entry_value in bit_struct_data.items():
+                        curr_entry_bit_size = struct_entry_value['size']  # Сделать правильно!
+                        curr_bit_substr = bit_arr[curr_bit_offset: curr_bit_offset + curr_entry_bit_size][::-1]
+                        if ('type' in struct_entry_value) and (struct_entry_value['type'] != 'bits'):
+                            in_res_data[struct_entry_key] = deserialize(curr_bit_substr, struct_entry_value, metadata)
+                        else:
+                            in_res_data[struct_entry_key] = curr_bit_substr.to01()
+                        curr_bit_offset += curr_entry_bit_size
                 else:
                     in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
                     in_res_data = deserialize(in_res_data, entry_data, metadata)  #, to_print_typename=entry_col == curr_entry_cols - 1)
@@ -391,20 +367,41 @@ def dump_sav_structure(read_struct_data, data_structure, metadata):
     if read_struct_data is None:
         return res_data
 
-    if 'bit_struct' in data_structure:
-        res_data += serialize(read_struct_data, data_structure, metadata)
-    elif isinstance(read_struct_data, list):
+    if isinstance(read_struct_data, list):
         for entry in read_struct_data:
             res_data += dump_sav_structure(entry, data_structure, metadata)
     elif isinstance(read_struct_data, dict):
         for entry_name, entry_data in read_struct_data.items():
             if entry_name.startswith('__'):
                 continue
-            if 'struct' in data_structure[entry_name]:
-                if data_structure[entry_name].get('compact', False):
-                    entry_data = unzip_compact_data(entry_data, data_structure[entry_name]['struct'], compact_mode=data_structure[entry_name]['compact'])
 
-                res_data += dump_sav_structure(entry_data, data_structure[entry_name]['struct'], metadata)
+            if 'struct' in data_structure[entry_name]:
+                curr_entry_data_structure = data_structure[entry_name]
+                if curr_entry_data_structure.get('compact', False):
+                    entry_data = unzip_compact_data(entry_data, curr_entry_data_structure['struct'], compact_mode=curr_entry_data_structure['compact'])
+
+                res_data += dump_sav_structure(entry_data, curr_entry_data_structure['struct'], metadata)
+            elif "bit_struct" in data_structure[entry_name]:
+                curr_entry_data_structure = data_structure[entry_name]
+                bit_struct_data = curr_entry_data_structure["bit_struct"]
+
+                full_bit_str = bitarray()
+                data = prepare_data_for_iter(entry_data, curr_entry_data_structure)
+
+                for data_row in data:
+                    for data_entry in data_row:
+                        if curr_entry_data_structure.get('compact', False):
+                            data_entry = unzip_compact_data(data_entry, bit_struct_data, compact_mode=curr_entry_data_structure['compact'])
+
+                        for data_key, data_value in data_entry.items():
+                            curr_entry_bit_size = bit_struct_data[data_key]['size']  # Сделать правильно!
+                            if ('type' in bit_struct_data[data_key]) and (bit_struct_data[data_key]['type'] != 'bits'):
+                                full_bit_str += serialize(data_value, bit_struct_data[data_key], metadata, to_type=bitarray)[:curr_entry_bit_size][::-1]
+                            else:
+                                full_bit_str += bitarray(data_value)[:curr_entry_bit_size][::-1]
+
+                full_bit_str.bytereverse()
+                res_data += full_bit_str.tobytes()
             else:
                 res_data += dump_sav_structure(entry_data, data_structure[entry_name], metadata)
     else:
