@@ -16,11 +16,11 @@ SAV_FILENAME = r'COLONY00.SAV'
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
     if isinstance(curr_entry_count, str):
-        curr_entry_count = int.from_bytes(metadata[curr_entry_count], "little")
+        curr_entry_count = metadata[curr_entry_count]
 
     curr_entry_cols = entry.get('cols', 1)
     if isinstance(curr_entry_cols, str):
-        curr_entry_cols = int.from_bytes(metadata[curr_entry_cols], "little")
+        curr_entry_cols = metadata[curr_entry_cols]
 
     return curr_entry_count, curr_entry_cols
 
@@ -349,9 +349,10 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
                     in_res_data = read_sav_structure(entry_data['struct'], sav_data, metadata, prefix=prefix + '> ', data_offset=curr_data_offset, ignore_compact=ignore_compact)
                 else:
                     in_res_data = sav_data[curr_data_offset:curr_data_offset + curr_entry_size]
-                    if entry_data.get('save_meta', False):
-                        metadata[entry_name] = in_res_data
                     in_res_data = deserialize(in_res_data, entry_data, metadata)  #, to_print_typename=entry_col == curr_entry_cols - 1)
+
+                if entry_data.get('save_meta', False):
+                    metadata[entry_name] = in_res_data
 
                 if not ignore_compact and entry_data.get('compact', False) and isinstance(in_res_data, dict):
                     in_res_data = zip_compact_data(in_res_data, entry_data['compact'])
