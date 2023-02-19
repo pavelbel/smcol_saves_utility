@@ -17,13 +17,13 @@ The utility to edit SAV files. __Warning__: this is not a cheat utility! It won'
 Functionality:
 * Plant forests
 * Remove fortifications in colonies
+* Upgrade warehouse level above 2 (for a fee!). Adjust max level and fee increase koeffs in settings
+* Clear and plow tiles under AI's colonies (why does AI never does it itself?..)
 * (IN DEVELOPMENT) Remove drydocks in colonies (if you don't want your ships to go there for repairs)
-* (IN DEVELOPMENT) Increase warehouses capacity
 * (IN DEVELOPMENT) Carrier growth for indian converts:
   * assimilate them as *Indentured Servants* (after several turns of work in a colony)
   * arm them with muskets and/or horses to fight by your side
 * (IN DEVELOPMENT) Repair damaged artillery (half a cost of building)
-* (IN DEVELOPMENT) Clean and plow tiles under AI's colonies (why doesn't AI do it?)
 
 ## Utility _enc_decode_sav.py_
 Functionality:
@@ -46,7 +46,7 @@ It is stored in _smcol_sav_struct.json_ file. The structure itself was copied fr
 Some additions were made:
 - Warehouse Expansion level info was correctly mapped (byte 0x95 in colony record)
 - Profession field value for Treasure unit is it's gold amount (x100), i.e. 0x32 = 50d = 5000 gold
-- Artillery damaged flag discovered. Now we can "repair" it! (for a price in wood and tools of course). Though this flag means something else for ships
+- Artillery/ship 'damaged' flag discovered. Now we can "repair" artillery! (for a price in wood and tools of course)
 
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
