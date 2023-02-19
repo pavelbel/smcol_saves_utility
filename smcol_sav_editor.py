@@ -106,7 +106,18 @@ class SAVEditor:
         self.json_sav_data, self.metadata = read_json_sav_data(self.sav_filepath, self.sav_structure)
         self.is_initialized = self.json_sav_data is not None
         self.caption_data = get_caption_data(self.json_sav_data)
-        self.unsaved_changes = []
+
+        # Если колония одна, то она не будет списком. Исправим это
+        if 'COLONY' not in self.json_sav_data or self.json_sav_data['COLONY'] is None:
+            self.json_sav_data['COLONY'] = []
+        elif not isinstance(self.json_sav_data['COLONY'], list):
+            self.json_sav_data['COLONY'] = [self.json_sav_data['COLONY']]
+
+        # Если юнит один (но этого не бывает!), то он не будет списком. Исправим это
+        if 'UNIT' not in self.json_sav_data or self.json_sav_data['UNIT'] is None:
+            self.json_sav_data['UNIT'] = []
+        elif not isinstance(self.json_sav_data['UNIT'], list):
+            self.json_sav_data['UNIT'] = [self.json_sav_data['UNIT']]
 
     def save(self):
         bak_filename = save_sav_data(self.sav_filepath, self.json_sav_data)
@@ -217,10 +228,6 @@ def run_remove_stokade_routine(sav_editor: SAVEditor):
     print('== Remove fortifications ==')
     if settings['editor']['remove_fortifications_only_in_player_colonies']:
         print("  (from player's colonies)  ")
-
-    # Получить список колоний игрока
-    if not isinstance(sav_editor['COLONY'], list):
-        sav_editor['COLONY'] = [sav_editor['COLONY']]
 
     if settings['editor']['remove_fortifications_only_in_player_colonies']:
         player_nation = sav_editor.get_player_nation()
@@ -358,6 +365,50 @@ def run_upgrade_warehouse_stokade_routine(sav_editor: SAVEditor):
         print(res_str)
 
 
+def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
+    """Clear away forest and plow tiles under AI's colonies"""
+
+    print()
+    print("== Clear & plow tiles under AI's colonies ==")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No AI's colonies found!")
+        return
+
+    changes_made = False
+    for col in colonies_list:
+        tile_x = col['x, y'][0]
+        tile_y = col['x, y'][1]
+
+        curr_tile = sav_editor['TILE'][tile_y][tile_x]['tile']
+        curr_tile_split = [s for s in curr_tile]
+        if curr_tile_split[1] == '1':
+            curr_tile_split[1] = '0'
+            sav_editor['TILE'][tile_y][tile_x]['tile'] = ''.join(curr_tile_split)
+            res_str = f"Forest cleared at '{col['name']}' (tile {(tile_x, tile_y)})"
+            sav_editor.unsaved_changes.append(res_str)
+            print(res_str)
+            changes_made = True
+
+        if sav_editor['MASK'][tile_y][tile_x]['plowed'] == '0':
+            sav_editor['MASK'][tile_y][tile_x]['plowed'] = '1'
+            res_str = f"Land plowed at '{col['name']}' (tile {(tile_x, tile_y)})"
+            sav_editor.unsaved_changes.append(res_str)
+            print(res_str)
+            changes_made = True
+
+    if not changes_made:
+        print("All colonies' tiles are already plowed")
+
+
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -372,7 +423,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_show_changes_routine, "See pending changes"),
                 (run_plant_forest_routine, "Plant a forest"),
                 (run_remove_stokade_routine, "Remove fortification"),
-                (run_upgrade_warehouse_stokade_routine, "Upgrade warehouse level")]
+                (run_upgrade_warehouse_stokade_routine, "Upgrade warehouse level"),
+                (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies")]
 
     while True:
         print()
