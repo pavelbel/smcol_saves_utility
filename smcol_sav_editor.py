@@ -451,6 +451,7 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
 
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files EDITOR ==")
+    print("             by Pavel Bel. Version 1.1")
 
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, DEFAULT_SETTINGS)

@@ -51,6 +51,7 @@ def encode_sav_file(json_sav_filename: str):
 
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
+    print("                   by Pavel Bel. Version 1.1")
 
     default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
