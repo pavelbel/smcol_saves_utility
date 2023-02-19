@@ -5,6 +5,14 @@ import json
 from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure
 from smcol_sav_common import *
 
+FIELD_VALUES = {
+"control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
+"difficulty_type":  {"Discoverer": "00", "Explorer": "01", "Conquistador": "02", "Governor": "03", "Viceroy": "04"},
+"season_type":      {"autumn": "01 00", "spring": "00 00"},
+"terrain_5bit_type":{"tu ": "00000", "de ": "00001", "pl ": "00010", "pr ": "00011", "gr ": "00100", "sa ": "00101", "sw ": "00110", "mr ": "00111", "tuF": "01000", "deF": "01001", "plF": "01010", "prF": "01011", "grF": "01100", "saF": "01101", "swF": "01110", "mrF": "01111", "arc": "11000", "~~~": "11001", "~:~": "11010"},
+"nation_type":      {"England": "00", "France": "01", "Spain": "02", "Netherlands": "03", "Inca": "04", "Aztec": "05", "Awarak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
+}
+
 
 def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=None):
     try:
@@ -12,7 +20,7 @@ def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=
             sav_data = sf.read()
 
         read_metadata = handle_metadata(sav_structure['__metadata'])
-        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True, sections_to_read=sections_to_read)
+        json_sav_data = read_sav_structure(sav_structure, sav_data, read_metadata, ignore_compact=True, ignore_custom_type=True, sections_to_read=sections_to_read)
         json_sav_data['__structure'] = sav_structure
     except Exception as ex:
         return None
@@ -50,11 +58,11 @@ def get_caption_data(json_sav_data: dict):
         return None
 
     caption_data = {'year': json_sav_data['HEAD']['year'],
-                    'season': json_sav_data['HEAD']['season'],
-                    'difficulty': json_sav_data['HEAD']['difficulty']}
+                    'season': FIELD_VALUES['season_type_inv'][json_sav_data['HEAD']['season']],
+                    'difficulty': FIELD_VALUES['difficulty_type_inv'][json_sav_data['HEAD']['difficulty']]}
 
     for i, pl in enumerate(json_sav_data['PLAYER']):
-        if pl['control'] == 'PLAYER':
+        if pl['control'] == FIELD_VALUES['control_type']['PLAYER']:
             caption_data['name'] = pl['name']
             caption_data['country_name'] = pl['country_name']
             caption_data['colonies'] = pl['founded_colonies']
@@ -146,21 +154,17 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
         tile_x, tile_y = extract_coords_from_str(coords_str)
 
         curr_tile = sav_editor['TILE'][tile_y][tile_x]['tile']
-        if curr_tile in ['~~~', '~:~']:
-            print('ERROR: cannot plant a forest on ocean!')
+        if curr_tile[0] == '1':
+            print('ERROR: cannot plant forest on an ocean or arctic tile!')
             continue
 
-        if curr_tile == 'arc':
-            print('ERROR: cannot plant a forest in arctic!')
-            continue
-
-        if curr_tile[2].lower() == 'f':
+        if curr_tile[1] == '1':
             print('ERROR: the tile is already forested!')
             continue
 
         # Planting forest!
-        sav_editor['TILE'][tile_y][tile_x]['tile'] = curr_tile[:2] + 'F' + curr_tile[3:]
-        sav_editor['MASK'][tile_y][tile_x]['plowed'] = ' '
+        sav_editor['TILE'][tile_y][tile_x]['tile'] = curr_tile[:1] + '1' + curr_tile[2:]
+        sav_editor['MASK'][tile_y][tile_x]['plowed'] = '0'
 
         res_str = f"Forest planted on tile {(tile_x, tile_y)}"
         sav_editor.unsaved_changes.append(res_str)
@@ -219,7 +223,7 @@ def run_remove_stokade_routine(sav_editor: SAVEditor):
 
     colonies_list = []
     for colony in sav_editor['COLONY']:
-        if player_nation is not None and colony['nation_id'] not in player_nation:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
             continue
         colonies_list.append(colony)
 
@@ -227,33 +231,33 @@ def run_remove_stokade_routine(sav_editor: SAVEditor):
         print("No colonies found!")
         return
 
-    fortifications = ['no', 'stockade', 'fort', 'fortress']
+    no_fort = '000'
+    fortifications = {no_fort: 'no', '001': 'stockade', '011': 'fort', '111': 'fortress'}
     while True:
         print()
         print("Colonies list:")
         for i, col in enumerate(colonies_list, start=1):
-            print(f"{i:2}. {col['name']}: {fortifications[int(col['buildings']['fortification'])]}")
+            print(f"{i:2}. {col['name']}: {fortifications[col['buildings']['fortification']]}")
 
         col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
         if col_idx is None:
             break
 
         curr_colony = colonies_list[col_idx-1]
-        if int(curr_colony['buildings']['fortification']) == 0:
+        if curr_colony['buildings']['fortification'] == no_fort:
             print(f"Colony '{curr_colony['name']}' doesn't have any fortification")
             continue
 
-        ans_yn = get_input(f"Colony '{curr_colony['name']}' has fortification: {fortifications[int(curr_colony['buildings']['fortification'])]}. Remove it? [y/n]", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
+        ans_yn = get_input(f"Colony '{curr_colony['name']}' has fortification: {fortifications[curr_colony['buildings']['fortification']]}. Remove it? [y/n]", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
         if ans_yn is None or ans_yn[0].lower() == 'n':
             print(f"Fortification removing cancelled")
             continue
 
-        curr_colony['buildings']['fortification'] = '0'
+        curr_colony['buildings']['fortification'] = no_fort
 
         res_str = f"Fortification removed in '{curr_colony['name']}'"
         sav_editor.unsaved_changes.append(res_str)
         print(res_str)
-
 
 
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
@@ -283,7 +287,7 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
         if action_idx is None:
             if len(sav_editor.unsaved_changes) > 0:
                 ans = get_input("There are unsaved changes. Do you want to skip them? [y/n]: ", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
-                if ans[0].lower() == 'n':
+                if ans is None or ans[0].lower() == 'n':
                     continue
             break
 
@@ -301,6 +305,8 @@ if __name__ == '__main__':
                         "editor": {"remove_fortifications_only_in_player_colonies": True}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, default_settings)
+
+    FIELD_VALUES = handle_metadata(FIELD_VALUES, to_lowercase=False)
 
     json_struct_filename = 'smcol_sav_struct.json'
     is_sav_structure_loaded = False

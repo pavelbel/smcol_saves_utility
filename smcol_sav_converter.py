@@ -199,7 +199,7 @@ def lowercase_dict(in_dict: dict):
     return {x.lower() if isinstance(x, str) else x : y for (x, y) in in_dict.items()}
 
 
-def handle_metadata(entry_metadata):
+def handle_metadata(entry_metadata, to_lowercase=True):
     """Handle metadata - save it to metadata object"""
 
     metadata = {}
@@ -209,7 +209,7 @@ def handle_metadata(entry_metadata):
             continue
 
         if isinstance(entry_data, dict):
-            metadata[entry_name] = lowercase_dict(entry_data)
+            metadata[entry_name] = lowercase_dict(entry_data) if to_lowercase else entry_data
             metadata[entry_name + '_inv'] = reverse_dict(entry_data)
         else:
             metadata[entry_name] = entry_data
