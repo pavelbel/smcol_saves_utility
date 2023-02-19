@@ -5,6 +5,12 @@ import json
 from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure
 from smcol_sav_common import *
 
+DEFAULT_SETTINGS = {"colonize_path": ".",
+                    "editor": {"remove_fortifications_only_in_player_colonies": True,
+                               "warehouse_max_level": 4,
+                               "warehouse_level_inc_hammers_multiplier": 2,
+                               "warehouse_level_inc_tools_multiplier": 2}
+                    }
 FIELD_VALUES = {
 "control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
 "difficulty_type":  {"Discoverer": "00", "Explorer": "01", "Conquistador": "02", "Governor": "03", "Viceroy": "04"},
@@ -260,6 +266,98 @@ def run_remove_stokade_routine(sav_editor: SAVEditor):
         print(res_str)
 
 
+def get_upgrade_wh_settings_values():
+    field_name = 'warehouse_max_level'
+    try:
+        max_wh_level = int(settings['editor'][field_name])
+    except:
+        max_wh_level = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({max_wh_level})")
+
+    field_name = 'warehouse_level_inc_hammers_multiplier'
+    try:
+        hammers_mult_koeff = settings['editor']['field_name']
+    except:
+        hammers_mult_koeff = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({hammers_mult_koeff})")
+
+    field_name = 'warehouse_level_inc_tools_multiplier'
+    try:
+        tools_mult_koeff = settings['editor'][field_name]
+    except:
+        tools_mult_koeff = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({tools_mult_koeff})")
+
+    return max_wh_level, hammers_mult_koeff, tools_mult_koeff
+
+
+def run_upgrade_warehouse_stokade_routine(sav_editor: SAVEditor):
+    """Upgrade warehouse level above 2"""
+
+    print()
+    print('== Upgrade warehouse ==')
+    max_wh_level, hammers_mult_koeff, tools_mult_koeff = get_upgrade_wh_settings_values()
+    print(f"Upgrade warehouse level in player's colonies above 2. Each level costs {hammers_mult_koeff} times more hammers\n"
+          f"and {tools_mult_koeff} times more tools than previous. Max level is {max_wh_level}.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            print(f"{i:2}. {col['name']}: warehouse {col['warehouse_level']} lvl")
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx-1]
+        curr_wh_level = curr_colony['warehouse_level']
+        if curr_wh_level < 2:
+            print(f"Colony '{curr_colony['name']}' has warehouse level below 2. Build warehouse expansion first to proceed.")
+            continue
+
+        if curr_wh_level == max_wh_level:
+            print(f"Colony '{curr_colony['name']}' already has maximum warehouse level ({curr_colony['warehouse_level']}).")
+            continue
+
+        needed_hammers_count = 80 * (hammers_mult_koeff ** (curr_wh_level-1))
+        needed_tools_count = 20 * (tools_mult_koeff ** (curr_wh_level - 1))
+
+        print(f"{needed_hammers_count} HAMMERS and {needed_tools_count} TOOLS are required to upgrade warehouse to level {curr_wh_level+1}")
+        if curr_colony['hammers'] < needed_hammers_count:
+            print(f"Colony '{curr_colony['name']}' doesn't have enough HAMMERS. There are only {curr_colony['hammers']}")
+            continue
+
+        if curr_colony['stock']['tools'] < needed_tools_count:
+            print(f"Colony '{curr_colony['name']}' doesn't have enough TOOLS. There are only {curr_colony['stock']['tools']}")
+            continue
+
+        ans_yn = get_input(f"Colony '{curr_colony['name']}' has enough HAMMERS ({curr_colony['hammers']}) and TOOLS ({curr_colony['stock']['tools']}) for warehouse upgrade. Upgrade it? [y/n]", res_type=str, error_str="Wrong answer:", check_fun=lambda x: x[0].lower() in ['y', 'n'])
+        if ans_yn is None or ans_yn[0].lower() == 'n':
+            print("Warehouse upgrade cancelled")
+            continue
+
+        curr_colony['warehouse_level'] += 1
+        curr_colony['hammers'] -= needed_hammers_count
+        curr_colony['stock']['tools'] -= needed_tools_count
+
+        res_str = f"Warehouse in '{curr_colony['name']}' upgraded to level {curr_wh_level+1}"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
+
+
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -273,7 +371,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_save_routine, "Save SAV file"),
                 (run_show_changes_routine, "See pending changes"),
                 (run_plant_forest_routine, "Plant a forest"),
-                (run_remove_stokade_routine, "Remove fortification")]
+                (run_remove_stokade_routine, "Remove fortification"),
+                (run_upgrade_warehouse_stokade_routine, "Upgrade warehouse level")]
 
     while True:
         print()
@@ -301,10 +400,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
 if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files EDITOR ==")
 
-    default_settings = {"colonize_path": ".",
-                        "editor": {"remove_fortifications_only_in_player_colonies": True}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
-    settings = load_settings(settings_json_filename, default_settings)
+    settings = load_settings(settings_json_filename, DEFAULT_SETTINGS)
 
     FIELD_VALUES = handle_metadata(FIELD_VALUES, to_lowercase=False)
 
