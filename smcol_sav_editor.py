@@ -17,6 +17,7 @@ FIELD_VALUES = {
 "season_type":      {"autumn": "01 00", "spring": "00 00"},
 "terrain_5bit_type":{"tu ": "00000", "de ": "00001", "pl ": "00010", "pr ": "00011", "gr ": "00100", "sa ": "00101", "sw ": "00110", "mr ": "00111", "tuF": "01000", "deF": "01001", "plF": "01010", "prF": "01011", "grF": "01100", "saF": "01101", "swF": "01110", "mrF": "01111", "arc": "11000", "~~~": "11001", "~:~": "11010"},
 "nation_type":      {"England": "00", "France": "01", "Spain": "02", "Netherlands": "03", "Inca": "04", "Aztec": "05", "Awarak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
+"profession_type":  {"Indentured servant": "19", "Petty criminal": "1A", "Indian convert": "1B", "Free colonist": "1C"}
 }
 
 
@@ -299,7 +300,7 @@ def get_upgrade_wh_settings_values():
     return max_wh_level, hammers_mult_koeff, tools_mult_koeff
 
 
-def run_upgrade_warehouse_stokade_routine(sav_editor: SAVEditor):
+def run_upgrade_warehouse_level_routine(sav_editor: SAVEditor):
     """Upgrade warehouse level above 2"""
 
     print()
@@ -366,6 +367,53 @@ def run_upgrade_warehouse_stokade_routine(sav_editor: SAVEditor):
         print(res_str)
 
 
+def get_converts_count(colony):
+    """Get indian converts workers count in the colony"""
+
+    converts_count = 0
+    for colonist_index in range(colony['population']):
+        if colony['profession'][colonist_index] == FIELD_VALUES['profession_type']['Indian convert']:
+            converts_count += 1
+
+    return converts_count
+
+
+def run_assimilate_converts_routine(sav_editor: SAVEditor):
+    """Assimilate indian converts working in colonies"""
+
+    work_duration = 10
+    convert_to_state = "Indentured servant"
+
+    print()
+    print('== Assimilate Indian converts ==')
+    print(f"Assimilate Indian converts who WORK at player's colonies for at least {work_duration} turns as {convert_to_state}s.")
+    print("Converts staying outside of the colony cannot be converted.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No player's colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            conv_count = get_converts_count(col)
+            print(f"{i:2}. {col['name']}: {(str(conv_count) + ' converts') if conv_count > 0 else '-'}")
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+
+
 def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
     """Clear away forest and plow tiles under AI's colonies"""
 
@@ -424,8 +472,9 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_show_changes_routine, "See pending changes"),
                 (run_plant_forest_routine, "Plant a forest"),
                 (run_remove_stokade_routine, "Remove fortification"),
-                (run_upgrade_warehouse_stokade_routine, "Upgrade warehouse level"),
-                (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies")]
+                (run_upgrade_warehouse_level_routine, "Upgrade warehouse level"),
+                (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies"),
+                (run_assimilate_converts_routine, "Assimilate Indian converts")]
 
     while True:
         print()
