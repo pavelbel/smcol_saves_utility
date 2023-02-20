@@ -1,9 +1,10 @@
 import os
 import json
 import sys
-from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, prepare_sav_struct_for_optional_indent
+from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, prepare_sav_struct_for_optional_indent, REL_VER
 from partial_indent_json_encoder import *
 from smcol_sav_common import *
+
 
 def decode_sav_file(sav_filename: str, sav_structure: dict):
     try:
@@ -50,8 +51,8 @@ def encode_sav_file(json_sav_filename: str):
 
 
 if __name__ == '__main__':
-    print("== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
-    print("                   by Pavel Bel. Version 1.1")
+    print( "== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
+    print(f"                   by Pavel Bel. Version {REL_VER}")
 
     default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
@@ -117,5 +118,3 @@ if __name__ == '__main__':
                 print("ERROR: json_sav_structure not loaded, you cannot decode SAV files!")
         else:
             encode_sav_file(chosen_filename)
-
-

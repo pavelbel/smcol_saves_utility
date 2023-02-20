@@ -2,7 +2,7 @@ import os
 import datetime
 import sys
 import json
-from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure
+from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, REL_VER
 from smcol_sav_common import *
 
 DEFAULT_SETTINGS = {"colonize_path": ".",
@@ -136,6 +136,7 @@ class SAVEditor:
 
     def __setitem__(self, key, value):
         self.json_sav_data[key] = value
+
 
 def extract_coords_from_str(coords_str: str):
     coords_splt = coords_str.split(',')
@@ -450,8 +451,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
 
 
 if __name__ == '__main__':
-    print("== Sid Meier's Colonization (1994) SAV files EDITOR ==")
-    print("             by Pavel Bel. Version 1.1")
+    print( "== Sid Meier's Colonization (1994) SAV files EDITOR ==")
+    print(f"             by Pavel Bel. Version {REL_VER}")
 
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, DEFAULT_SETTINGS)
