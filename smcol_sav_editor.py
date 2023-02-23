@@ -9,15 +9,23 @@ DEFAULT_SETTINGS = {"colonize_path": ".",
                     "editor": {"remove_fortifications_only_in_player_colonies": True,
                                "warehouse_max_level": 4,
                                "warehouse_level_inc_hammers_multiplier": 2,
-                               "warehouse_level_inc_tools_multiplier": 2}
+                               "warehouse_level_inc_tools_multiplier": 2,
+                               "assimilate_work_duration_thresh": 10,
+                               "assimilate_target_state": "Indentured servant"}
                     }
 FIELD_VALUES = {
 "control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
 "difficulty_type":  {"Discoverer": "00", "Explorer": "01", "Conquistador": "02", "Governor": "03", "Viceroy": "04"},
 "season_type":      {"autumn": "01 00", "spring": "00 00"},
-"terrain_5bit_type":{"tu ": "00000", "de ": "00001", "pl ": "00010", "pr ": "00011", "gr ": "00100", "sa ": "00101", "sw ": "00110", "mr ": "00111", "tuF": "01000", "deF": "01001", "plF": "01010", "prF": "01011", "grF": "01100", "saF": "01101", "swF": "01110", "mrF": "01111", "arc": "11000", "~~~": "11001", "~:~": "11010"},
-"nation_type":      {"England": "00", "France": "01", "Spain": "02", "Netherlands": "03", "Inca": "04", "Aztec": "05", "Awarak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
-"profession_type":  {"Indentured servant": "19", "Petty criminal": "1A", "Indian convert": "1B", "Free colonist": "1C"}
+"nation_type":      {"England": "00", "France": "01", "Spain": "02", "Netherlands": "03", "Inca": "04", "Aztec": "05",
+                     "Awarak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
+"profession_type":  {"expert farmer": "00", "master sugar planter": "01", "master tobacco planter": "02", "master cotton planter": "03",
+                     "expert fur trapper": "04", "expert lumberjack": "05", "expert ore miner": "06", "expert silver miner": "07",
+                     "expert fisherman": "08", "master distiller": "09", "master tobacconist": "0A", "master weaver": "0B",
+                     "master fur trader": "0C", "master carpenter": "0D", "master blacksmith": "0E", "master gunsmith": "0F",
+                     "firebrand preacher": "10", "elder statesman": "11", "*(student)": "12", "*(free colonist)": "13", "hardy pioneer": "14",
+                     "veteran soldier": "15", "seasoned scout": "16", "veteran dragoon": "17", "jesuit missionary": "18",
+                     "indentured servant": "19", "petty criminal": "1A", "indian convert": "1B", "free colonist": "1C"}
 }
 
 
@@ -381,7 +389,7 @@ def get_converts_count(colony, duration_thresh):
     max_work_dur = 0
     ready_converts_indexes = []
     for colonist_index in range(colony['population']):
-        if colony['profession'][colonist_index] != FIELD_VALUES['profession_type']['Indian convert']:
+        if colony['profession'][colonist_index] != FIELD_VALUES['profession_type']['indian convert']:
             continue
         total_converts_count += 1
         max_work_dur = max(max_work_dur, durations[colonist_index])
@@ -392,16 +400,32 @@ def get_converts_count(colony, duration_thresh):
     return total_converts_count, ready_converts_count, max_work_dur, ready_converts_indexes
 
 
+def get_assimilate_settings_values():
+    field_name = 'assimilate_work_duration_thresh'
+    try:
+        work_duration_thresh = int(settings['editor'][field_name])
+    except:
+        work_duration_thresh = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({work_duration_thresh})")
+
+    field_name = 'assimilate_target_state'
+    try:
+        convert_to_state = settings['editor'][field_name]
+    except:
+        convert_to_state = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({convert_to_state})")
+
+    return work_duration_thresh, convert_to_state
+
 def run_assimilate_converts_routine(sav_editor: SAVEditor):
     """Assimilate indian converts working in colonies"""
 
-    work_duration_thresh = 10
-    convert_to_state = "Indentured servant"
+    work_duration_thresh, convert_to_state = get_assimilate_settings_values()
 
     print()
     print('== Assimilate Indian converts ==')
     print(f"Assimilate Indian converts who WORK at player's colonies for at least {work_duration_thresh} turns as {convert_to_state}s.")
-    print("Converts staying outside of the colony cannot be converted.")
+    print("Converts remaining outside the colony (at gates) cannot be converted.")
 
     player_nation = sav_editor.get_player_nation()
 
@@ -442,9 +466,9 @@ def run_assimilate_converts_routine(sav_editor: SAVEditor):
             continue
 
         # Assimilation!
-        curr_colony['profession'][ready_converts_indexes[0]] = FIELD_VALUES['profession_type'][convert_to_state]
+        curr_colony['profession'][ready_converts_indexes[0]] = FIELD_VALUES['profession_type'][convert_to_state.lower()]
 
-        res_str = f"An Indian convert in {curr_colony['name']} was assimilated as {convert_to_state}"
+        res_str = f"An Indian convert in {curr_colony['name']} was assimilated as {convert_to_state.capitalize()}"
         sav_editor.unsaved_changes.append(res_str)
         print(res_str)
 
