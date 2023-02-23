@@ -108,6 +108,8 @@ class SAVEditor:
         self.is_initialized = self.json_sav_data is not None
         self.caption_data = get_caption_data(self.json_sav_data)
 
+        self.unsaved_changes = []
+
         # Если колония одна, то она не будет списком. Исправим это
         if 'COLONY' not in self.json_sav_data or self.json_sav_data['COLONY'] is None:
             self.json_sav_data['COLONY'] = []
@@ -367,26 +369,38 @@ def run_upgrade_warehouse_level_routine(sav_editor: SAVEditor):
         print(res_str)
 
 
-def get_converts_count(colony):
+def get_converts_count(colony, duration_thresh):
     """Get indian converts workers count in the colony"""
 
-    converts_count = 0
+    durations = []
+    for dur in colony['duration']:
+        durations.append(dur['dur_1'])
+        durations.append(dur['dur_2'])
+    total_converts_count = 0
+    ready_converts_count = 0
+    max_work_dur = 0
+    ready_converts_indexes = []
     for colonist_index in range(colony['population']):
-        if colony['profession'][colonist_index] == FIELD_VALUES['profession_type']['Indian convert']:
-            converts_count += 1
+        if colony['profession'][colonist_index] != FIELD_VALUES['profession_type']['Indian convert']:
+            continue
+        total_converts_count += 1
+        max_work_dur = max(max_work_dur, durations[colonist_index])
+        if durations[colonist_index] >= duration_thresh:
+            ready_converts_count += 1
+            ready_converts_indexes.append(colonist_index)
 
-    return converts_count
+    return total_converts_count, ready_converts_count, max_work_dur, ready_converts_indexes
 
 
 def run_assimilate_converts_routine(sav_editor: SAVEditor):
     """Assimilate indian converts working in colonies"""
 
-    work_duration = 10
+    work_duration_thresh = 10
     convert_to_state = "Indentured servant"
 
     print()
     print('== Assimilate Indian converts ==')
-    print(f"Assimilate Indian converts who WORK at player's colonies for at least {work_duration} turns as {convert_to_state}s.")
+    print(f"Assimilate Indian converts who WORK at player's colonies for at least {work_duration_thresh} turns as {convert_to_state}s.")
     print("Converts staying outside of the colony cannot be converted.")
 
     player_nation = sav_editor.get_player_nation()
@@ -405,13 +419,34 @@ def run_assimilate_converts_routine(sav_editor: SAVEditor):
         print()
         print("Colonies list:")
         for i, col in enumerate(colonies_list, start=1):
-            conv_count = get_converts_count(col)
-            print(f"{i:2}. {col['name']}: {(str(conv_count) + ' converts') if conv_count > 0 else '-'}")
+            total_conv_count, ready_conv_count, _, _ = get_converts_count(col, work_duration_thresh)
+            if total_conv_count == 0:
+                res_str = "-"
+            else:
+                res_str = f"{total_conv_count} converts total, {ready_conv_count} of them ready for assimilation"
+            print(f"{i:2}. {col['name']}: " + res_str)
 
         col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
         if col_idx is None:
             break
 
+        curr_colony = colonies_list[col_idx - 1]
+        total_conv_count, ready_conv_count, max_work_dur, ready_converts_indexes = get_converts_count(curr_colony, work_duration_thresh)
+
+        if total_conv_count == 0:
+            print(f"No Indian converts working in {curr_colony['name']}")
+            continue
+
+        if ready_conv_count == 0:
+            print(f"No Indian converts ready for assimilation in {curr_colony['name']}. They must work for at least {work_duration_thresh - max_work_dur} turns more.")
+            continue
+
+        # Assimilation!
+        curr_colony['profession'][ready_converts_indexes[0]] = FIELD_VALUES['profession_type'][convert_to_state]
+
+        res_str = f"An Indian convert in {curr_colony['name']} was assimilated as {convert_to_state}"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
 
 
 def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
