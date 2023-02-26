@@ -7,6 +7,7 @@ from smcol_sav_common import *
 
 DEFAULT_SETTINGS = {"colonize_path": ".",
                     "editor": {"remove_fortifications_only_in_player_colonies": True,
+                               "plant_forest_tools_cost": 100,
                                "warehouse_max_level": 4,
                                "warehouse_level_inc_hammers_multiplier": 2,
                                "warehouse_level_inc_tools_multiplier": 2,
@@ -167,7 +168,21 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
     """Run plant forest routine"""
 
     print()
-    print('== Plant a forest ==')
+    print('== Plant forest ==')
+
+    field_name = 'plant_forest_tools_cost'
+    try:
+        plant_forest_tools_cost = int(settings['editor'][field_name])
+    except:
+        plant_forest_tools_cost = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({plant_forest_tools_cost})")
+
+    print(f"Plant forest on a tile with coordinates you enter.", end=" ")
+    if plant_forest_tools_cost > 0:
+        print(f"The player's HARDY PIONEER with at least {plant_forest_tools_cost} tools must stay on the tile.")
+        print("(You may edit 'plant_forest_tools_cost' value in settings)")
+    else:
+        print()
 
     def check_coords_str(coords_str: str):
         coords_val = extract_coords_from_str(coords_str)
@@ -187,9 +202,33 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
             print('ERROR: cannot plant forest on an ocean or arctic tile!')
             continue
 
+        if sav_editor['TILE'][tile_y][tile_x]['hill_river'][2] == '1':
+            print('ERROR: cannot plant forest on a hill or mountain!')
+            continue
+
         if curr_tile[1] == '1':
             print('ERROR: the tile is already forested!')
             continue
+
+        if plant_forest_tools_cost > 0:
+            # Searching for the player's hardy pioneer on selected tile
+            pioneer_unit = None
+            for unit in sav_editor['UNIT']:
+                if unit['x, y'][0] == tile_x and unit['x, y'][1] == tile_y and unit['type'] == '02'\
+                        and unit['profession_or_treasure_amount'] == FIELD_VALUES['profession_type']['hardy pioneer']\
+                        and unit['cargo_hold'][5] >= plant_forest_tools_cost:
+                    pioneer_unit = unit
+                    break
+
+            if pioneer_unit is None:
+                print(f"ERROR: The player's HARDY PIONEER with tools quantity not less than {plant_forest_tools_cost} must stay on the tile!")
+                continue
+
+            pioneer_unit['cargo_hold'][5] -= plant_forest_tools_cost
+            pioneer_unit['orders'] = '00'
+            pioneer_unit['moves'] = 3
+            if pioneer_unit['cargo_hold'][5] == 0:
+                pioneer_unit['type'] = '00'
 
         # Planting forest!
         sav_editor['TILE'][tile_y][tile_x]['tile'] = curr_tile[:1] + '1' + curr_tile[2:]
@@ -529,7 +568,7 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     routines = [(run_reload_routine, "Reload SAV file"),
                 (run_save_routine, "Save SAV file"),
                 (run_show_changes_routine, "See pending changes"),
-                (run_plant_forest_routine, "Plant a forest"),
+                (run_plant_forest_routine, "Plant forest"),
                 (run_remove_stokade_routine, "Remove fortification"),
                 (run_upgrade_warehouse_level_routine, "Upgrade warehouse level"),
                 (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies"),

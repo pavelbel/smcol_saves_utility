@@ -41,6 +41,7 @@ def encode_sav_file(json_sav_filename: str):
         enc_sav_data = dump_sav_structure(read_struct_data, loaded_sav_structure, loaded_metadata)
         #saved_filename = os.path.splitext(json_sav_filename)[0][:-2] + '07.SAV'
         saved_filename = os.path.splitext(json_sav_filename)[0] + '.enc'
+        #saved_filename = os.path.splitext(json_sav_filename)[0]
         with open(saved_filename, mode='wb') as svftenc:
             svftenc.write(enc_sav_data)
 
