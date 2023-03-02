@@ -1,6 +1,6 @@
 # Sid Meier's Colonization (1994) SAV files utility pack
 
-**Forewarning**: sorry for my English! Not a native speaker. Will be glad if someone makes pull requests to correct the text.
+**Forewarning**: I'm not a native English speaker. Thanks to [Leon](http://peyre.42web.io/) for my grammar errors correction.
 
 The aim of this work is to make a study and edit process of SAV files easy and comfortable. The ultimate goal is to fully describe the SAV file structure, outline it in universal format and prepare a utility pack for working with SAV files to enhance the gameplay of this brilliant game.
 
