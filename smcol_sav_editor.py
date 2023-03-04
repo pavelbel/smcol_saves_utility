@@ -26,8 +26,18 @@ FIELD_VALUES = {
                      "master fur trader": "0C", "master carpenter": "0D", "master blacksmith": "0E", "master gunsmith": "0F",
                      "firebrand preacher": "10", "elder statesman": "11", "*(student)": "12", "*(free colonist)": "13", "hardy pioneer": "14",
                      "veteran soldier": "15", "seasoned scout": "16", "veteran dragoon": "17", "jesuit missionary": "18",
-                     "indentured servant": "19", "petty criminal": "1A", "indian convert": "1B", "free colonist": "1C"}
+                     "indentured servant": "19", "petty criminal": "1A", "indian convert": "1B", "free colonist": "1C"},
+"unit_type":        {"colonist": "00", "soldier": "01", "pioneer": "02", "missionary": "03", "dragoon": "04", "scout": "05", "tory regular": "06",
+                     "continental cavalry": "07", "tory cavalry": "08", "continental army": "09", "treasure": "0A", "artillery": "0B",
+                     "wagon train": "0C", "caravel": "0D", "merchantman": "0E", "galeon": "0F", "privateer": "10", "frigate": "11",
+                     "man-o-war": "12", "brave": "13", "armed brave": "14", "mounted brave": "15", "mounted warrior": "16"}
 }
+
+IND_CONV_PROM_DATA = [{'unit_type': 'scout', 'reqs': [('horses', 50)]},
+                      {'unit_type': 'mounted brave', 'reqs': [('horses', 50)]},
+                      {'unit_type': 'armed brave', 'reqs': [('muskets', 50)]},
+                      {'unit_type': 'mounted warrior', 'reqs': [('horses', 50), ('muskets', 50)]},
+                      {'unit_type': 'pioneer', 'reqs': [('tools', 20, 100, 20)]}]   # <- ('tools', min, max, step)
 
 
 def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=None):
@@ -214,7 +224,7 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
             # Searching for the player's hardy pioneer on selected tile
             pioneer_unit = None
             for unit in sav_editor['UNIT']:
-                if unit['x, y'][0] == tile_x and unit['x, y'][1] == tile_y and unit['type'] == '02'\
+                if unit['x, y'][0] == tile_x and unit['x, y'][1] == tile_y and unit['type'] == FIELD_VALUES['unit_type']['pioneer']\
                         and unit['profession_or_treasure_amount'] == FIELD_VALUES['profession_type']['hardy pioneer']\
                         and unit['cargo_hold'][5] >= plant_forest_tools_cost:
                     pioneer_unit = unit
@@ -416,7 +426,7 @@ def run_upgrade_warehouse_level_routine(sav_editor: SAVEditor):
         print(res_str)
 
 
-def get_converts_count(colony, duration_thresh):
+def get_working_converts_count(colony, duration_thresh):
     """Get indian converts workers count in the colony"""
 
     durations = []
@@ -456,6 +466,7 @@ def get_assimilate_settings_values():
 
     return work_duration_thresh, convert_to_state
 
+
 def run_assimilate_converts_routine(sav_editor: SAVEditor):
     """Assimilate indian converts working in colonies"""
 
@@ -482,7 +493,7 @@ def run_assimilate_converts_routine(sav_editor: SAVEditor):
         print()
         print("Colonies list:")
         for i, col in enumerate(colonies_list, start=1):
-            total_conv_count, ready_conv_count, _, _ = get_converts_count(col, work_duration_thresh)
+            total_conv_count, ready_conv_count, _, _ = get_working_converts_count(col, work_duration_thresh)
             if total_conv_count == 0:
                 res_str = "-"
             else:
@@ -494,7 +505,7 @@ def run_assimilate_converts_routine(sav_editor: SAVEditor):
             break
 
         curr_colony = colonies_list[col_idx - 1]
-        total_conv_count, ready_conv_count, max_work_dur, ready_converts_indexes = get_converts_count(curr_colony, work_duration_thresh)
+        total_conv_count, ready_conv_count, max_work_dur, ready_converts_indexes = get_working_converts_count(curr_colony, work_duration_thresh)
 
         if total_conv_count == 0:
             print(f"No Indian converts working in {curr_colony['name']}")
@@ -510,6 +521,115 @@ def run_assimilate_converts_routine(sav_editor: SAVEditor):
         res_str = f"An Indian convert in {curr_colony['name']} was assimilated as {convert_to_state.capitalize()}"
         sav_editor.unsaved_changes.append(res_str)
         print(res_str)
+
+
+def get_waiting_converts(colony, sav_editor):
+    """Get number of Indian converts waiting at the colony's gates"""
+
+    waiting_coverts = []
+    for unit in sav_editor['UNIT']:
+        if unit['x, y'][0] == colony['x, y'][0] and unit['x, y'][1] == colony['x, y'][1] and unit['type'] == FIELD_VALUES['unit_type']['colonist'] \
+                and unit['profession_or_treasure_amount'] == FIELD_VALUES['profession_type']['indian convert']:
+            waiting_coverts.append(unit)
+
+    return waiting_coverts
+
+
+def run_arm_equip_converts_routine(sav_editor: SAVEditor):
+    """Arm/equip Indian converts remaining at colonies' gates and make them warriors, scouts or pioneers"""
+
+    print()
+    print('== Arm/Equip Indian converts ==')
+    print("Promote Indian converts remaining outside the colony (at gates) to:")
+    print("* Scouts (for 50 horses)")
+    print("* Mounted braves (for 50 horses)")
+    print("* Armed braves (for 50 muskets)")
+    print("* Mounted warriors (for 50 horses and 50 muskets)")
+    print("* Pioneers (for 100 tools)")
+    print("Converts working in colonies cannot be promoted.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No player's colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            waiting_converts = get_waiting_converts(col, sav_editor)
+            if len(waiting_converts) == 0:
+                res_str = "-"
+            else:
+                res_str = f"{len(waiting_converts)} converts remaining at gates"
+            print(f"{i:2}. {col['name']}: " + res_str)
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx - 1]
+        while True:
+            curr_waiting_converts = get_waiting_converts(curr_colony, sav_editor)
+            if len(curr_waiting_converts) < 1:
+                print(f"No Indian converts remaining at gates in {curr_colony['name']}")
+                break
+
+            print()
+            print(f"There is/are {len(curr_waiting_converts)} Indian converts remaining at gates in {curr_colony['name']}. Promote one to:")
+            for i, prom in enumerate(IND_CONV_PROM_DATA, start=1):
+                print(f"{i}. {prom['unit_type'].capitalize()}")
+
+            promote_idx = get_input("Enter promotion index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(IND_CONV_PROM_DATA))
+            if promote_idx is None:
+                break
+
+            # Checking requirements
+            curr_promotion = IND_CONV_PROM_DATA[promote_idx - 1]
+            reqs_met = True
+            for req in curr_promotion['reqs']:
+                if curr_colony['stock'][req[0]] < req[1]:
+                    print(f"ERROR: not enough {req[0]} to promote an Indian convert to {curr_promotion['unit_type'].capitalize()} in {curr_colony['name']}: {req[1]} is needed but only {curr_colony['stock'][req[0]]} available")
+                    reqs_met = False
+
+            if not reqs_met:
+                print(f"Promotion to {curr_promotion['unit_type'].capitalize()} cancelled")
+                continue
+
+            # Updating stocks
+            tools_count = 0
+            for req in curr_promotion['reqs']:
+                if len(req) == 2:
+                    curr_colony['stock'][req[0]] -= req[1]
+                elif len(req) == 4:
+                    tools_count = req[1]
+                    while curr_colony['stock'][req[0]] >= tools_count and tools_count <= req[2]:
+                        tools_count += req[3]
+                    tools_count -= req[3]
+                    curr_colony['stock'][req[0]] -= tools_count
+
+            # Promoting!
+            curr_waiting_converts[0]['type'] = FIELD_VALUES['unit_type'][curr_promotion['unit_type']]
+            curr_waiting_converts[0]['orders'] = '00'
+            if tools_count > 0:
+                curr_waiting_converts[0]['cargo_hold'][5] = tools_count
+
+            res_str = f"An Indian convert in {curr_colony['name']} was promoted to {curr_promotion['unit_type'].capitalize()}"
+            sav_editor.unsaved_changes.append(res_str)
+            print(res_str)
+
+
+# def run_repair_damaged_artillery_routine(sav_editor: SAVEditor):
+#     """Repair damaged artillery"""
+#
+#     pass
 
 
 def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
@@ -572,7 +692,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_remove_stokade_routine, "Remove fortification"),
                 (run_upgrade_warehouse_level_routine, "Upgrade warehouse level"),
                 (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies"),
-                (run_assimilate_converts_routine, "Assimilate Indian converts")]
+                (run_assimilate_converts_routine, "Assimilate Indian converts"),
+                (run_arm_equip_converts_routine, "Arm/equip Indian converts")]
 
     while True:
         print()
