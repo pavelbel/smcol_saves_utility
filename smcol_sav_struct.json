@@ -133,7 +133,15 @@
         {
             "D": "1",
             " ": "0"
-        },        
+        },
+
+        "fortification_level_type":
+        {
+            "none": "00",
+            "stockade": "01",
+            "fort": "02",
+            "fortress": "03"
+        },
 
         "unit_type":
         {
@@ -614,7 +622,27 @@
                     "muskets": {"size": 2, "type": "uint"}
                 }
             },
-            "unknown13": {"size": 8},
+            "population_on_map":
+            {
+                "struct":
+                {
+                    "for english": {"size": 1, "type": "uint"},
+                    "for french": {"size": 1, "type": "uint"},
+                    "for spanish": {"size": 1, "type": "uint"},
+                    "for dutch": {"size": 1, "type": "uint"}
+                }
+            },
+            "fortification_on_map":
+            {
+                "struct":
+                {
+                    "for english": {"size": 1, "type": "fortification_level_type"},
+                    "for french": {"size": 1, "type": "fortification_level_type"},
+                    "for spanish": {"size": 1, "type": "fortification_level_type"},
+                    "for dutch": {"size": 1, "type": "fortification_level_type"}
+                }
+            },
+
             "rebel_dividend": {"size": 4},
             "rebel_divisor": {"size": 4}
         }
