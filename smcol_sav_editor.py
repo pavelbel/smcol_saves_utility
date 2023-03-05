@@ -618,6 +618,7 @@ def run_arm_equip_converts_routine(sav_editor: SAVEditor):
             # Promoting!
             curr_waiting_converts[0]['type'] = FIELD_VALUES['unit_type'][curr_promotion['unit_type']]
             curr_waiting_converts[0]['orders'] = '00'
+            curr_waiting_converts[0]['moves'] = 12
             if tools_count > 0:
                 curr_waiting_converts[0]['cargo_hold'][5] = tools_count
 
@@ -626,10 +627,79 @@ def run_arm_equip_converts_routine(sav_editor: SAVEditor):
             print(res_str)
 
 
-# def run_repair_damaged_artillery_routine(sav_editor: SAVEditor):
-#     """Repair damaged artillery"""
-#
-#     pass
+def get_damaged_artillery(colony, sav_editor):
+    """Get damaged artillery units waiting at the colony's gates"""
+
+    waiting_dam_art = []
+    for unit in sav_editor['UNIT']:
+        if unit['x, y'][0] == colony['x, y'][0] and unit['x, y'][1] == colony['x, y'][1]\
+                and unit['type'] == FIELD_VALUES['unit_type']['artillery'] and unit['unknown15']['damaged']:
+            waiting_dam_art.append(unit)
+
+    return waiting_dam_art
+
+
+def run_repair_damaged_artillery_routine(sav_editor: SAVEditor):
+    """Repair damaged artillery"""
+
+    # Hardcoded, just half a price of building
+    needed_hammers_count = 96
+    needed_tools_count = 20
+
+    print()
+    print('== Repair damaged artillery ==')
+    print(f"Restore full power of a damaged artillery for {needed_hammers_count} hammers and {needed_tools_count} tools. Damaged artillery unit must be inside a colony.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No player's colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            waiting_dam_art = get_damaged_artillery(col, sav_editor)
+            if len(waiting_dam_art) == 0:
+                res_str = "-"
+            else:
+                res_str = f"{len(waiting_dam_art)} damaged artillery units"
+            print(f"{i:2}. {col['name']}: " + res_str)
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx - 1]
+        curr_waiting_dam_art = get_damaged_artillery(curr_colony, sav_editor)
+        if len(curr_waiting_dam_art) < 1:
+            print(f"No damaged artillery units in {curr_colony['name']}")
+            continue
+
+        #print(f"{needed_hammers_count} HAMMERS and {needed_tools_count} TOOLS are required to repair a damaged artillery")
+        if curr_colony['hammers'] < needed_hammers_count:
+            print(f"Colony '{curr_colony['name']}' doesn't have enough HAMMERS: {needed_hammers_count} is needed but only {curr_colony['hammers']} available")
+            continue
+
+        if curr_colony['stock']['tools'] < needed_tools_count:
+            print(f"Colony '{curr_colony['name']}' doesn't have enough TOOLS: {needed_tools_count} is needed but only {curr_colony['stock']['tools']} available")
+            continue
+
+        curr_colony['hammers'] -= needed_hammers_count
+        curr_colony['stock']['tools'] -= needed_tools_count
+        curr_waiting_dam_art[0]['unknown15']['damaged'] = False
+        curr_waiting_dam_art[0]['moves'] = 3
+
+        res_str = f"A damaged artillery repaired in {curr_colony['name']}"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
 
 
 def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
@@ -693,7 +763,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_upgrade_warehouse_level_routine, "Upgrade warehouse level"),
                 (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies"),
                 (run_assimilate_converts_routine, "Assimilate Indian converts"),
-                (run_arm_equip_converts_routine, "Arm/equip Indian converts")]
+                (run_arm_equip_converts_routine, "Arm/equip Indian converts"),
+                (run_repair_damaged_artillery_routine, "Repair damaged artillery")]
 
     while True:
         print()
