@@ -365,6 +365,12 @@
             "13": "1101",
             "14": "1110",
             "15": "1111"
+        },
+
+        "trade_route_type":
+        {
+            "land": "00",
+            "sea": "01"
         }
 
     },
@@ -374,17 +380,7 @@
         "struct":
         {
             "colonize": {"size": 9, "type": "str", "__hint": "a constant string"},
-            "unknown00":
-            {
-                "size": 3,
-                "__compact": ":",
-                "__struct":
-                {
-                    "byte1": {"size": 1, "type": "int"},
-                    "byte2": {"size": 1, "type": "bits"},
-                    "byte3": {"size": 1}
-                }
-            },
+            "unknown00": {"size": 3},
             "map_size_x": {"size": 2, "save_meta": true, "type": "uint"},
             "map_size_y": {"size": 2, "save_meta": true, "type": "uint"},
             "tut1": {"size": 1, "__hint": "a bit_struct, not important"},
@@ -915,5 +911,152 @@
             "vis2du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
         }
     },
-    "unknown38": {"size": 1502}
+    "unknown38": {"size": 18, "count": 28},
+    "unknown39": {"size": 110},
+    "TRADE_ROUTE":
+    {
+        "count": 12,
+        "struct":
+        {
+            "name": {"size": 32, "type": "str"},
+            "land_or_sea": {"size": 1, "type": "trade_route_type"},
+            "stops_count": {"size": 1, "type": "uint"},
+            "stop_1_colony_index": {"size": 2, "type": "uint", "__hint": "corresponds to colony index in COLONY list"},
+            "stop_1_loads_and_unloads_count":
+            {
+                "bit_struct":
+                {
+                    "unloads_count": {"size": 4, "type": "uint"},
+                    "loads_count": {"size": 4, "type": "uint"}
+                }
+            },
+            "stop_1_loads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "stop_1_unloads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "unknown47": {"size": 1},
+            "stop_2_colony_index": {"size": 2, "type": "uint", "__hint": "corresponds to colony index in COLONY list"},
+            "stop_2_loads_and_unloads_count":
+            {
+                "bit_struct":
+                {
+                    "unloads_count": {"size": 4, "type": "uint"},
+                    "loads_count": {"size": 4, "type": "uint"}
+                }
+            },
+            "stop_2_loads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "stop_2_unloads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "unknown48": {"size": 1},
+            "stop_3_colony_index": {"size": 2, "type": "uint", "__hint": "corresponds to colony index in COLONY list"},
+            "stop_3_loads_and_unloads_count":
+            {
+                "bit_struct":
+                {
+                    "unloads_count": {"size": 4, "type": "uint"},
+                    "loads_count": {"size": 4, "type": "uint"}
+                }
+            },
+            "stop_3_loads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "stop_3_unloads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "unknown49": {"size": 1},
+            "stop_4_colony_index": {"size": 2, "type": "uint", "__hint": "corresponds to colony index in COLONY list"},
+            "stop_4_loads_and_unloads_count":
+            {
+                "bit_struct":
+                {
+                    "unloads_count": {"size": 4, "type": "uint"},
+                    "loads_count": {"size": 4, "type": "uint"}
+                }
+            },
+            "stop_4_loads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "stop_4_unloads_cargo":
+            {
+                "bit_struct":
+                {
+                    "cargo_1": {"size": 4, "type": "cargo_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                }
+            },
+            "unknown50": {"size": 1}
+        }
+    }
 }
