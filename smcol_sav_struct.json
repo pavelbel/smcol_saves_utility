@@ -396,7 +396,7 @@
                     "autosave": {"size": 1, "type": "bit_bool"},
                     "end_of_turn": {"size": 1, "type": "bit_bool"},
                     "fast_piece_slide": {"size": 1, "type": "bit_bool"},
-                    "unused02": {"size": 1, "type": "bit_bool"},
+                    "cheats_enabled": {"size": 1, "type": "bit_bool"},
                     "show_foreign_moves": {"size": 1, "type": "bit_bool"},
                     "show_indian_moves": {"size": 1, "type": "bit_bool"}
                 }
@@ -424,7 +424,8 @@
             "year": {"size": 2, "type": "uint"},
             "season": {"size": 2, "type": "season_type"},
             "turn": {"size": 2, "type": "uint"},
-            "unknown40": {"size": 2},
+            "tile_selection_mode": {"size": 1},
+            "unknown40": {"size": 1},
             "active_unit": {"size": 2, "type": "uint", "__hint": "index of an active unit in UNITs section"},
             "unknown41": {"size": 6},
             "tribe_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "tribes count, saving to meta for later use"},
@@ -432,7 +433,8 @@
             "colony_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "colonies count, saving to meta for later use"},
             "unknown42": {"size": 6},
             "difficulty": {"size": 1, "type": "difficulty_type"},
-            "unknown43": {"size": 2},
+            "unknown43a": {"size": 1},
+            "unknown43b": {"size": 1},
             "founding_father": {"size": 25},
             "unknown44": {"size": 6},
             "nation_relation": {"size": 8},
@@ -746,7 +748,8 @@
             "gold": {"size": 4, "type": "uint"},
             "current_crosses": {"size": 2, "type": "uint"},
             "needed_crosses": {"size": 2, "type": "uint"},
-            "unknown25": {"size": 6},
+            "unknown25a": {"size": 2},
+            "unknown25b": {"size": 4},
             "relation_by_indian":
             {
                 "struct":
@@ -762,7 +765,9 @@
         
                 }
             },
-            "unknown26": {"size": 12},
+            "unknown26a": {"size": 4},
+            "unknown26b": {"size": 2},
+            "unknown26c": {"size": 6},
             "trade":
             {
                 "struct":
@@ -817,7 +822,9 @@
         {
             "capitol (x, y)": {"size": 1, "type": "uint", "cols": 2, "no_indent": true},
             "tech": {"size": 1, "type": "tech_type"},
-            "unknown31": {"size": 11},
+            "unknown31a": {"size": 5},
+            "horse_herds": {"size": 1, "type": "uint"},
+            "unknown31b": {"size": 5},
             "tons": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
             "unknown32": {"size": 12},
             "relation_by_nations":
@@ -911,8 +918,12 @@
             "vis2du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
         }
     },
-    "unknown38": {"size": 18, "count": 28},
-    "unknown39": {"size": 110},
+    "unknown_map38a": {"size": 18, "count": 14},
+    "unknown_map38b": {"size": 18, "count": 14},
+    "unknown39a": {"size": 104},
+    "unknown39b": {"size": 3},
+    "prime_resource_seed": {"size": 2},
+    "unknown39d": {"size": 1},
     "TRADE_ROUTE":
     {
         "count": 12,
