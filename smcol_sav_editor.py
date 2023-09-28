@@ -204,17 +204,25 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
         print()
 
     def check_coords_str(coords_str: str):
+        """Check coords_str input correctness"""
+        if coords_str == 'y':
+            return True
         coords_val = extract_coords_from_str(coords_str)
         if coords_val is None:
             return False
         return 1 <= coords_val[0] <= sav_editor['HEAD']['map_size_x'] and 1 <= coords_val[1] <= sav_editor['HEAD']['map_size_y']
 
     while True:
-        coords_str = get_input("Enter coords of a tile you want to turn to a forest (x, y) or press ENTER to quit: ", res_type=str, error_str="Wrong tile coords:", check_fun=check_coords_str)
+        #coords_str = get_input("Enter coords of a tile you want to turn to a forest (x, y) or press ENTER to quit: ", res_type=str, error_str="Wrong tile coords:", check_fun=check_coords_str)
+        coords_str = get_input(f"Do you want to reforest tile ({sav_editor['STUFF']['x']}, {sav_editor['STUFF']['y']})? Enter 'y' if yes or enter coords of a tile you want to reforest (x, y) or press ENTER to quit: ",
+                               res_type=str, error_str="Wrong tile coords:", check_fun=check_coords_str)
         if coords_str is None:
             break
 
-        tile_x, tile_y = extract_coords_from_str(coords_str)
+        if coords_str == 'y':
+            tile_x, tile_y = sav_editor['STUFF']['x'], sav_editor['STUFF']['y']
+        else:
+            tile_x, tile_y = extract_coords_from_str(coords_str)
 
         curr_tile = sav_editor['TILE'][tile_y][tile_x]['tile']
         if curr_tile[0] == '1':

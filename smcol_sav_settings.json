@@ -12,7 +12,7 @@
         "plant_forest_tools_cost": 100,
 
         "__hint4c": "Only HARDY pioneer can perform reforesting (if true) or any pioneer (if false)?",
-        "plant_forest_hardy_pio_need": true,
+        "plant_forest_hardy_pio_need": false,
         
         "warehouse_max_level": 4,
         "warehouse_level_inc_hammers_multiplier": 2,
