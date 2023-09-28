@@ -101,6 +101,8 @@ if __name__ == '__main__':
             print("NO SAV files in current directory. Open the 'smcol_sav_settings.json' file and set 'colonize_path' value to COLONIZE folder of your Colonization installation")
             sys.exit(0)
 
+        sav_files_list.sort(key=lambda x: x["name"])
+
         print()
         print("SAV and SAV.JSON files in the current folder:")
         for i, sav_file_data in enumerate(sav_files_list, start=1):
