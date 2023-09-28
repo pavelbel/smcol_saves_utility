@@ -7,9 +7,12 @@
     {
         "remove_fortifications_only_in_player_colonies": true,
 
-        "__hint_4a": "if 'plant_forest_tools_cost' is greater than 0 then the player's HARDY PIONEER with at least 'plant_forest_tools_cost' tools...",
+        "__hint_4a": "if 'plant_forest_tools_cost' is greater than 0 then the player's PIONEER with at least 'plant_forest_tools_cost' tools...",
         "__hint_4b": "...must stay on the tile you want to plant forest on. Otherwise a pioneer is not needed.",
         "plant_forest_tools_cost": 100,
+
+        "__hint4c": "Only HARDY pioneer can perform reforesting (if true) or any pioneer (if false)?",
+        "plant_forest_hardy_pio_need": true,
         
         "warehouse_max_level": 4,
         "warehouse_level_inc_hammers_multiplier": 2,

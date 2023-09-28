@@ -8,6 +8,7 @@ from smcol_sav_common import *
 DEFAULT_SETTINGS = {"colonize_path": ".",
                     "editor": {"remove_fortifications_only_in_player_colonies": True,
                                "plant_forest_tools_cost": 100,
+                               "plant_forest_hardy_pio_need": True,
                                "warehouse_max_level": 4,
                                "warehouse_level_inc_hammers_multiplier": 2,
                                "warehouse_level_inc_tools_multiplier": 2,
@@ -180,6 +181,7 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
     print()
     print('== Plant forest ==')
 
+    # Load corresponding settings
     field_name = 'plant_forest_tools_cost'
     try:
         plant_forest_tools_cost = int(settings['editor'][field_name])
@@ -187,10 +189,17 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
         plant_forest_tools_cost = DEFAULT_SETTINGS['editor'][field_name]
         print(f"WARNING: wrong '{field_name}' value! Setting it to default ({plant_forest_tools_cost})")
 
+    field_name = 'plant_forest_hardy_pio_need'
+    try:
+        plant_forest_hardy_pio_need = int(settings['editor'][field_name])
+    except:
+        plant_forest_hardy_pio_need = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({plant_forest_hardy_pio_need})")
+
     print(f"Plant forest on a tile with coordinates you enter.", end=" ")
     if plant_forest_tools_cost > 0:
-        print(f"The player's HARDY PIONEER with at least {plant_forest_tools_cost} tools must stay on the tile.")
-        print("(You may edit 'plant_forest_tools_cost' value in settings)")
+        print(f"The player's {'HARDY ' if plant_forest_hardy_pio_need else ''}PIONEER with at least {plant_forest_tools_cost} tools must stay on the tile.")
+        print("(You may edit 'plant_forest_tools_cost' and 'plant_forest_hardy_pio_need' values in settings)")
     else:
         print()
 
@@ -224,14 +233,14 @@ def run_plant_forest_routine(sav_editor: SAVEditor):
             # Searching for the player's hardy pioneer on selected tile
             pioneer_unit = None
             for unit in sav_editor['UNIT']:
-                if unit['x, y'][0] == tile_x and unit['x, y'][1] == tile_y and unit['type'] == FIELD_VALUES['unit_type']['pioneer']\
-                        and unit['profession_or_treasure_amount'] == FIELD_VALUES['profession_type']['hardy pioneer']\
+                if unit['x, y'][0] == tile_x and unit['x, y'][1] == tile_y and unit['type'] == FIELD_VALUES['unit_type']['pioneer'] \
+                        and (not plant_forest_hardy_pio_need or unit['profession_or_treasure_amount'] == FIELD_VALUES['profession_type']['hardy pioneer']) \
                         and unit['cargo_hold'][5] >= plant_forest_tools_cost:
                     pioneer_unit = unit
                     break
 
             if pioneer_unit is None:
-                print(f"ERROR: The player's HARDY PIONEER with tools quantity not less than {plant_forest_tools_cost} must stay on the tile!")
+                print(f"ERROR: The player's {'HARDY ' if plant_forest_hardy_pio_need else ''}PIONEER with tools quantity not less than {plant_forest_tools_cost} must stay on the tile!")
                 continue
 
             pioneer_unit['cargo_hold'][5] -= plant_forest_tools_cost
