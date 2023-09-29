@@ -43,11 +43,15 @@ To run:
 ## SAV file structure outline in JSON format
 It is stored in the _smcol_sav_struct.json_ file. The structure itself was copied from [viceroy](https://github.com/hegemogy/viceroy) project and adapted to JSON format. Thanks to [**eb4x**](https://github.com/eb4x) and [**hegemogy**](https://github.com/hegemogy) for their great and thorough work!
 
-Some additions were made:
+Some additions were made by me:
 - Warehouse Expansion level info was correctly mapped (byte 0x95 in colony record).
 - Profession field value for Treasure unit is its gold amount (x100), i.e. 0x32 = 50d = 5000 gold.
 - Artillery/ship 'damaged' flag discovered. Now we can *repair* artillery! (for a price in wood and tools of course)
-- Colony "external" population and fortification values mapped. These values represent how a colony is seen by other nations (Player and AIs) on their maps.
+- Colony "external" population and fortification values mapped. These values represent how a colony is seen by other nations (Player and AIs) on their maps (fog of war)
+- cheats_enabled flag: whether cheats menu is enabled (Alt+WIN)
+- tile_selection_mode flag: when no unit is selected and the square cursor is blinking
+- prime_resource_seed field: value responsible for prime resources sites placement. Its mechanic is still unknown
+- unknown_map38a and unknown_map38b - two unknown fields somehow related to map.
 
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
