@@ -431,7 +431,8 @@
             "tribe_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "tribes count, saving to meta for later use"},
             "unit_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "units count, saving to meta for later use"},
             "colony_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "colonies count, saving to meta for later use"},
-            "unknown42": {"size": 6},
+            "trade_route_count": {"size": 1, "save_meta": true, "type": "uint", "__hint": "trade routes count, saving to meta for later use"},
+            "unknown42": {"size": 5},
             "difficulty": {"size": 1, "type": "difficulty_type"},
             "unknown43a": {"size": 1},
             "unknown43b": {"size": 1},
@@ -744,7 +745,8 @@
                     "muskets": {"size": 1, "type": "bit_bool"}
                 }
             },
-            "unknown24": {"size": 8},
+            "royal_money": {"size": 4, "type": "uint", "__hint": "King's money for expeditionary force expansion"},
+            "unknown24b": {"size": 4},
             "gold": {"size": 4, "type": "uint"},
             "current_crosses": {"size": 2, "type": "uint"},
             "needed_crosses": {"size": 2, "type": "uint"},
@@ -822,7 +824,8 @@
         {
             "capitol (x, y)": {"size": 1, "type": "uint", "cols": 2, "no_indent": true},
             "tech": {"size": 1, "type": "tech_type"},
-            "unknown31a": {"size": 5},
+            "unknown31a": {"size": 4},
+            "muskets": {"size": 1, "type": "uint", "__hint": "not including muskets equipped by braves"},
             "horse_herds": {"size": 1, "type": "uint"},
             "unknown31b": {"size": 5},
             "tons": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
