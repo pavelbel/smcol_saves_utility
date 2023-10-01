@@ -40,6 +40,7 @@ IND_CONV_PROM_DATA = [{'unit_type': 'scout', 'reqs': [('horses', 50)]},
                       {'unit_type': 'mounted warrior', 'reqs': [('horses', 50), ('muskets', 50)]},
                       {'unit_type': 'pioneer', 'reqs': [('tools', 20, 100, 20)]}]   # <- ('tools', min, max, step)
 
+EF_UNIT_FIELDS_NAMES = ('regulars', 'dragoons', 'artillery', 'man-o-wars')
 
 def read_json_sav_data(sav_filename: str, sav_structure: dict, sections_to_read=None):
     try:
@@ -714,7 +715,7 @@ def run_repair_damaged_artillery_routine(sav_editor: SAVEditor):
         curr_waiting_dam_art[0]['unknown15']['damaged'] = False
         curr_waiting_dam_art[0]['moves'] = 3
 
-        res_str = f"A damaged artillery repaired in {curr_colony['name']}"
+        res_str = f"Damaged artillery repaired in {curr_colony['name']}"
         sav_editor.unsaved_changes.append(res_str)
         print(res_str)
 
@@ -763,6 +764,58 @@ def run_clear_plow_colonies_tiles_routine(sav_editor: SAVEditor):
         print("All colonies' tiles are already plowed")
 
 
+def run_adjust_expeditionary_force(sav_editor: SAVEditor):
+    """Adjust expeditionary force size: disband it or increase"""
+
+    # Maximum number of units of one type: regulars, cavalry, artillery or man-o-wars
+    exp_force_threshold = 300
+    squad_counts = (6, 2, 2, 1)
+
+    print()
+    print("== Adjust Expeditionary Force size ==")
+    print("Reinforce, nerf or disband it")
+
+    while True:
+        print()
+        print("Current Expeditionary Force size:")
+        print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[0]]} regulars")
+        print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[1]]} cavalry")
+        print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[2]]} artillery")
+        print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[3]]} Man-O-Wars")
+        print(f"Each unit count is capped by {exp_force_threshold}")
+
+        squads_count = get_input(f"Enter number of squads ({squad_counts[0]} regs + {squad_counts[1]} cav + {squad_counts[2]} art + {squad_counts[3]} m-o-w) you want to add to EF or 0 to disband EF or press ENTER to quit: ", res_type=int, error_str="Wrong squads number:", check_fun=lambda x: -1000 <= x <= 1000)
+        if squads_count is None:
+            break
+
+        if squads_count == 0:
+            # Disband EF forever
+            for k in squad_counts:
+                sav_editor['HEAD']['expeditionary_force'][k] = 0
+
+            # Set royal_money to -Inf to prevent increasing of EF
+            for k in range(4):
+                sav_editor['NATION'][k]['royal_money'] = -2147483648
+
+            res_str = f"Expeditionary Force DISBANDED forever"
+        else:
+            new_unit_counts = []
+            for ufname, sqc in zip(EF_UNIT_FIELDS_NAMES, squad_counts):
+                new_expf_unit_count = sav_editor['HEAD']['expeditionary_force'][ufname] + squads_count * sqc
+                new_expf_unit_count = 0 if new_expf_unit_count < 0 else exp_force_threshold if new_expf_unit_count > exp_force_threshold else new_expf_unit_count
+                sav_editor['HEAD']['expeditionary_force'][ufname] = new_expf_unit_count
+                new_unit_counts.append(new_expf_unit_count)
+
+            # Reset royal_money to allow auto increasing of EF
+            for k in range(4):
+                sav_editor['NATION'][k]['royal_money'] = 0
+
+            res_str = f"Expeditionary Force set to: {new_unit_counts[0]} regs, {new_unit_counts[1]} cav, {new_unit_counts[2]} art, {new_unit_counts[3]} m-o-w"
+
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
+
+
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -781,7 +834,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_clear_plow_colonies_tiles_routine, "Clear off forest and plow land under all AI's colonies"),
                 (run_assimilate_converts_routine, "Assimilate Indian converts"),
                 (run_arm_equip_converts_routine, "Arm/equip Indian converts"),
-                (run_repair_damaged_artillery_routine, "Repair damaged artillery")]
+                (run_repair_damaged_artillery_routine, "Repair damaged artillery"),
+                (run_adjust_expeditionary_force, "Adjust Expeditionary Force size")]
 
     while True:
         print()

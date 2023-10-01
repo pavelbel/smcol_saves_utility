@@ -745,9 +745,9 @@
                     "muskets": {"size": 1, "type": "bit_bool"}
                 }
             },
-            "royal_money": {"size": 4, "type": "uint", "__hint": "King's money for expeditionary force expansion"},
+            "royal_money": {"size": 4, "type": "int", "__hint": "King's budget for expeditionary force expansion"},
             "unknown24b": {"size": 4},
-            "gold": {"size": 4, "type": "uint"},
+            "gold": {"size": 4, "type": "int"},
             "current_crosses": {"size": 2, "type": "uint"},
             "needed_crosses": {"size": 2, "type": "uint"},
             "unknown25a": {"size": 2},
