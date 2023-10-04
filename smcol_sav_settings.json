@@ -13,6 +13,9 @@
 
         "__hint4c": "Only HARDY pioneer can perform reforesting (if true) or any pioneer (if false)?",
         "plant_forest_hardy_pio_need": false,
+
+        "__hint4d": "Royal Expeditionary Force size increase/decrease step: [regulars, cavalry, artillery, Man-o-Wars]",
+        "REF_squad_counts": [4, 2, 1, 1],
         
         "warehouse_max_level": 4,
         "warehouse_level_inc_hammers_multiplier": 2,

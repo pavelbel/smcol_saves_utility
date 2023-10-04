@@ -13,7 +13,8 @@ DEFAULT_SETTINGS = {"colonize_path": ".",
                                "warehouse_level_inc_hammers_multiplier": 2,
                                "warehouse_level_inc_tools_multiplier": 2,
                                "assimilate_work_duration_thresh": 10,
-                               "assimilate_target_state": "Indentured servant"}
+                               "assimilate_target_state": "Indentured servant",
+                               "REF_squad_counts": (4, 2, 1, 1)}
                     }
 FIELD_VALUES = {
 "control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
@@ -769,22 +770,30 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
 
     # Maximum number of units of one type: regulars, cavalry, artillery or man-o-wars
     exp_force_threshold = 300
-    squad_counts = (6, 2, 2, 1)
 
     print()
-    print("== Adjust Expeditionary Force size ==")
+    print("== Adjust Royal Expeditionary Force size ==")
     print("Reinforce, nerf or disband it")
+
+    field_name = 'REF_squad_counts'
+    try:
+        squad_counts = tuple(settings['editor'][field_name])
+        if len(squad_counts) < 4:
+            raise
+    except:
+        squad_counts = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({squad_counts})")
 
     while True:
         print()
-        print("Current Expeditionary Force size:")
+        print("Current Royal Expeditionary Force size:")
         print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[0]]} regulars")
         print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[1]]} cavalry")
         print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[2]]} artillery")
         print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[3]]} Man-O-Wars")
         print(f"Each unit count is capped by {exp_force_threshold}")
 
-        squads_count = get_input(f"Enter number of squads ({squad_counts[0]} regs + {squad_counts[1]} cav + {squad_counts[2]} art + {squad_counts[3]} m-o-w) you want to add to EF or 0 to disband EF or press ENTER to quit: ", res_type=int, error_str="Wrong squads number:", check_fun=lambda x: -1000 <= x <= 1000)
+        squads_count = get_input(f"Enter number of squads ({squad_counts[0]} regs + {squad_counts[1]} cav + {squad_counts[2]} art + {squad_counts[3]} m-o-w) you want to add to REF or 0 to disband REF or press ENTER to quit: ", res_type=int, error_str="Wrong squads number:", check_fun=lambda x: -1000 <= x <= 1000)
         if squads_count is None:
             break
 
@@ -797,7 +806,7 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
             for k in range(4):
                 sav_editor['NATION'][k]['royal_money'] = -2147483648
 
-            res_str = f"Expeditionary Force DISBANDED forever"
+            res_str = f"Royal Expeditionary Force DISBANDED forever"
         else:
             new_unit_counts = []
             for ufname, sqc in zip(EF_UNIT_FIELDS_NAMES, squad_counts):
@@ -810,7 +819,7 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
             for k in range(4):
                 sav_editor['NATION'][k]['royal_money'] = 0
 
-            res_str = f"Expeditionary Force set to: {new_unit_counts[0]} regs, {new_unit_counts[1]} cav, {new_unit_counts[2]} art, {new_unit_counts[3]} m-o-w"
+            res_str = f"Royal Expeditionary Force size set to: {new_unit_counts[0]} regs, {new_unit_counts[1]} cav, {new_unit_counts[2]} art, {new_unit_counts[3]} m-o-w"
 
         sav_editor.unsaved_changes.append(res_str)
         print(res_str)
