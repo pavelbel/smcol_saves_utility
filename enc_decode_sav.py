@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import sys
 from smcol_sav_converter import handle_metadata, read_sav_structure, dump_sav_structure, prepare_sav_struct_for_optional_indent, REL_VER
 from partial_indent_json_encoder import *
@@ -29,7 +30,8 @@ def decode_sav_file(sav_filename: str, sav_structure: dict):
         print(f"SAV file '{sav_filename}' decoding SUCCESS! JSON structured data written to '{decoded_sav_json_data_filename}'")
 
 
-def encode_sav_file(json_sav_filename: str):
+def encode_sav_file(json_sav_filename: str, auto_update_mode: bool = False):
+    is_bak_file_saved = False
     try:
         with open(json_sav_filename, mode='rt') as sjf:
             read_struct_data = json.load(sjf)
@@ -40,24 +42,46 @@ def encode_sav_file(json_sav_filename: str):
         # Serialize and dump JSON data to original binary SAV format
         enc_sav_data = dump_sav_structure(read_struct_data, loaded_sav_structure, loaded_metadata)
         #saved_filename = os.path.splitext(json_sav_filename)[0][:-2] + '07.SAV'
-        saved_filename = os.path.splitext(json_sav_filename)[0] + '.enc'
-        #saved_filename = os.path.splitext(json_sav_filename)[0]
+        #saved_filename = os.path.splitext(json_sav_filename)[0] + '.enc'
+        saved_filename = os.path.splitext(json_sav_filename)[0]
+        bak_filename = saved_filename + '.bak'
+
+        # Saving prev version to bak file
+        try:
+            with open(saved_filename, mode='rb'):
+                pass
+            os.replace(saved_filename, bak_filename)
+            is_bak_file_saved = True
+        except Exception as ex:
+            pass
+
         with open(saved_filename, mode='wb') as svftenc:
             svftenc.write(enc_sav_data)
 
     except Exception as ex:
         print(f"ERROR: SAV.JSON file '{json_sav_filename}' encoding failure: {ex}")
     else:
-        print(f"SAV.JSON file '{json_sav_filename}' encoding SUCCESS! Binary SAV data written to '{saved_filename}'. Remove '.enc' to load it from the game")
+        print(f"SAV.JSON file '{json_sav_filename}' encoding SUCCESS! Binary SAV data written to '{saved_filename}'. ", end="")
+        if is_bak_file_saved:
+            print(f"Previous version saved to '{bak_filename}'")
+        else:
+            print()
 
 
 if __name__ == '__main__':
-    print( "== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
+    print()
+    print("== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
     print(f"                   by Pavel Bel. Version {REL_VER}")
 
-    default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False}}
+    default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False, "auto_update_mode": False}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, default_settings)
+
+    try:
+        auto_update_mode = settings['enc_decoder']['auto_update_mode']
+    except:
+        print("WARNING: incorrect or absent 'auto_update_mode' value")
+        auto_update_mode = default_settings['enc_decoder']['auto_update_mode']
 
     json_struct_filename = 'smcol_sav_struct.json'
     is_sav_structure_loaded = False
@@ -96,7 +120,6 @@ if __name__ == '__main__':
             print(f"ERROR: Failed to scan '{settings['colonize_path']}' folder. Does it exist?")
             sys.exit(0)
 
-
         if len(sav_files_list) == 0:
             print("NO SAV files in current directory. Open the 'smcol_sav_settings.json' file and set 'colonize_path' value to COLONIZE folder of your Colonization installation")
             sys.exit(0)
@@ -104,20 +127,53 @@ if __name__ == '__main__':
         sav_files_list.sort(key=lambda x: x["name"])
 
         print()
-        print("SAV and SAV.JSON files in the current folder:")
+        print(f"AUTO UPDATE mode is: {'ON' if auto_update_mode else 'OFF'}. SAV and SAV.JSON files in the current folder:")
         for i, sav_file_data in enumerate(sav_files_list, start=1):
             print(f"{i}. {sav_file_data['name']}")
 
-        sav_idx = get_input("Enter file index to decode or encode it or press ENTER to quit: ", res_type=int, error_str="Wrong SAV file index:", check_fun=lambda x: 1 <= x <= len(sav_files_list))
+        sav_idx = get_input("Enter file index to decode or encode it or 0 to toggle AUTO UPDATE mode or press ENTER to quit: ", res_type=int, error_str="Wrong SAV file index:", check_fun=lambda x: 0 <= x <= len(sav_files_list))
         if sav_idx is None:
             break
 
+        if sav_idx == 0:
+            auto_update_mode = not auto_update_mode
+            continue
+
         chosen_filename = sav_files_list[sav_idx-1]['path']
 
-        if sav_files_list[sav_idx-1]['type'] == 'sav':
-            if is_sav_structure_loaded:
-                decode_sav_file(chosen_filename, json_sav_structure)
+        while True:
+            chosen_file_mtime_ns = os.stat(chosen_filename).st_mtime_ns
+
+            print()
+            if sav_files_list[sav_idx-1]['type'] == 'sav':
+                if is_sav_structure_loaded:
+                    decode_sav_file(chosen_filename, json_sav_structure)
+                else:
+                    print("ERROR: json_sav_structure not loaded, you cannot decode SAV files!")
+                    break
             else:
-                print("ERROR: json_sav_structure not loaded, you cannot decode SAV files!")
-        else:
-            encode_sav_file(chosen_filename)
+                encode_sav_file(chosen_filename)
+
+            if not auto_update_mode:
+                break
+
+            # Waiting for changes of chosen_filename
+            print(f"Waiting for changes in '{chosen_filename}'... Press Ctrl+C to abort")
+            try:
+                while True:
+                    time.sleep(0.5)
+                    if os.stat(chosen_filename).st_mtime_ns != chosen_file_mtime_ns:
+                        is_accessible = False
+                        # Make sure the chosen_filename file is closed (can be opened for writing)
+                        try:
+                            with open(chosen_filename, "ab"):
+                                is_accessible = True
+                        except Exception as ex:
+                            pass
+
+                        if is_accessible:
+                            break
+            except KeyboardInterrupt as ex:
+                break
+
+            deb = 0

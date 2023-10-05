@@ -30,6 +30,9 @@
     "__hint2": "enc_decoder - special settings for enc_decode_sav.py",
     "enc_decoder":
     {        
-        "ignore_compact": false
+        "ignore_compact": false,
+
+        "__hint_1e21": "Wait for changes in the selected file and immediately convert it",
+        "auto_update_mode": false
     }
 }
