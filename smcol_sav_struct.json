@@ -603,22 +603,22 @@
             {
                 "struct":
                 {
-                    "food": {"size": 2, "type": "uint"},
-                    "sugar": {"size": 2, "type": "uint"},
-                    "tobacco": {"size": 2, "type": "uint"},
-                    "cotton": {"size": 2, "type": "uint"},
-                    "furs": {"size": 2, "type": "uint"},
-                    "lumber": {"size": 2, "type": "uint"},
-                    "ore": {"size": 2, "type": "uint"},
-                    "silver": {"size": 2, "type": "uint"},
-                    "horses": {"size": 2, "type": "uint"},
-                    "rum": {"size": 2, "type": "uint"},
-                    "cigars": {"size": 2, "type": "uint"},
-                    "cloth": {"size": 2, "type": "uint"},
-                    "coats": {"size": 2, "type": "uint"},
-                    "trade_goods": {"size": 2, "type": "uint"},
-                    "tools": {"size": 2, "type": "uint"},
-                    "muskets": {"size": 2, "type": "uint"}
+                    "food": {"size": 2, "type": "int"},
+                    "sugar": {"size": 2, "type": "int"},
+                    "tobacco": {"size": 2, "type": "int"},
+                    "cotton": {"size": 2, "type": "int"},
+                    "furs": {"size": 2, "type": "int"},
+                    "lumber": {"size": 2, "type": "int"},
+                    "ore": {"size": 2, "type": "int"},
+                    "silver": {"size": 2, "type": "int"},
+                    "horses": {"size": 2, "type": "int"},
+                    "rum": {"size": 2, "type": "int"},
+                    "cigars": {"size": 2, "type": "int"},
+                    "cloth": {"size": 2, "type": "int"},
+                    "coats": {"size": 2, "type": "int"},
+                    "trade_goods": {"size": 2, "type": "int"},
+                    "tools": {"size": 2, "type": "int"},
+                    "muskets": {"size": 2, "type": "int"}
                 }
             },
             "population_on_map":
