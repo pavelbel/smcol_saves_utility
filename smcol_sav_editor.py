@@ -14,7 +14,8 @@ DEFAULT_SETTINGS = {"colonize_path": ".",
                                "warehouse_level_inc_tools_multiplier": 2,
                                "assimilate_work_duration_thresh": 10,
                                "assimilate_target_state": "Indentured servant",
-                               "REF_squad_counts": (4, 2, 1, 1)}
+                               "REF_squad_counts": (4, 2, 1, 1),
+                               "workers_count_caps": (3, 3, 5)}
                     }
 FIELD_VALUES = {
 "control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
@@ -825,6 +826,115 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
         print(res_str)
 
 
+def get_workers_count_caps():
+    field_name = 'workers_count_caps'
+    try:
+        workers_count_caps = tuple(settings['editor'][field_name])
+    except:
+        workers_count_caps = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({workers_count_caps})")
+
+    return workers_count_caps
+
+
+def get_proffesionals_ready_to_switch(col, buildings_profs, workers_count_caps):
+    """Get list of people ready to be sent to manufacture"""
+
+    col_pop = col['population']
+
+    for build_prof in buildings_profs:
+        curr_building_level = len(col['buildings'][build_prof['field_name']].split('1')) - 1
+        if curr_building_level == 0:
+            continue
+
+        occ_count = 0
+        occ_profs_count = 0
+        ready_to_switch_id = None
+        for pop_k in range(col_pop):
+            if col['profession'][pop_k] != build_prof['prof']:
+                continue
+
+            if col['occupation'][pop_k] == build_prof['occ']:
+                occ_profs_count += 1
+            else:
+                ready_to_switch_id = pop_k
+
+
+
+        pass
+
+    pass
+
+def run_add_more_workers(sav_editor: SAVEditor):
+    """Add workers to industries above limit of 3"""
+
+    buildings_profs = [{"name": "Carpenters shop",      "field_name": "carpenters_shop", "occ": sav_editor.metadata["occupation_type"]["carpenter"], "prof": sav_editor.metadata["profession_type"]["master carpenter"]},
+                       {"name": "Blacksmiths house",    "field_name": "blacksmiths_house", "occ": sav_editor.metadata["occupation_type"]["blacksmith"], "prof": sav_editor.metadata["profession_type"]["master blacksmith"]},
+                       {"name": "Armory",               "field_name": "armory", "occ": sav_editor.metadata["occupation_type"]["gunsmith"], "prof": sav_editor.metadata["profession_type"]["master gunsmith"]},
+                       {"name": "Town Hall",            "field_name": "town_hall", "occ": sav_editor.metadata["occupation_type"]["statesman"], "prof": sav_editor.metadata["profession_type"]["elder statesman"]},
+                       {"name": "Weavers house",        "field_name": "weavers_house", "occ": sav_editor.metadata["occupation_type"]["weaver"], "prof": sav_editor.metadata["profession_type"]["master weaver"]},
+                       {"name": "Tobacconists house",   "field_name": "tobacconists_house", "occ": sav_editor.metadata["occupation_type"]["tobacconist"], "prof": sav_editor.metadata["profession_type"]["master tobacconist"]},
+                       {"name": "Rum distillers house", "field_name": "rum_distillers_house", "occ": sav_editor.metadata["occupation_type"]["distiller"], "prof": sav_editor.metadata["profession_type"]["master distiller"]},
+                       {"name": "Fur traders house",    "field_name": "fur_traders_house", "occ": sav_editor.metadata["occupation_type"]["fur trader"], "prof": sav_editor.metadata["profession_type"]["master fur trader"]},
+                       {"name": "Church",               "field_name": "church", "occ": sav_editor.metadata["occupation_type"]["preacher"], "prof": sav_editor.metadata["profession_type"]["firebrand preacher"]}]
+
+    workers_count_caps = get_workers_count_caps()
+
+    print()
+    print('== Add workers to manufactures ==')
+    print(f"Add workers to manufactures above builtin limit of 3. You can only add corresponding proffesionals to buildings where 3 or more proffesionals already work.")
+    print("The worker you want to send to a manufacture must already work somewhere inside the colony (but not in school/colledge/university).")
+    print(f"Max workers number: {workers_count_caps[0]} for level 1 buildings, {workers_count_caps[1]} for level 2 buildings, {workers_count_caps[2]} for level 3 buildings.")
+    print("Example 1: you CAN send a master gunsmith (who works as carpenter for now) to an Arsenal with 3 or more master gunsmiths already there.")
+    print("Example 2: you CANNOT send a forth carpenter to a Carpenters shop if there are no master carpenters in the colony (other than working at Carpenters shop).")
+    print("Example 3: you CANNOT send a forth master blacksmith to a Blacksmiths shop if one (or more) of the workers there is not master blacksmith.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No player's colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            total_conv_count, ready_conv_count, _, _ = get_working_converts_count(col, work_duration_thresh)
+            if total_conv_count == 0:
+                res_str = "-"
+            else:
+                res_str = f"{total_conv_count} converts total, {ready_conv_count} of them ready for assimilation"
+            print(f"{i:2}. {col['name']}: " + res_str)
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx - 1]
+        total_conv_count, ready_conv_count, max_work_dur, ready_converts_indexes = get_working_converts_count(curr_colony, work_duration_thresh)
+
+        if total_conv_count == 0:
+            print(f"No Indian converts working in {curr_colony['name']}")
+            continue
+
+        if ready_conv_count == 0:
+            print(f"No Indian converts ready for assimilation in {curr_colony['name']}. They must work for at least {work_duration_thresh - max_work_dur} turns more.")
+            continue
+
+        # Assimilation!
+        curr_colony['profession'][ready_converts_indexes[0]] = FIELD_VALUES['profession_type'][convert_to_state.lower()]
+
+        res_str = f"An Indian convert in {curr_colony['name']} was assimilated as {convert_to_state.capitalize()}"
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
+
+
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -844,7 +954,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_assimilate_converts_routine, "Assimilate Indian converts"),
                 (run_arm_equip_converts_routine, "Arm/equip Indian converts"),
                 (run_repair_damaged_artillery_routine, "Repair damaged artillery"),
-                (run_adjust_expeditionary_force, "Adjust Expeditionary Force size")]
+                (run_adjust_expeditionary_force, "Adjust Expeditionary Force size"),
+                (run_add_more_workers, "Add workers to manufactures")]
 
     while True:
         print()
