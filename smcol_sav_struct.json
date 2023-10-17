@@ -463,7 +463,42 @@
                     "artillery": {"size": 2, "type": "uint"}
                 }        
             },
-            "unknown46": {"size": 32},
+            "price_group_state": {
+                "__hint_01": "For those goods that are in price groups, these contain internal state for computing prices. Used for all nations.",
+                "__hint_02": "The Official Strategy Guide (SG) mentions that, among the 16 goods, there are 'price groups' -- a price group being",
+                "__hint_03": "a designated group of goods whose prices affect each other as they move. The SG mentions that there are two such",
+                "__hint_04": "groups: sugar/tobacco/cotton/fur, and rum/cigars/cloth/coats.  However, experiments have concluded that, at least",
+                "__hint_05": "in later versions of the game, that only the latter (rum/cigars/cloth/coats) constitute a price group, and the",
+                "__hint_06": "goods in the former group just move independently of one another, like all of the other goods.  In any case, for",
+                "__hint_07": "the four (processed) goods that do form a price group (rum/cigars/cloth/coats), one can observe that repeatedly",
+                "__hint_08": "selling one of them will drive the prices of the others up, even if those others are not purchased.  The exact ",
+                "__hint_09": "price mechanics are a bit complicated; a nation's prices for those goods are computed based on formula that takes",
+                "__hint_10": "as input some per-nation data (stored along with each player), and the below common values. The formula with which",
+                "__hint_11": "they are combined to yield the final prices is non-trivial and is beyond the scope of these comments. For all",
+                "__hint_12": "of the other goods (whose prices move independently), it is currently believed that the below values have no meaning",
+                "__hint_13": "since those goods' prices can be derived entirely using values elsewhere in the save file.  That said, those values",
+                "__hint_14": "do seem to change when things are bought/sold.",
+                "no_indent": true,
+                "struct":
+                {
+                    "food": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "sugar": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "tobacco": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "cotton": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "furs": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "lumber": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "ore": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "silver": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "horses": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "rum": {"size": 2, "type": "uint", "__hint": "used as part of rum's internal price group state."},
+                    "cigars": {"size": 2, "type": "uint", "__hint": "used as part of cigars' internal price group state."},
+                    "cloth": {"size": 2, "type": "uint", "__hint": "used as part of cloth's internal price group state."},
+                    "coats": {"size": 2, "type": "uint", "__hint": "used as part of coats' internal price group state."},
+                    "trade_goods": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "tools": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "muskets": {"size": 2, "type": "uint", "__hint": "unused?"}
+                }
+            },
             "event":
             {
                 "__hint": "bit flags for events shown in a 'wood box'",
