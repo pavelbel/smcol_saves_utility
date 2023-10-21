@@ -33,7 +33,7 @@ Functionality:
 It means that you can decode your save game file, then easily edit the generated SAV.JSON file without a HEX editor, then encode it back to SAV, load it and continue playing with your changes applied!
 
 To run:
-* Install [Python interpreter](https://www.python.org)
+* Install [Python interpreter](https://www.python.org). Version **3.7+** is strictly necessary for preserving JSON key order.
 * Additionally install bitarray module with pip (google how to do this please)
 * Place all the files of __smcol_saves_utility__ in some folder
 * Open _smcol_sav_settings.json_ file in a text editor and set the value of a _colonize_path_ record to the path of the COLONIZE folder of your Colonization installation
@@ -54,7 +54,7 @@ Some additions were made by me:
 - unknown_map38a and unknown_map38b - two unknown fields somehow related to map.
 
 ### _smcol_sav_struct.json_ file structure
-It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too.
+It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too. **Warning**: keys order is essential though the JSON specification doesn't require it. Keep it in mind when using it elsewhere.
 
 Its first record (section) is *__metadata*. It is not stored directly in the SAV file. *__metadata* is used to represent field values in human-readable form (instead of raw hex or bits). You can add new types here and use it for data fields below. For example:
 * *nation_type* represents nation ID fields values in text form (England, France, Aztec, Sioux, Tupi...) instead of hex values ("01", "02", "05", "0A", "0B")
