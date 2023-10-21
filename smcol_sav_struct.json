@@ -55,7 +55,7 @@
             "mrF": "01111",
             "arc": "11000",
             "~~~": "11001",
-            "~:~": "11010"            
+            "~:~": "11010"
         },
 
         "hills_river_3bit_type":
@@ -115,7 +115,7 @@
         {
             "E": "1",
             " ": "0"
-        },        
+        },
 
         "visible_to_french_1bit_type":
         {
@@ -127,7 +127,7 @@
         {
             "S": "1",
             " ": "0"
-        },        
+        },
 
         "visible_to_dutch_1bit_type":
         {
@@ -372,7 +372,6 @@
             "land": "00",
             "sea": "01"
         }
-
     },
     "HEAD":
     {
@@ -449,7 +448,7 @@
                     "dragoons": {"size": 2, "type": "uint"},
                     "man-o-wars": {"size": 2, "type": "uint"},
                     "artillery": {"size": 2, "type": "uint"}
-                }        
+                }
             },
             "backup_force":
             {
@@ -461,9 +460,34 @@
                     "dragoons": {"size": 2, "type": "uint"},
                     "man-o-wars": {"size": 2, "type": "uint"},
                     "artillery": {"size": 2, "type": "uint"}
-                }        
+                }
             },
-            "unknown46": {"size": 32},
+            "price_group_state":
+            {
+                "__hint_1": "For those goods that are in a price group (rum/cigars/cloth/coats), these contain",
+                "__hint_2": "part of the internal state used for computing their market prices, used for all nations.",
+                "__hint_3": "See the relevant section in supplemental-info.md for more details.",
+                "no_indent": true,
+                "struct":
+                {
+                    "food": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "sugar": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "tobacco": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "cotton": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "furs": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "lumber": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "ore": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "silver": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "horses": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "rum": {"size": 2, "type": "uint", "__hint": "used as part of rum's internal price group state."},
+                    "cigars": {"size": 2, "type": "uint", "__hint": "used as part of cigars' internal price group state."},
+                    "cloth": {"size": 2, "type": "uint", "__hint": "used as part of cloth's internal price group state."},
+                    "coats": {"size": 2, "type": "uint", "__hint": "used as part of coats' internal price group state."},
+                    "trade_goods": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "tools": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "muskets": {"size": 2, "type": "uint", "__hint": "unused?"}
+                }
+            },
             "event":
             {
                 "__hint": "bit flags for events shown in a 'wood box'",
@@ -503,7 +527,6 @@
             "founded_colonies": {"size": 1, "type": "uint"},
             "diplomacy": {"size": 1}
         }
-
     },
     "OTHER": {"size": 24, "__hint": "unexplored"},
     "COLONY":
@@ -569,7 +592,7 @@
                     "carpenters_shop": {"size": 2, "type": "level_2bit_type"},
                     "church": {"size": 2, "type": "level_2bit_type"},
                     "blacksmiths_house": {"size": 3, "type": "level_3bit_type"},
-                    "unused05b": {"size": 6}          
+                    "unused05b": {"size": 6}
                 }
             },
             "custom_house_flags":
@@ -597,7 +620,7 @@
             "unknown11": {"size": 6},
             "hammers": {"size": 2, "type": "uint"},
             "building_in_production": {"size": 1},
-            "warehouse_level":  {"size": 1, "type": "uint", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
+            "warehouse_level": {"size": 1, "type": "uint", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
             "unknown12": {"size": 4},
             "stock":
             {
@@ -641,7 +664,6 @@
                     "for dutch": {"size": 1, "type": "fortification_level_type"}
                 }
             },
-
             "rebel_dividend": {"size": 4},
             "rebel_divisor": {"size": 4}
         }
@@ -764,7 +786,6 @@
                     "Apache": {"size": 1, "type": "relation_type"},
                     "Sioux": {"size": 1, "type": "relation_type"},
                     "Tupi": {"size": 1, "type": "relation_type"}
-        
                 }
             },
             "unknown26a": {"size": 4},
