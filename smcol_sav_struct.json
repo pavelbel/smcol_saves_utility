@@ -372,7 +372,6 @@
             "land": "00",
             "sea": "01"
         }
-
     },
     "HEAD":
     {
@@ -528,7 +527,6 @@
             "founded_colonies": {"size": 1, "type": "uint"},
             "diplomacy": {"size": 1}
         }
-
     },
     "OTHER": {"size": 24, "__hint": "unexplored"},
     "COLONY":
@@ -666,7 +664,6 @@
                     "for dutch": {"size": 1, "type": "fortification_level_type"}
                 }
             },
-
             "rebel_dividend": {"size": 4},
             "rebel_divisor": {"size": 4}
         }
