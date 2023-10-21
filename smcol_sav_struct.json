@@ -463,7 +463,8 @@
                     "artillery": {"size": 2, "type": "uint"}
                 }        
             },
-            "price_group_state": {
+            "price_group_state":
+            {
                 "__hint_1": "For those goods that are in a price group (rum/cigars/cloth/coats), these contain",
                 "__hint_2": "part of the internal state used for computing their market prices, used for all nations.",
                 "__hint_3": "See the relevant section in supplemental-info.md for more details.",
@@ -621,7 +622,7 @@
             "unknown11": {"size": 6},
             "hammers": {"size": 2, "type": "uint"},
             "building_in_production": {"size": 1},
-            "warehouse_level":  {"size": 1, "type": "uint", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
+            "warehouse_level": {"size": 1, "type": "uint", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
             "unknown12": {"size": 4},
             "stock":
             {
