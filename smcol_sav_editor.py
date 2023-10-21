@@ -842,12 +842,12 @@ def get_proffesionals_ready_to_switch(col, buildings_profs, workers_count_caps):
 
     col_pop = col['population']
 
+    ready_to_switch = []
     for build_prof in buildings_profs:
         curr_building_level = len(col['buildings'][build_prof['field_name']].split('1')) - 1
         if curr_building_level == 0:
             continue
 
-        occ_count = 0
         occ_profs_count = 0
         ready_to_switch_id = None
         for pop_k in range(col_pop):
@@ -859,11 +859,10 @@ def get_proffesionals_ready_to_switch(col, buildings_profs, workers_count_caps):
             else:
                 ready_to_switch_id = pop_k
 
+        if occ_profs_count >= 3 and occ_profs_count < workers_count_caps[curr_building_level - 1] and ready_to_switch_id is not None:
+            ready_to_switch.append((ready_to_switch_id, build_prof['occ']))
 
-
-        pass
-
-    pass
+    return ready_to_switch
 
 def run_add_more_workers(sav_editor: SAVEditor):
     """Add workers to industries above limit of 3"""
@@ -905,11 +904,11 @@ def run_add_more_workers(sav_editor: SAVEditor):
         print()
         print("Colonies list:")
         for i, col in enumerate(colonies_list, start=1):
-            total_conv_count, ready_conv_count, _, _ = get_working_converts_count(col, work_duration_thresh)
-            if total_conv_count == 0:
+            ready_to_switch = get_proffesionals_ready_to_switch(col, buildings_profs, workers_count_caps)
+            if len(ready_to_switch) == 0:
                 res_str = "-"
             else:
-                res_str = f"{total_conv_count} converts total, {ready_conv_count} of them ready for assimilation"
+                res_str = f"{len(ready_to_switch)} professionals ready to work in their speciality"
             print(f"{i:2}. {col['name']}: " + res_str)
 
         col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
@@ -917,15 +916,17 @@ def run_add_more_workers(sav_editor: SAVEditor):
             break
 
         curr_colony = colonies_list[col_idx - 1]
-        total_conv_count, ready_conv_count, max_work_dur, ready_converts_indexes = get_working_converts_count(curr_colony, work_duration_thresh)
+        ready_to_switch = get_proffesionals_ready_to_switch(curr_colony, buildings_profs, workers_count_caps)
 
-        if total_conv_count == 0:
-            print(f"No Indian converts working in {curr_colony['name']}")
+        curr_ready_to_switch = None
+        if len(ready_to_switch) == 0:
+            print(f"No free professionals in {curr_colony['name']}")
             continue
+        elif len(ready_to_switch) == 1:
+            curr_ready_to_switch = ready_to_switch[0]
+        else:
+            pass
 
-        if ready_conv_count == 0:
-            print(f"No Indian converts ready for assimilation in {curr_colony['name']}. They must work for at least {work_duration_thresh - max_work_dur} turns more.")
-            continue
 
         # Assimilation!
         curr_colony['profession'][ready_converts_indexes[0]] = FIELD_VALUES['profession_type'][convert_to_state.lower()]
