@@ -27,7 +27,7 @@
         "assimilate_target_state": "Indentured servant",
 
         "__hint_3": "Workers count caps for buildings of 1, 2 and 3 level",
-        "workers_count_caps": [4, 5, 6]
+        "workers_count_caps": [3, 4, 5]
     },
 
     "__hint2": "enc_decoder - special settings for enc_decode_sav.py",
