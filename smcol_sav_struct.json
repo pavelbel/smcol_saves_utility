@@ -55,7 +55,7 @@
             "mrF": "01111",
             "arc": "11000",
             "~~~": "11001",
-            "~:~": "11010"            
+            "~:~": "11010"
         },
 
         "hills_river_3bit_type":
@@ -115,7 +115,7 @@
         {
             "E": "1",
             " ": "0"
-        },        
+        },
 
         "visible_to_french_1bit_type":
         {
@@ -127,7 +127,7 @@
         {
             "S": "1",
             " ": "0"
-        },        
+        },
 
         "visible_to_dutch_1bit_type":
         {
@@ -449,7 +449,7 @@
                     "dragoons": {"size": 2, "type": "uint"},
                     "man-o-wars": {"size": 2, "type": "uint"},
                     "artillery": {"size": 2, "type": "uint"}
-                }        
+                }
             },
             "backup_force":
             {
@@ -461,7 +461,7 @@
                     "dragoons": {"size": 2, "type": "uint"},
                     "man-o-wars": {"size": 2, "type": "uint"},
                     "artillery": {"size": 2, "type": "uint"}
-                }        
+                }
             },
             "price_group_state":
             {
@@ -594,7 +594,7 @@
                     "carpenters_shop": {"size": 2, "type": "level_2bit_type"},
                     "church": {"size": 2, "type": "level_2bit_type"},
                     "blacksmiths_house": {"size": 3, "type": "level_3bit_type"},
-                    "unused05b": {"size": 6}          
+                    "unused05b": {"size": 6}
                 }
             },
             "custom_house_flags":
@@ -789,7 +789,6 @@
                     "Apache": {"size": 1, "type": "relation_type"},
                     "Sioux": {"size": 1, "type": "relation_type"},
                     "Tupi": {"size": 1, "type": "relation_type"}
-        
                 }
             },
             "unknown26a": {"size": 4},
