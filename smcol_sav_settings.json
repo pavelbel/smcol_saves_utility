@@ -24,7 +24,10 @@
         "__hint_1": "'assimilate_work_duration_thresh' must be >= 0 and <= 15. Values greater than 15 will never be reached",
         "assimilate_work_duration_thresh": 10,
         "__hint_2": "'assimilate_target_state' must be Free colonist, Indentured servant or Petty criminal or any other profession",
-        "assimilate_target_state": "Indentured servant"
+        "assimilate_target_state": "Indentured servant",
+
+        "__hint_3": "Workers count caps for buildings of 1, 2 and 3 level",
+        "workers_count_caps": [3, 4, 5]
     },
 
     "__hint2": "enc_decoder - special settings for enc_decode_sav.py",

@@ -14,7 +14,8 @@ DEFAULT_SETTINGS = {"colonize_path": ".",
                                "warehouse_level_inc_tools_multiplier": 2,
                                "assimilate_work_duration_thresh": 10,
                                "assimilate_target_state": "Indentured servant",
-                               "REF_squad_counts": (4, 2, 1, 1)}
+                               "REF_squad_counts": (4, 2, 1, 1),
+                               "workers_count_caps": (3, 3, 5)}
                     }
 FIELD_VALUES = {
 "control_type":     {"PLAYER": "00", "AI": "01", "WITHDRAWN": "02"},
@@ -825,6 +826,140 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
         print(res_str)
 
 
+def get_workers_count_caps():
+    field_name = 'workers_count_caps'
+    try:
+        workers_count_caps = tuple(settings['editor'][field_name])
+    except:
+        workers_count_caps = DEFAULT_SETTINGS['editor'][field_name]
+        print(f"WARNING: wrong '{field_name}' value! Setting it to default ({workers_count_caps})")
+
+    return workers_count_caps
+
+
+def get_specialists_ready_to_switch(col, buildings_profs, workers_count_caps):
+    """Get list of people ready to be sent to manufacture"""
+
+    col_pop = col['population']
+
+    ready_to_switch = []
+    for build_prof in buildings_profs:
+        curr_building_level = len(col['buildings'][build_prof['field_name']].split('1')) - 1
+        if curr_building_level == 0:
+            continue
+
+        occ_profs_count = 0
+        curr_ready_to_switch = []
+        for pop_k in range(col_pop):
+            if col['profession'][pop_k] != build_prof['prof']:
+                continue
+
+            if col['occupation'][pop_k] == build_prof['occ']:
+                occ_profs_count += 1
+            else:
+                curr_ready_to_switch.append(pop_k)
+
+        if occ_profs_count >= 3 and occ_profs_count < workers_count_caps[curr_building_level - 1] and len(curr_ready_to_switch) > 0:
+            for rts_id in curr_ready_to_switch:
+                ready_to_switch.append((rts_id, build_prof['occ'], occ_profs_count, workers_count_caps[curr_building_level - 1]))
+
+    return ready_to_switch
+
+
+def run_add_more_workers(sav_editor: SAVEditor):
+    """Add workers to industries above limit of 3"""
+
+    buildings_profs = [{"name": "Carpenters shop",      "field_name": "carpenters_shop", "occ": sav_editor.metadata["occupation_type"]["carpenter"], "prof": sav_editor.metadata["profession_type"]["master carpenter"]},
+                       {"name": "Blacksmiths house",    "field_name": "blacksmiths_house", "occ": sav_editor.metadata["occupation_type"]["blacksmith"], "prof": sav_editor.metadata["profession_type"]["master blacksmith"]},
+                       {"name": "Armory",               "field_name": "armory", "occ": sav_editor.metadata["occupation_type"]["gunsmith"], "prof": sav_editor.metadata["profession_type"]["master gunsmith"]},
+                       {"name": "Town Hall",            "field_name": "town_hall", "occ": sav_editor.metadata["occupation_type"]["statesman"], "prof": sav_editor.metadata["profession_type"]["elder statesman"]},
+                       {"name": "Weavers house",        "field_name": "weavers_house", "occ": sav_editor.metadata["occupation_type"]["weaver"], "prof": sav_editor.metadata["profession_type"]["master weaver"]},
+                       {"name": "Tobacconists house",   "field_name": "tobacconists_house", "occ": sav_editor.metadata["occupation_type"]["tobacconist"], "prof": sav_editor.metadata["profession_type"]["master tobacconist"]},
+                       {"name": "Rum distillers house", "field_name": "rum_distillers_house", "occ": sav_editor.metadata["occupation_type"]["distiller"], "prof": sav_editor.metadata["profession_type"]["master distiller"]},
+                       {"name": "Fur traders house",    "field_name": "fur_traders_house", "occ": sav_editor.metadata["occupation_type"]["fur trader"], "prof": sav_editor.metadata["profession_type"]["master fur trader"]},
+                       {"name": "Church",               "field_name": "church", "occ": sav_editor.metadata["occupation_type"]["preacher"], "prof": sav_editor.metadata["profession_type"]["firebrand preacher"]}]
+
+    workers_count_caps = get_workers_count_caps()
+
+    print()
+    print('== Add workers to manufactures ==')
+    print(f"Add workers to manufactures above builtin limit of 3. You can only add corresponding specialists to buildings where 3 or more specialists already work.")
+    print("The worker you want to send to a manufacture must already work somewhere inside the colony.")
+    print(f"Max workers number: {workers_count_caps[0]} for level 1 buildings, {workers_count_caps[1]} for level 2 buildings, {workers_count_caps[2]} for level 3 buildings.")
+    print("Example 1: you CAN send a master gunsmith (who works as carpenter for now) to the Arsenal with 3 or more master gunsmiths already there.")
+    print("Example 2: you CANNOT send a 4-th carpenter to the Lumber mill if there are no master carpenters in the colony (other than already working at Lumber mill).")
+    print("Example 3: you CANNOT send a 4-th master blacksmith to the Blacksmiths shop if one (or more) of the workers there is not master blacksmith.")
+
+    player_nation = sav_editor.get_player_nation()
+
+    colonies_list = []
+    for colony in sav_editor['COLONY']:
+        if player_nation is not None and FIELD_VALUES['nation_type_inv'][colony['nation_id']] not in player_nation:
+            continue
+        colonies_list.append(colony)
+
+    if len(colonies_list) == 0:
+        print("No player's colonies found!")
+        return
+
+    while True:
+        print()
+        print("Colonies list:")
+        for i, col in enumerate(colonies_list, start=1):
+            ready_to_switch = get_specialists_ready_to_switch(col, buildings_profs, workers_count_caps)
+            res_str = ""
+            if len(ready_to_switch) == 0:
+                res_str = "-"
+            else:
+                for rts in ready_to_switch:
+                    if len(res_str) > 0:
+                        res_str += ", "
+                    res_str += sav_editor.metadata["occupation_type_inv"][rts[1]].lower() + f" (now {sav_editor.metadata['occupation_type_inv'][col['occupation'][rts[0]]].lower()})"
+                res_str += " ready to work in speciality"
+            print(f"{i:2}. {col['name']}: " + res_str)
+
+        col_idx = get_input("Enter colony index or press ENTER to quit: ", res_type=int, error_str="Wrong colony index:", check_fun=lambda x: 1 <= x <= len(colonies_list))
+        if col_idx is None:
+            break
+
+        curr_colony = colonies_list[col_idx - 1]
+        ready_to_switch = get_specialists_ready_to_switch(curr_colony, buildings_profs, workers_count_caps)
+
+        curr_ready_to_switch = None
+        if len(ready_to_switch) == 0:
+            print(f"No free specialists in {curr_colony['name']}")
+            continue
+        elif len(ready_to_switch) == 1:
+            curr_ready_to_switch = ready_to_switch[0]
+        else:
+            print(f"Specialists in {curr_colony['name']} ready to work in their specialities:")
+            for i, rts in enumerate(ready_to_switch, start=1):
+                print(f"{i:2}. {sav_editor.metadata['occupation_type_inv'][rts[1]]} (now {sav_editor.metadata['occupation_type_inv'][curr_colony['occupation'][rts[0]]].lower()})")
+
+            spec_idx = get_input("Enter specialist index or press ENTER to quit: ", res_type=int, error_str="Wrong specialist index:", check_fun=lambda x: 1 <= x <= len(ready_to_switch))
+            if spec_idx is None:
+                continue
+
+            curr_ready_to_switch = ready_to_switch[spec_idx - 1]
+
+        # Switching!
+        curr_colony['occupation'][curr_ready_to_switch[0]] = curr_ready_to_switch[1]
+
+        # removing him from the tile he worked on (if any)
+        tiles_caps = ['tile_N', 'tile_E', 'tile_S', 'tile_W', 'tile_NW', 'tile_NE', 'tile_SE', 'tile_SW']
+        for tile in tiles_caps:
+            if curr_colony['tiles'][tile] == curr_ready_to_switch[0]:
+                curr_colony['tiles'][tile] = -1
+                break
+
+        res_str = f"{curr_colony['name']}: {curr_ready_to_switch[2] + 1}-th {sav_editor.metadata['occupation_type_inv'][curr_ready_to_switch[1]].lower()} set to work in his speciality"
+        if curr_ready_to_switch[2] + 1 >= curr_ready_to_switch[3]:
+            res_str += ". NO MORE ALLOWED."
+
+        sav_editor.unsaved_changes.append(res_str)
+        print(res_str)
+
+
 def edit_sav_file(in_sav_filename: str, sav_structure: dict):
     """Full SAV editing process"""
 
@@ -844,7 +979,8 @@ def edit_sav_file(in_sav_filename: str, sav_structure: dict):
                 (run_assimilate_converts_routine, "Assimilate Indian converts"),
                 (run_arm_equip_converts_routine, "Arm/equip Indian converts"),
                 (run_repair_damaged_artillery_routine, "Repair damaged artillery"),
-                (run_adjust_expeditionary_force, "Adjust Expeditionary Force size")]
+                (run_adjust_expeditionary_force, "Adjust Expeditionary Force size"),
+                (run_add_more_workers, "Add workers to manufactures")]
 
     while True:
         print()
