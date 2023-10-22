@@ -794,14 +794,14 @@ def run_adjust_expeditionary_force(sav_editor: SAVEditor):
         print(f"* {sav_editor['HEAD']['expeditionary_force'][EF_UNIT_FIELDS_NAMES[3]]} Man-O-Wars")
         print(f"Each unit count is capped by {exp_force_threshold}")
 
-        squads_count = get_input(f"Enter number of squads ({squad_counts[0]} regs + {squad_counts[1]} cav + {squad_counts[2]} art + {squad_counts[3]} m-o-w) you want to add to REF or 0 to disband REF or press ENTER to quit: ", res_type=int, error_str="Wrong squads number:", check_fun=lambda x: -1000 <= x <= 1000)
+        squads_count = get_input(f"Enter number of squads ({squad_counts[0]} regs + {squad_counts[1]} cav + {squad_counts[2]} art + {squad_counts[3]} m-o-w) you want to add (or subtract if < 0) to REF or 0 to disband REF or press ENTER to quit: ", res_type=int, error_str="Wrong squads number:", check_fun=lambda x: -1000 <= x <= 1000)
         if squads_count is None:
             break
 
         if squads_count == 0:
             # Disband EF forever
-            for k in squad_counts:
-                sav_editor['HEAD']['expeditionary_force'][k] = 0
+            for ufname in EF_UNIT_FIELDS_NAMES:
+                sav_editor['HEAD']['expeditionary_force'][ufname] = 0
 
             # Set royal_money to -Inf to prevent increasing of EF
             for k in range(4):
