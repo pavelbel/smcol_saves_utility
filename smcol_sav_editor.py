@@ -364,7 +364,7 @@ def get_upgrade_wh_settings_values():
 
     field_name = 'warehouse_level_inc_hammers_multiplier'
     try:
-        hammers_mult_koeff = settings['editor']['field_name']
+        hammers_mult_koeff = settings['editor'][field_name]
     except:
         hammers_mult_koeff = DEFAULT_SETTINGS['editor'][field_name]
         print(f"WARNING: wrong '{field_name}' value! Setting it to default ({hammers_mult_koeff})")
