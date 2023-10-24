@@ -11,7 +11,7 @@ The aim of this work is to make a study and edit process of SAV files easy and c
 - utility for editing SAV files (certain fields such as: remove stockade, arm Indian converts, plant forests, etc.)
 
 ## Utility _smcol_sav_editor.py_
-The utility to edit SAV files. __Warning__: this is not a cheat utility! It won't give you unlimited gold or turn all the AI's ships to caravels (though you can do all that and more with _enc_decode_sav.py_)! All the changes it is supposed to make are relatively fair (in my opinion), much anticipated (like removing colony fortifications and planting forests) and refreshing for gameplay (like arming Indian converts or assimilating them).
+The utility to edit SAV files. __Warning__: this is not a cheat utility! It won't give you unlimited gold or turn all the AI's ships to caravels (though you can do all that and more with _enc_decode_sav.py_)! All the changes it is supposed to make are QoL: relatively fair (in my opinion), much anticipated (like removing colony fortifications and planting forests) and refreshing for gameplay (like arming Indian converts or assimilating them).
 Functionality:
 * Plant forests
 * Remove fortifications in colonies
@@ -23,17 +23,18 @@ Functionality:
   * equip them with tools and promote to pioneers
   * equip them with horses and promote to scouts
 * Repair damaged artillery (half a cost of building)
-* (IN DEVELOPMENT) Remove drydocks in colonies (if you don't want your ships to go there for repairs)
+* Adjust Royal Expeditionary Force size: reinforce, nerf or disband it
+* Add 4-th, 5-th etc specialist to manufactures
 
 ## Utility _enc_decode_sav.py_
 Functionality:
 * Read Colonization's native binary SAV files, decode them and save them in a human readable/editable SAV.JSON format
 * Encode SAV.JSON files back to binary SAV format
 
-It means that you can decode your save game file, then easily edit the generated SAV.JSON file without a HEX editor, then encode it back to SAV, load it and continue playing with your changes applied!
+It means that you can decode your save game file, then easily edit the generated SAV.JSON file without a HEX editor, then encode it back to SAV, load it and continue playing with your changes applied! In AUTO UPDATE mode it tracks changes of a certain SAV or SAV.JSON file and decodes/encodes it automatically.
 
 To run:
-* Install [Python interpreter](https://www.python.org). Version **3.7+** is strictly necessary for preserving JSON key order.
+* Install [Python interpreter](https://www.python.org). Version **3.7+** is strictly necessary for preserving JSON keys order.
 * Additionally install bitarray module with pip (google how to do this please)
 * Place all the files of __smcol_saves_utility__ in some folder
 * Open _smcol_sav_settings.json_ file in a text editor and set the value of a _colonize_path_ record to the path of the COLONIZE folder of your Colonization installation
