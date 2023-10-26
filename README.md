@@ -53,6 +53,8 @@ Some additions were made by me:
 - tile_selection_mode flag: when no unit is selected and the square cursor is blinking
 - prime_resource_seed field: value responsible for prime resources sites placement. Its mechanic is still unknown
 - unknown_map38a and unknown_map38b - two unknown fields somehow related to map.
+- unit's "visible to nation" bit fields
+- unit's origin COLONY (for colonist) or TRIBE (for braves) index
 
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too. **Warning**: keys order is essential though the JSON specification doesn't require it. Keep it in mind when using it elsewhere.
