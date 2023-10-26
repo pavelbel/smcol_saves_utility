@@ -677,11 +677,14 @@
             "type": {"size": 1, "type": "unit_type"},
             "nation_info":
             {
-                "no_indent": true,
+                "no_indent": false,
                 "bit_struct":
                 {
                     "nation_id": {"size": 4, "type": "nation_4bit_type"},
-                    "unknown14": {"size": 4}
+                    "vis_to_english": {"size": 1, "type": "bit_bool"},
+                    "vis_to_french": {"size": 1, "type": "bit_bool"},
+                    "vis_to_spanish": {"size": 1, "type": "bit_bool"},
+                    "vis_to_dutch": {"size": 1, "type": "bit_bool"}
                 }
             },
             "unknown15":
@@ -693,7 +696,8 @@
                 }
             },
             "moves": {"size": 1, "type": "uint", "__hint": "'moves' count already made. One 'move' is one move by road"},
-            "unknown16": {"size": 2},
+            "origin_settlement": {"size": 1, "type": "uint", "__hint": "index of COLONY (for colonist) or TRIBE (for brave) where is he from"},
+            "unknown16b": {"size": 1},
             "orders": {"size": 1, "type": "orders_type"},
             "goto_x": {"size": 1, "type": "uint"},
             "goto_y": {"size": 1, "type": "uint"},
