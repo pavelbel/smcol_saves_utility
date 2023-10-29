@@ -776,7 +776,7 @@
             "gold": {"size": 4, "type": "int"},
             "current_crosses": {"size": 2, "type": "uint"},
             "needed_crosses": {"size": 2, "type": "uint"},
-            "unknown25a": {"size": 2},
+            "point_return_from_europe": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "unknown25b": {"size": 4},
             "relation_by_indian":
             {
