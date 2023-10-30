@@ -36,6 +36,12 @@
         "ignore_compact": false,
 
         "__hint_1e21": "Wait for changes in the selected file and immediately convert it",
-        "auto_update_mode": false
+        "auto_update_mode": false,
+
+        "__hint_sbts": "Number of backups of a SAV file to store: ...prev_1 is the lastest, ...prev_2 is the following etc",
+        "sav_backups_to_store": 2,
+
+        "__hint_jbts": "Number of backups of a SAV.json file to store: ...prev_1 is the lastest, ...prev_2 is the following etc",
+        "json_backups_to_store": 4
     }
 }

@@ -7,7 +7,21 @@ from partial_indent_json_encoder import *
 from smcol_sav_common import *
 
 
-def decode_sav_file(sav_filename: str, sav_structure: dict):
+def prepare_backups_sequence(base_filename, backups_count):
+    if backups_count > 0:
+        make_backup_filename = lambda i: base_filename + f'.prev_{i}' if i > 0 else base_filename
+        # Saving backups
+        for backup_i in range(backups_count, 0, -1):
+            bck_fname_i = make_backup_filename(backup_i)
+            bck_fname_i_1 = make_backup_filename(backup_i - 1)
+            try:
+                os.replace(bck_fname_i_1, bck_fname_i)
+                print(f"Backup: {bck_fname_i_1} saved as {bck_fname_i}")
+            except:
+                pass
+
+
+def decode_sav_file(sav_filename: str, sav_structure: dict, settings: dict):
     try:
         with open(sav_filename, mode='rb') as sf:
             sav_data = sf.read()
@@ -17,12 +31,19 @@ def decode_sav_file(sav_filename: str, sav_structure: dict):
         read_struct_data['__structure'] = sav_structure
 
         decoded_sav_json_data_filename = sav_filename + '.json'
+        decoded_sav_json_data_filename_tmp = decoded_sav_json_data_filename + '.tmp'
 
         prepare_sav_struct_for_optional_indent(read_struct_data, sav_structure)
 
-        # Save structured SAV data to JSON file sav_json_data_filename
-        with open(decoded_sav_json_data_filename, mode='wt') as svftj:
+        # Save structured SAV data to JSON file sav_json_data_filename: to tmp file at first
+        with open(decoded_sav_json_data_filename_tmp, mode='wt') as svftj:
             json.dump(read_struct_data, svftj, indent=4, cls=PartialNoIndentJSONEncoder)
+
+        backups_count = settings['enc_decoder']['json_backups_to_store']
+        prepare_backups_sequence(decoded_sav_json_data_filename, backups_count)
+
+        # if tmp file is ok -> to final .json file
+        os.replace(decoded_sav_json_data_filename_tmp, decoded_sav_json_data_filename)
 
     except Exception as ex:
         print(f"ERROR: SAV file '{sav_filename}' decoding failure: {ex}")
@@ -30,8 +51,7 @@ def decode_sav_file(sav_filename: str, sav_structure: dict):
         print(f"SAV file '{sav_filename}' decoding SUCCESS! JSON structured data written to '{decoded_sav_json_data_filename}'")
 
 
-def encode_sav_file(json_sav_filename: str, auto_update_mode: bool = False):
-    is_bak_file_saved = False
+def encode_sav_file(json_sav_filename: str, settings: dict):
     try:
         with open(json_sav_filename, mode='rt') as sjf:
             read_struct_data = json.load(sjf)
@@ -44,28 +64,24 @@ def encode_sav_file(json_sav_filename: str, auto_update_mode: bool = False):
         #saved_filename = os.path.splitext(json_sav_filename)[0][:-2] + '07.SAV'
         #saved_filename = os.path.splitext(json_sav_filename)[0] + '.enc'
         saved_filename = os.path.splitext(json_sav_filename)[0]
-        bak_filename = saved_filename + '.bak'
+        saved_filename_tmp = saved_filename + '.tmp'
 
-        # Saving prev version to bak file
-        try:
-            with open(saved_filename, mode='rb'):
-                pass
-            os.replace(saved_filename, bak_filename)
-            is_bak_file_saved = True
-        except Exception as ex:
-            pass
-
-        with open(saved_filename, mode='wb') as svftenc:
+        # writing SAV to tmp file
+        with open(saved_filename_tmp, mode='wb') as svftenc:
             svftenc.write(enc_sav_data)
+
+        # creating backups
+        backups_count = settings['enc_decoder']['sav_backups_to_store']
+        prepare_backups_sequence(saved_filename, backups_count)
+
+        # renaming tmp file
+        os.replace(saved_filename_tmp, saved_filename)
+
 
     except Exception as ex:
         print(f"ERROR: SAV.JSON file '{json_sav_filename}' encoding failure: {ex}")
     else:
-        print(f"SAV.JSON file '{json_sav_filename}' encoding SUCCESS! Binary SAV data written to '{saved_filename}'. ", end="")
-        if is_bak_file_saved:
-            print(f"Previous version saved to '{bak_filename}'")
-        else:
-            print()
+        print(f"SAV.JSON file '{json_sav_filename}' encoding SUCCESS! Binary SAV data written to '{saved_filename}'. ")
 
 
 if __name__ == '__main__':
@@ -73,7 +89,7 @@ if __name__ == '__main__':
     print("== Sid Meier's Colonization (1994) SAV files DECODER and ENCODER ==")
     print(f"                   by Pavel Bel. Version {REL_VER}")
 
-    default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False, "auto_update_mode": False}}
+    default_settings = {"colonize_path": ".", "enc_decoder": {"ignore_compact": False, "auto_update_mode": False, "sav_backups_to_store": 1, "json_backups_to_store": 3}}
     settings_json_filename = os.path.join(os.path.split(sys.argv[0])[0], 'smcol_sav_settings.json')
     settings = load_settings(settings_json_filename, default_settings)
 
@@ -147,12 +163,12 @@ if __name__ == '__main__':
             print()
             if sav_files_list[sav_idx-1]['type'] == 'sav':
                 if is_sav_structure_loaded:
-                    decode_sav_file(chosen_filename, json_sav_structure)
+                    decode_sav_file(chosen_filename, json_sav_structure, settings)
                 else:
                     print("ERROR: json_sav_structure not loaded, you cannot decode SAV files!")
                     break
             else:
-                encode_sav_file(chosen_filename)
+                encode_sav_file(chosen_filename, settings)
 
             if not auto_update_mode:
                 break

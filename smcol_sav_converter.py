@@ -16,7 +16,7 @@ SAV_FILENAME = r'COLONY00.SAV'
 builtin_types = ['hex', 'bits', 'bit_bool', 'int', 'uint', 'coords', 'str']
 
 # Last release version
-REL_VER = '1.3'
+REL_VER = '1.4 (dev)'
 
 def get_entry_count(entry, metadata):
     curr_entry_count = entry.get('count', 1)
