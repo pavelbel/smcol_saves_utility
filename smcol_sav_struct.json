@@ -160,7 +160,7 @@
             "Wagon train": "0C",
             "Caravel": "0D",
             "Merchantman": "0E",
-            "Galeon": "0F",
+            "Galleon": "0F",
             "Privateer": "10",
             "Frigate": "11",
             "Man-O-War": "12",
@@ -289,7 +289,7 @@
             "unknown_rel": "66"
         },
 
-        "cargo_type":
+        "cargo_4bit_type":
         {
             "food": "0000",
             "sugar": "0001",
@@ -710,8 +710,8 @@
                 "compact": true,
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "cargo_hold": {"size": 1, "cols": 6, "type": "uint", "no_indent": true},
@@ -973,24 +973,24 @@
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "stop_1_unloads_cargo":
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "unknown47": {"size": 1},
@@ -1007,24 +1007,24 @@
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "stop_2_unloads_cargo":
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "unknown48": {"size": 1},
@@ -1041,24 +1041,24 @@
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "stop_3_unloads_cargo":
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "unknown49": {"size": 1},
@@ -1075,24 +1075,24 @@
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "stop_4_unloads_cargo":
             {
                 "bit_struct":
                 {
-                    "cargo_1": {"size": 4, "type": "cargo_type"},
-                    "cargo_2": {"size": 4, "type": "cargo_type"},
-                    "cargo_3": {"size": 4, "type": "cargo_type"},
-                    "cargo_4": {"size": 4, "type": "cargo_type"},
-                    "cargo_5": {"size": 4, "type": "cargo_type"},
-                    "cargo_6": {"size": 4, "type": "cargo_type"}
+                    "cargo_1": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_2": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_3": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_4": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_5": {"size": 4, "type": "cargo_4bit_type"},
+                    "cargo_6": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
             "unknown50": {"size": 1}
