@@ -56,6 +56,7 @@ CHANGELOG
 New fields and sections mapped:
 - click_before_open_colony x, y field (coords of the point player clicked before entering some colony screen)
 - show_colony_prod_quantities (to show poduction quantities on colony screen flag)
+- relation byte field partially decoded
 
 == Version 1.3 == 
   (23.10.2023)
