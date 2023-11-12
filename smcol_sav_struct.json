@@ -528,7 +528,15 @@
             "diplomacy": {"size": 1}
         }
     },
-    "OTHER": {"size": 24, "__hint": "unexplored"},
+    "OTHER":
+    {
+        "struct":
+        {
+            "unknown51a": {"size": 18, "__hint": "unexplored"},
+            "click_before_open_colony x, y": {"size": 2, "count": 2, "type": "uint", "no_indent": true},
+            "unknown51b": {"size": 2, "__hint": "unexplored"}        
+        }
+    },    
     "COLONY":
     {
         "__hint": "count taken from HEAD section, see above",
@@ -664,8 +672,8 @@
                     "for dutch": {"size": 1, "type": "fortification_level_type"}
                 }
             },
-            "rebel_dividend": {"size": 4},
-            "rebel_divisor": {"size": 4}
+            "rebel_dividend": {"size": 4, "type": "int"},
+            "rebel_divisor": {"size": 4, "type": "int"}
         }
     },
     "UNIT":
@@ -866,7 +874,7 @@
                     "Netherlands": {"size": 1, "type": "relation_type"}
                 }
             },
-            "unknown33": {"size": 8},
+            "zeros33": {"size": 8},
             "alarm_by_player": {"size": 2, "cols": 4, "type": "uint", "no_indent": true}
         }
     },
@@ -878,7 +886,9 @@
             "counter_decreasing_on_new_colony": {"size": 2, "type": "uint"},
             "unknown35": {"size": 2},
             "counter_increasing_on_new_colony": {"size": 2, "type": "uint"},
-            "unknown36": {"size": 1, "count": 24, "cols": 29},
+            "unknown36a": {"size": 543},
+            "show_colony_prod_quantities": {"size": 1},
+            "unknown36b": {"size": 152},
             "x": {"size": 2, "type": "uint"},
             "y": {"size": 2, "type": "uint"},
             "zoom_level": {"size": 1, "type": "uint"},
