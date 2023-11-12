@@ -236,7 +236,7 @@
             "Netherlands": "03",
             "Inca": "04",
             "Aztec": "05",
-            "Awarak": "06",
+            "Arawak": "06",
             "Iroquois": "07",
             "Cherokee": "08",
             "Apache": "09",
@@ -254,7 +254,7 @@
             "Netherlands": "0011",
             "Inca": "0100",
             "Aztec": "0101",
-            "Awarak": "0110",
+            "Arawak": "0110",
             "Iroquois": "0111",
             "Cherokee": "1000",
             "Apache": "1001",
@@ -859,7 +859,7 @@
                             "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
                         }
                     },
-                    "Awarak":
+                    "Arawak":
                     {
                         "no_indent": true,
                         "bit_struct":
