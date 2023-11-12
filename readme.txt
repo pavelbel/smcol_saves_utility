@@ -1,6 +1,6 @@
 == Sid Meier's Colonization (1994) SAV files utility pack ==
             (programmed by: Pavel Bel, 2023 )
-                       Ver. 1.3
+                       Ver. 1.4 (dev)
 
 https://github.com/pavelbel/smcol_saves_utility
 
@@ -52,6 +52,10 @@ CHANGELOG
 
 - enhanced backup files chains logic for enc_decode_sav
 - minor fixes
+
+New fields and sections mapped:
+- click_before_open_colony x, y field (coords of the point player clicked before entering some colony screen)
+- show_colony_prod_quantities (to show poduction quantities on colony screen flag)
 
 == Version 1.3 == 
   (23.10.2023)
