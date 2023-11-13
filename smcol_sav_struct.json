@@ -301,6 +301,13 @@
             "muskets": "1111"
         },
 
+        "relation_3bit_type":
+        {
+            "self/vanished/not met": "000",
+            "war": "010",
+            "peace": "110"
+        },
+
         "orders_type":
         {
             "none": "00",
@@ -779,158 +786,22 @@
             "point_return_from_europe": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "relation_by_nations":
             {
-                "struct":
+                "count": 4,
+                "bit_struct":
                 {
-                    "England":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "France":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },                    
-                    "Spain":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Netherlands":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    }
+                    "attitude?": {"size": 4, "type": "uint"},
+                    "status": {"size": 3, "type": "relation_3bit_type"},
+                    "irritated_by_piracy": {"size": 1, "type": "bit_bool"}
                 }
             },
             "relation_by_indian":
             {
-                "struct":
+                "count": 8,
+                "bit_struct":
                 {
-                    "Inca":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Aztec":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Arawak":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Iroquois":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Cherokee":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Apache":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Sioux":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Tupi":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    }
+                    "attitude?": {"size": 4, "type": "uint"},
+                    "status": {"size": 3, "type": "relation_3bit_type"},
+                    "unused": {"size": 1, "type": "bit_bool"}
                 }
             },
             "unknown26a": {"size": 4},
@@ -998,56 +869,12 @@
             "unknown32": {"size": 12},
             "relation_by_nations":
             {
-                "struct":
+                "count": 4,
+                "bit_struct":
                 {
-                    "    England":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "     France":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },                    
-                    "      Spain":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    },
-                    "Netherlands":
-                    {
-                        "no_indent": true,
-                        "bit_struct":
-                        {
-                            "attitude?": {"size": 4, "type": "uint"},
-                            "unkwn_bit_1": {"size": 1, "type": "bit_bool"},
-                            "met": {"size": 1, "type": "bit_bool"},
-                            "peace": {"size": 1, "type": "bit_bool"},
-                            "irrit_by_piracy": {"size": 1, "type": "bit_bool"}
-                        }
-                    }
+                    "attitude?": {"size": 4, "type": "uint"},
+                    "status": {"size": 3, "type": "relation_3bit_type"},
+                    "unused": {"size": 1, "type": "bit_bool"}
                 }
             },
             "zeros33": {"size": 8},
