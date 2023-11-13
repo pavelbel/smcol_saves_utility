@@ -35,8 +35,8 @@
             "Civilized": "03"
         },
 
-        "terrain_5bit_type":
-        {
+        "__hint_terrain_5bit_type" : "..W values are deprecated regular forests, same as ..F. See supplemental-info.md for details",
+        "terrain_5bit_type": {
             "tu ": "00000",
             "de ": "00001",
             "pl ": "00010",
@@ -46,13 +46,21 @@
             "sw ": "00110",
             "mr ": "00111",
             "tuF": "01000",
+            "tuW": "10000",
             "deF": "01001",
+            "deW": "10001",
             "plF": "01010",
+            "plW": "10010",
             "prF": "01011",
+            "prW": "10011",
             "grF": "01100",
+            "grW": "10100",
             "saF": "01101",
-            "swF": "01110",
-            "mrF": "01111",
+            "saW": "10101",
+            "mrF": "01110",
+            "mrW": "10110",
+            "swF": "01111",
+            "swW": "10111",
             "arc": "11000",
             "~~~": "11001",
             "~:~": "11010"

@@ -1,3 +1,10 @@
+# terrain_5bit_type
+
+Deprecated ..W (= woods) `terrain_5bit_type` values are regular
+forests, same as ..F (= forest). The game now itself uses only ..F,
+but ..W are also supported. Probably for compatibility with maps
+made with previous Map Editor version. 
+
 # price_group_state
 
 For those goods that are in price groups, these contain internal
