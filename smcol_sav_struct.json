@@ -848,7 +848,8 @@
             },
             "population": {"size": 1, "type": "uint"},
             "mission": {"size": 1},
-            "unknown28": {"size": 2},
+            "growth_counter": {"size": 1, "type": "int"},
+            "unknown28a": {"size": 1},
             "last_bought": {"size": 1},
             "last_sold": {"size": 1},
             "alarm":
