@@ -5,6 +5,22 @@ forests, same as ..F (= forest). The game now itself uses only ..F,
 but ..W are also supported. Probably for compatibility with maps
 made with previous Map Editor version. 
 
+# growth_counter
+
+When a native dwelling is missing its brave on the map or its
+population is less than the max, then this counter will get in-
+creased each turn by an amount equal to the current population
+(population does not include the free brave on the map). This
+way, the population increases more slowly the lower the popula-
+tion. When this number hits 20 then a new brave is created on the
+map (if it is missing) or else the population is increased by
+one. If the population is already at the max, then the counter
+does not increase. This behavior does not seem to vary based on
+difficulty level, capital status, or nation. If the counter is
+incremented and it goes above 20, it is still reset to 0. The
+counter is a signed int, because you can set it to e.g. -30 and
+it will count up from -30 to +20 before increasing population.
+
 # price_group_state
 
 For those goods that are in price groups, these contain internal
