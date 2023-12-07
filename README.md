@@ -59,6 +59,7 @@ Some additions were made by me:
 - click_before_open_colony x, y field (coords of the point player clicked before entering some colony screen)
 - show_colony_prod_quantities (to show poduction quantities on colony screen flag)
 - relation byte field partially decoded: have met flag, peace signed flag, irritated by piracy flag and unclear attitude (?) value
+- some Foreign Affairs Report fields mapped: nations' population, merchant marine and ship count values
 
 ### _smcol_sav_struct.json_ file structure
 It is a [dictionary](https://en.wikipedia.org/wiki/Associative_array). Each entry of it is itself a dictionary too. **Warning**: keys order is essential though the JSON specification doesn't require it. Keep it in mind when using it elsewhere.

@@ -48,3 +48,8 @@ that the values in this section have no meaning since those
 goods' prices can be derived entirely using values elsewhere in
 the save file. That said, those other values (e.g for cotton) do
 seem to change when things are bought/sold.
+
+# ship_counts
+
+Nations' ship counts. Updated at the beginning of each turn. Probably
+used for naval power calculations.

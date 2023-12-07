@@ -929,7 +929,18 @@
             "counter_decreasing_on_new_colony": {"size": 2, "type": "uint"},
             "unknown35": {"size": 2},
             "counter_increasing_on_new_colony": {"size": 2, "type": "uint"},
-            "unknown36a": {"size": 543},
+            "unknown36aa": {"size": 7},
+            "foreign_affairs_report":
+            {
+                "struct":
+                {
+                    "populations": {"size": 1, "type": "uint", "cols": 4, "no_indent": true},
+                    "unknown36ab": {"size": 4},
+                    "merchant_marine": {"size": 1, "type": "uint", "cols": 4, "no_indent": true},
+                    "ship_counts": {"size": 1, "type": "uint", "cols": 4, "no_indent": true, "__hint": "See supplemental-info.md for details"}
+                }
+            },
+            "unknown36ac": {"size": 520},
             "show_colony_prod_quantities": {"size": 1},
             "unknown36b": {"size": 152},
             "x": {"size": 2, "type": "uint"},
