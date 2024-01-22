@@ -1010,12 +1010,50 @@
             "vis2du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
         }
     },
-    "unknown_map38a": {"size": 18, "count": 14},
-    "unknown_map38b": {"size": 18, "count": 14},
-    "unknown39a": {"size": 104},
-    "unknown39b": {"size": 3},
-    "prime_resource_seed": {"size": 2},
-    "unknown39d": {"size": 1},
+    "CONNECTIVITY":
+    {
+        "struct":
+        {
+            "sea_lane_connectivity":
+            {
+                "count": 18,
+                "cols": 15,
+                "bit_struct":
+                {
+                    "north": {"size": 1, "type": "bit_bool"},
+                    "neast": {"size": 1, "type": "bit_bool"},
+                    "east": {"size": 1, "type": "bit_bool"},
+                    "seast": {"size": 1, "type": "bit_bool"},
+                    "south": {"size": 1, "type": "bit_bool"},
+                    "swest": {"size": 1, "type": "bit_bool"},
+                    "west": {"size": 1, "type": "bit_bool"},
+                    "nwest": {"size": 1, "type": "bit_bool"}
+                }
+            },
+            "land_connectivity":
+            {
+                "count": 18,
+                "cols": 15,
+                "bit_struct":
+                {
+                    "north": {"size": 1, "type": "bit_bool"},
+                    "neast": {"size": 1, "type": "bit_bool"},
+                    "east": {"size": 1, "type": "bit_bool"},
+                    "seast": {"size": 1, "type": "bit_bool"},
+                    "south": {"size": 1, "type": "bit_bool"},
+                    "swest": {"size": 1, "type": "bit_bool"},
+                    "west": {"size": 1, "type": "bit_bool"},
+                    "nwest": {"size": 1, "type": "bit_bool"}
+                }
+            }
+        }
+    },
+    "unknown_map38c2": {"size": 2, "count": 9},
+    "unknown_map38c3": {"size": 16},
+    "strategy": {"size": 2, "type": "uint", "count": 14, "__hint": "these are the numbers that appear on screen when selecting 'show strategy' from the cheat menu."},
+    "unknown_map38d": {"size": 10},
+    "prime_resource_seed": {"size": 1, "type": "uint", "__hint": "seed for both prime resources and lost city rumors."},
+    "unknown39d": {"size": 1, "__hint": "Seems to be constant throughout the game.  Could be the high byte of the prime_resource_seed, though if it is then it would have no visible effect since the seed's value only matters mod 32."},
     "TRADE_ROUTE":
     {
         "count": 12,
