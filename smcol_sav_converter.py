@@ -100,8 +100,8 @@ def deserialize(val: [bytes, bitarray], struct_data: dict, metadata: dict, to_pr
         except KeyError as kex:
             print(f"WARNING: no value '{key_name}' of type '{to_type}', leaving it 'as is'")
             return key_name
-        except:
-            raise
+        except Exception as ex:
+            raise ex
     else:
         if to_type is not None:
             print(f"WARNING: Unknown type: {to_type}")
@@ -303,7 +303,7 @@ def read_sav_structure(sav_structure, sav_data, metadata, prefix='', data_offset
 
         try:
             curr_entry_size = get_entry_size(entry_data, metadata)
-        except:
+        except Exception as ex:
             raise Exception(f"ERROR: cannot calculate size of field '{entry_name}'")
 
         curr_entry_count, curr_entry_cols = get_entry_count(entry_data, metadata)
