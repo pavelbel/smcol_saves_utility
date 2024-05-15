@@ -402,6 +402,55 @@
         {
             "Not shown": "00 00",
             "Flashing": "01 00"
+        },
+
+        "__hint_6": "connect_..._1bit_type - 8 types for CONNECTIVITY section",
+        "connect_N_1bit_type":
+        {
+            "N": "1",
+            " ": "0"
+        },
+
+        "connect_NE_1bit_type":
+        {
+            "NE": "1",
+            "  ": "0"
+        },
+
+        "connect_E_1bit_type":
+        {
+            "E": "1",
+            " ": "0"
+        },
+
+        "connect_SE_1bit_type":
+        {
+            "SE": "1",
+            "  ": "0"
+        },
+
+        "connect_S_1bit_type":
+        {
+            "S": "1",
+            " ": "0"
+        },
+
+        "connect_SW_1bit_type":
+        {
+            "SW": "1",
+            "  ": "0"
+        },
+
+        "connect_W_1bit_type":
+        {
+            "W": "1",
+            " ": "0"
+        },
+
+        "connect_NW_1bit_type":
+        {
+            "NW": "1",
+            "  ": "0"
         }
     },
     "HEAD":
@@ -1211,32 +1260,34 @@
             {
                 "count": 18,
                 "cols": 15,
+                "compact": "|",
                 "bit_struct":
                 {
-                    "north": {"size": 1, "type": "bit_bool"},
-                    "neast": {"size": 1, "type": "bit_bool"},
-                    "east": {"size": 1, "type": "bit_bool"},
-                    "seast": {"size": 1, "type": "bit_bool"},
-                    "south": {"size": 1, "type": "bit_bool"},
-                    "swest": {"size": 1, "type": "bit_bool"},
-                    "west": {"size": 1, "type": "bit_bool"},
-                    "nwest": {"size": 1, "type": "bit_bool"}
+                    "north": {"size": 1, "type": "connect_N_1bit_type"},
+                    "neast": {"size": 1, "type": "connect_NE_1bit_type"},
+                    "east": {"size": 1, "type": "connect_E_1bit_type"},
+                    "seast": {"size": 1, "type": "connect_SE_1bit_type"},
+                    "south": {"size": 1, "type": "connect_S_1bit_type"},
+                    "swest": {"size": 1, "type": "connect_SW_1bit_type"},
+                    "west": {"size": 1, "type": "connect_W_1bit_type"},
+                    "nwest": {"size": 1, "type": "connect_NW_1bit_type"}
                 }
             },
             "land_connectivity":
             {
                 "count": 18,
                 "cols": 15,
+                "compact": "|",
                 "bit_struct":
                 {
-                    "north": {"size": 1, "type": "bit_bool"},
-                    "neast": {"size": 1, "type": "bit_bool"},
-                    "east": {"size": 1, "type": "bit_bool"},
-                    "seast": {"size": 1, "type": "bit_bool"},
-                    "south": {"size": 1, "type": "bit_bool"},
-                    "swest": {"size": 1, "type": "bit_bool"},
-                    "west": {"size": 1, "type": "bit_bool"},
-                    "nwest": {"size": 1, "type": "bit_bool"}
+                    "north": {"size": 1, "type": "connect_N_1bit_type"},
+                    "neast": {"size": 1, "type": "connect_NE_1bit_type"},
+                    "east": {"size": 1, "type": "connect_E_1bit_type"},
+                    "seast": {"size": 1, "type": "connect_SE_1bit_type"},
+                    "south": {"size": 1, "type": "connect_S_1bit_type"},
+                    "swest": {"size": 1, "type": "connect_SW_1bit_type"},
+                    "west": {"size": 1, "type": "connect_W_1bit_type"},
+                    "nwest": {"size": 1, "type": "connect_NW_1bit_type"}
                 }
             }
         }
