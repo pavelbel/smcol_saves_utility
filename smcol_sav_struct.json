@@ -253,6 +253,24 @@
             "None": "FF"
         },
 
+        "__hint_2a": "word-sized nation type",
+        "nation_2byte_type":
+        {
+            "England": "00 00",
+            "France": "01 00",
+            "Spain": "02 00",
+            "Netherlands": "03 00",
+            "Inca": "04 00",
+            "Aztec": "05 00",
+            "Arawak": "06 00",
+            "Iroquois": "07 00",
+            "Cherokee": "08 00",
+            "Apache": "09 00",
+            "Sioux": "0A 00",
+            "Tupi": "0B 00",
+            "None": "FF FF"
+        },
+
         "__hint_3": "4 bits-sized nation type",
         "nation_4bit_type":
         {
@@ -378,6 +396,61 @@
         {
             "land": "00",
             "sea": "01"
+        },
+
+        "end_of_turn_sign_type":
+        {
+            "Not shown": "00 00",
+            "Flashing": "01 00"
+        },
+
+        "__hint_6": "connect_..._1bit_type - 8 types for CONNECTIVITY section",
+        "connect_N_1bit_type":
+        {
+            "N": "1",
+            " ": "0"
+        },
+
+        "connect_NE_1bit_type":
+        {
+            "NE": "1",
+            "  ": "0"
+        },
+
+        "connect_E_1bit_type":
+        {
+            "E": "1",
+            " ": "0"
+        },
+
+        "connect_SE_1bit_type":
+        {
+            "SE": "1",
+            "  ": "0"
+        },
+
+        "connect_S_1bit_type":
+        {
+            "S": "1",
+            " ": "0"
+        },
+
+        "connect_SW_1bit_type":
+        {
+            "SW": "1",
+            "  ": "0"
+        },
+
+        "connect_W_1bit_type":
+        {
+            "W": "1",
+            " ": "0"
+        },
+
+        "connect_NW_1bit_type":
+        {
+            "NW": "1",
+            "  ": "0"
         }
     },
     "HEAD":
@@ -409,6 +482,7 @@
             },
             "colony_report_options":
             {
+                "__hint": "Note that 'true' means to disable the given option.",
                 "bit_struct":
                 {
                     "labels_on_cargo_and_terrain": {"size": 1, "type": "bit_bool"},
@@ -433,19 +507,24 @@
             "tile_selection_mode": {"size": 1},
             "unknown40": {"size": 1},
             "active_unit": {"size": 2, "type": "int", "__hint": "index of an active unit in UNITs section, or -1 if none."},
-            "unknown41": {"size": 6},
-            "tribe_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "tribes count, saving to meta for later use"},
+            "nation_turn": {"size": 2, "type": "nation_2byte_type", "__hint": "See supplemental-info.md for details"},
+            "curr_nation_map_view": {"size": 2, "type": "nation_2byte_type", "__hint": "See supplemental-info.md for details"},
+            "human_player": {"size": 2, "type": "nation_2byte_type", "__hint": "See supplemental-info.md for details"},
+            "tribe_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "indian dwellings count, saving to meta for later use"},
             "unit_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "units count, saving to meta for later use"},
             "colony_count": {"size": 2, "save_meta": true, "type": "uint", "__hint": "colonies count, saving to meta for later use"},
-            "trade_route_count": {"size": 1, "save_meta": true, "type": "uint", "__hint": "trade routes count, saving to meta for later use"},
-            "unknown42": {"size": 5},
+            "trade_route_count": {"size": 2, "type": "uint", "__hint": "Actually unused. See supplemental-info.md for details"},
+            "show_entire_map": {"size": 2, "type": "uint", "__hint": "See supplemental-info.md for details"},
+            "fixed_nation_map_view": {"size": 2, "type": "nation_2byte_type", "__hint": "See supplemental-info.md for details"},
             "difficulty": {"size": 1, "type": "difficulty_type"},
             "unknown43a": {"size": 1},
             "unknown43b": {"size": 1},
             "founding_father": {"size": 25},
-            "unknown44": {"size": 6},
+            "unknown44a": {"size": 4},
+            "end_of_turn_sign": {"size": 2, "type": "end_of_turn_sign_type"},
             "nation_relation": {"size": 8},
-            "unknown45": {"size": 10},
+            "rebel_sentiment_report": {"size": 2, "type": "int", "__hint": "0-100, displayed in continental congress report for all players."},
+            "unknown45a": {"size": 8},
             "expeditionary_force":
             {
                 "no_indent": true,
@@ -477,22 +556,22 @@
                 "no_indent": true,
                 "struct":
                 {
-                    "food": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "sugar": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "tobacco": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "cotton": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "furs": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "lumber": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "ore": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "silver": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "horses": {"size": 2, "type": "uint", "__hint": "unused?"},
+                    "food": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "sugar": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "tobacco": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "cotton": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "furs": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "lumber": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "ore": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "silver": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "horses": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
                     "rum": {"size": 2, "type": "uint", "__hint": "used as part of rum's internal price group state."},
                     "cigars": {"size": 2, "type": "uint", "__hint": "used as part of cigars' internal price group state."},
                     "cloth": {"size": 2, "type": "uint", "__hint": "used as part of cloth's internal price group state."},
                     "coats": {"size": 2, "type": "uint", "__hint": "used as part of coats' internal price group state."},
-                    "trade_goods": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "tools": {"size": 2, "type": "uint", "__hint": "unused?"},
-                    "muskets": {"size": 2, "type": "uint", "__hint": "unused?"}
+                    "trade_goods": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "tools": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"},
+                    "muskets": {"size": 2, "type": "uint", "__hint": "the game updates these, but they appear otherwise unused"}
                 }
             },
             "event":
@@ -529,9 +608,16 @@
         {
             "name": {"size": 24, "type": "str"},
             "country_name": {"size": 24, "type": "str"},
-            "unknown06": {"size": 1},
+            "player_flags":
+            {
+                "bit_struct":
+                {
+                    "unknown06a": {"size": 7},
+                    "named_new_world": {"size": 1, "type": "bit_bool", "__hint": "the country_name field has been populated; only used for human player."}
+                }
+            },
             "control": {"size": 1, "type": "control_type"},
-            "founded_colonies": {"size": 1, "type": "uint"},
+            "founded_colonies": {"size": 1, "type": "uint", "__hint": "might be used to pick next colony name"},
             "diplomacy": {"size": 1}
         }
     },
@@ -541,7 +627,7 @@
         {
             "unknown51a": {"size": 18, "__hint": "unexplored"},
             "click_before_open_colony x, y": {"size": 2, "count": 2, "type": "uint", "no_indent": true},
-            "unknown51b": {"size": 2, "__hint": "unexplored"}        
+            "unknown51b": {"size": 2, "__hint": "unexplored"}
         }
     },    
     "COLONY":
@@ -553,7 +639,22 @@
             "x, y": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "name": {"size": 24, "type": "str"},
             "nation_id": {"size": 1, "type": "nation_type"},
-            "unknown08": {"size": 4},
+            "unknown08a": {"size": 1},
+            "colony_flags":
+            {
+                "bit_struct":
+                {
+                    "unknown00": {"size": 1, "type": "bit_bool"},
+                    "level2_sol_bonus": {"size": 1, "type": "bit_bool", "__hint": "received at 100% SoL membership."},
+                    "level1_sol_bonus": {"size": 1, "type": "bit_bool", "__hint": "received at 50% SoL membership."},
+                    "unknown03": {"size": 1, "type": "bit_bool"},
+                    "unknown04": {"size": 1, "type": "bit_bool"},
+                    "unknown05": {"size": 1, "type": "bit_bool"},
+                    "unknown06": {"size": 1, "type": "bit_bool"},
+                    "construction_complete_blinking": {"size": 1, "type": "bit_bool"}
+                }
+            },
+            "unknown08b": {"size": 2},
             "population": {"size": 1, "type": "uint"},
             "occupation": {"size": 1, "count": 1, "cols": 32, "type": "occupation_type"},
             "profession": {"size": 1, "count": 1, "cols": 32, "type": "profession_type"},
@@ -636,7 +737,9 @@
             "hammers": {"size": 2, "type": "uint"},
             "building_in_production": {"size": 1},
             "warehouse_level": {"size": 1, "type": "uint", "__hint": "normally can be 0, 1 (for wh) or 2 (for wh exp), but can be manually set to any value"},
-            "unknown12": {"size": 4},
+            "unknown12a": {"size": 1},
+            "depletion_counter": {"size": 1, "type": "uint", "__hint": "when this hits 50 the silver/minerals resources being worked in the colony will deplete."},
+            "hammers_purchased": {"size": 2, "type": "uint", "__hint": "Cumulative hammers purchased (rushed construction). Possibly unused or used by AI."},
             "stock":
             {
                 "struct":
@@ -729,8 +832,8 @@
                     "cargo_2": {"size": 4, "type": "cargo_4bit_type"}
                 }
             },
-            "cargo_hold": {"size": 1, "cols": 6, "type": "uint", "no_indent": true},
-            "turns_worked": {"size": 1, "type": "uint"},
+            "cargo_hold": {"size": 1, "cols": 6, "type": "uint", "no_indent": true, "__hint": "for pioneer: last number contains tool count"},
+            "turns_worked": {"size": 1, "type": "uint", "__hint": "for ships on the high seas: this is a counter that determines when they advance to the next position, which seems to happen when the value is 1 for sailing from either east or west."},
             "profession_or_treasure_amount": {"size": 1, "type": "profession_type", "__hint": "Can be 'expert farmer' for ships, it's ok. A amount of gold for Treasure units (100's, i.e. 0x32 = 50d = 5000 gold)"},
             "transport_chain":
             {
@@ -786,14 +889,15 @@
                 }
             },
             "unknown21": {"size": 1},
-            "liberty_bells_total": {"size": 2, "type": "uint"},
-            "liberty_bells_last_turn": {"size": 2, "type": "uint"},
+            "liberty_bells_total": {"size": 2, "type": "int"},
+            "liberty_bells_last_turn": {"size": 2, "type": "int"},
             "unknown22": {"size": 2},
             "next_founding_father": {"size": 2, "type": "int", "__hint": "index of founding father currently in progress, or -1 if none."},
             "founding_father_count": {"size": 2, "type": "uint"},
             "prob_founding_father_count_end": {"size": 2},
             "villages_burned": {"size": 1, "type": "uint"},
-            "unknown23": {"size": 5},
+            "rebel_sentiment": {"size": 1, "type": "int", "__hint": "0-100, rebel sentiment for nation. Computed each turn, but appears unused; instead rebel_sentiment_report in the header is used for all nations."},
+            "unknown23": {"size": 4},
             "artillery_bought_count": {"size": 2, "type": "uint"},
             "boycott_bitmap":
             {
@@ -817,7 +921,7 @@
                     "muskets": {"size": 1, "type": "bit_bool"}
                 }
             },
-            "royal_money": {"size": 4, "type": "int", "__hint": "King's budget for expeditionary force expansion"},
+            "royal_money": {"size": 4, "type": "int", "__hint": "King's budget for expeditionary force expansion. Increased, then when it reaches a threshold, a new unit is added."},
             "unknown24b": {"size": 4},
             "gold": {"size": 4, "type": "int"},
             "current_crosses": {"size": 2, "type": "uint"},
@@ -850,11 +954,32 @@
             {
                 "struct":
                 {
-                    "eu_prc": {"size": 1, "cols": 16, "type": "uint", "no_indent": true},
-                    "nr": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
+                    "euro_price": {"size": 1, "cols": 16, "type": "uint", "no_indent": true},
+                    "intrinsic_volume":
+                    {
+                        "struct":
+                        {
+                            "food": {"size": 2, "type": "int"},
+                            "sugar": {"size": 2, "type": "int"},
+                            "tobacco": {"size": 2, "type": "int"},
+                            "cotton": {"size": 2, "type": "int"},
+                            "furs": {"size": 2, "type": "int"},
+                            "lumber": {"size": 2, "type": "int"},
+                            "ore": {"size": 2, "type": "int"},
+                            "silver": {"size": 2, "type": "int"},
+                            "horses": {"size": 2, "type": "int"},
+                            "rum": {"size": 2, "type": "int"},
+                            "cigars": {"size": 2, "type": "int"},
+                            "cloth": {"size": 2, "type": "int"},
+                            "coats": {"size": 2, "type": "int"},
+                            "trade_goods": {"size": 2, "type": "int"},
+                            "tools": {"size": 2, "type": "int"},
+                            "muskets": {"size": 2, "type": "int"}
+                        }
+                    },
                     "gold": {"size": 4, "cols": 16, "type": "int", "no_indent": true},
-                    "tons": {"size": 4, "cols": 16, "type": "int", "no_indent": true},
-                    "tons2": {"size": 4, "cols": 16, "type": "int", "no_indent": true}
+                    "tons_traded": {"size": 4, "cols": 16, "type": "int", "no_indent": true, "__hint": "these two appear to mirror each other, though they may be different given some modifiers such as the dutch selling or the AI trading."},
+                    "tons_traded2": {"size": 4, "cols": 16, "type": "int", "no_indent": true, "__hint": "One is probably for the economics display which needs to be unmodified while the other is internal."}
                 }
             }
         }
@@ -866,11 +991,11 @@
         {
             "x, y": {"size": 1, "count": 2, "type": "uint", "no_indent": true},
             "nation_id": {"size": 1, "type": "nation_type"},
-            "ALCS":
+            "BLCS":
             {
                 "bit_struct":
                 {
-                    "artillery_near": {"size": 1, "type": "bit_bool"},
+                    "brave_missing": {"size": 1, "type": "bit_bool"},
                     "learned": {"size": 1, "type": "bit_bool"},
                     "capital": {"size": 1, "type": "bit_bool"},
                     "scouted": {"size": 1, "type": "bit_bool"},
@@ -878,9 +1003,9 @@
                 }
             },
             "population": {"size": 1, "type": "uint"},
-            "mission": {"size": 1},
-            "growth_counter": {"size": 1, "type": "int"},
-            "unknown28a": {"size": 1},
+            "mission": {"size": 1, "type": "int", "__hint": "-1 if none. Otherwise nation idx (0,1,2,3)."},
+            "growth_counter": {"size": 1, "type": "int", "__hint": "See supplemental-info.md for details"},
+            "unknown28a": {"size": 1, "__hint": "always seems to be 0xff."},
             "last_bought": {"size": 1},
             "last_sold": {"size": 1},
             "alarm":
@@ -889,7 +1014,7 @@
                 "struct":
                 {
                     "friction": {"size": 1},
-                    "attacks": {"size": 1}
+                    "attacks": {"size": 1, "__hint": "See supplemental-info.md for details"}
                 }
             }
         }
@@ -901,11 +1026,43 @@
         {
             "capitol (x, y)": {"size": 1, "type": "uint", "cols": 2, "no_indent": true},
             "tech": {"size": 1, "type": "tech_type"},
-            "unknown31a": {"size": 4},
-            "muskets": {"size": 1, "type": "uint", "__hint": "not including muskets equipped by braves"},
-            "horse_herds": {"size": 1, "type": "uint"},
-            "unknown31b": {"size": 5},
-            "tons": {"size": 2, "cols": 16, "type": "int", "no_indent": true},
+            "tribe_flags":
+            {
+                "bit_struct":
+                {
+                    "unknown01": {"size": 7},
+                    "extinct": {"size": 1, "type": "bit_bool"}
+                }
+            },
+            "unknown31b": {"size": 3},
+            "muskets": {"size": 1, "type": "int", "__hint": "not including muskets equipped by braves"},
+            "horse_herds": {"size": 1, "type": "uint", "__hint": "See supplemental-info.md for details"},
+            "unknown31c": {"size": 1},
+            "horse_breeding": {"size": 2, "type": "uint", "__hint": "See supplemental-info.md for details"},
+            "unknown31d": {"size": 2},
+            "stock":
+            {
+                "__hint": "stock of each good used for trading (gifting and stealing not included). can be negative.",
+                "struct":
+                {
+                    "food": {"size": 2, "type": "int"},
+                    "sugar": {"size": 2, "type": "int"},
+                    "tobacco": {"size": 2, "type": "int"},
+                    "cotton": {"size": 2, "type": "int"},
+                    "furs": {"size": 2, "type": "int"},
+                    "lumber": {"size": 2, "type": "int"},
+                    "ore": {"size": 2, "type": "int"},
+                    "silver": {"size": 2, "type": "int"},
+                    "horses": {"size": 2, "type": "int"},
+                    "rum": {"size": 2, "type": "int"},
+                    "cigars": {"size": 2, "type": "int"},
+                    "cloth": {"size": 2, "type": "int"},
+                    "coats": {"size": 2, "type": "int"},
+                    "trade_goods": {"size": 2, "type": "int"},
+                    "tools": {"size": 2, "type": "int"},
+                    "muskets": {"size": 2, "type": "int"}
+                }
+            },
             "unknown32": {"size": 12},
             "relation_by_nations":
             {
@@ -929,11 +1086,106 @@
             "counter_decreasing_on_new_colony": {"size": 2, "type": "uint"},
             "unknown35": {"size": 2},
             "counter_increasing_on_new_colony": {"size": 2, "type": "uint"},
-            "unknown36a": {"size": 543},
+            "unknown36aa": {"size": 7},
+            "foreign_affairs_report":
+            {
+                "struct":
+                {
+                    "populations": {"size": 1, "type": "uint", "cols": 4, "no_indent": true},
+                    "unknown36ab": {"size": 4},
+                    "merchant_marine": {"size": 1, "type": "uint", "cols": 4, "no_indent": true},
+                    "ship_counts": {"size": 1, "type": "uint", "cols": 4, "no_indent": true, "__hint": "Nations' ship counts. Updated at the beginning of each turn. Probably used for naval power calculations."}
+                }
+            },
+            "unknown36ac": {"size": 520},
             "show_colony_prod_quantities": {"size": 1},
-            "unknown36b": {"size": 152},
-            "x": {"size": 2, "type": "uint"},
-            "y": {"size": 2, "type": "uint"},
+            "unknown_tribe_data_1":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1},
+                    "aztec": {"size": 1},
+                    "arawak": {"size": 1},
+                    "iroquois": {"size": 1},
+                    "cherokee": {"size": 1},
+                    "apache": {"size": 1},
+                    "sioux": {"size": 1},
+                    "tupi": {"size": 1}
+                }
+            },
+            "unknown_tribe_data_2":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1},
+                    "aztec": {"size": 1},
+                    "arawak": {"size": 1},
+                    "iroquois": {"size": 1},
+                    "cherokee": {"size": 1},
+                    "apache": {"size": 1},
+                    "sioux": {"size": 1},
+                    "tupi": {"size": 1}
+                }
+            },
+            "tribe_dwelling_count":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1, "type": "uint"},
+                    "aztec": {"size": 1, "type": "uint"},
+                    "arawak": {"size": 1, "type": "uint"},
+                    "iroquois": {"size": 1, "type": "uint"},
+                    "cherokee": {"size": 1, "type": "uint"},
+                    "apache": {"size": 1, "type": "uint"},
+                    "sioux": {"size": 1, "type": "uint"},
+                    "tupi": {"size": 1, "type": "uint"}
+                }
+            },
+            "unknown_tribe_data_4":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1},
+                    "aztec": {"size": 1},
+                    "arawak": {"size": 1},
+                    "iroquois": {"size": 1},
+                    "cherokee": {"size": 1},
+                    "apache": {"size": 1},
+                    "sioux": {"size": 1},
+                    "tupi": {"size": 1}
+                }
+            },
+            "unknown_tribe_data_5":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1},
+                    "aztec": {"size": 1},
+                    "arawak": {"size": 1},
+                    "iroquois": {"size": 1},
+                    "cherokee": {"size": 1},
+                    "apache": {"size": 1},
+                    "sioux": {"size": 1},
+                    "tupi": {"size": 1}
+                }
+            },
+            "unknown_tribe_data_6":
+            {
+                "struct":
+                {
+                    "inca": {"size": 1},
+                    "aztec": {"size": 1},
+                    "arawak": {"size": 1},
+                    "iroquois": {"size": 1},
+                    "cherokee": {"size": 1},
+                    "apache": {"size": 1},
+                    "sioux": {"size": 1},
+                    "tupi": {"size": 1}
+                }
+            },
+            "unknown36b": {"size": 104},
+            "x": {"size": 2, "type": "uint", "__hint": "white selector square x"},
+            "y": {"size": 2, "type": "uint", "__hint": "white selector square y"},
             "zoom_level": {"size": 1, "type": "uint"},
             "unknown37": {"size": 1},
             "viewport_x": {"size": 2, "type": "uint"},
@@ -962,7 +1214,7 @@
         {
             "has_unit": {"size": 1, "type": "has_unit_1bit_type"},
             "has_city": {"size": 1, "type": "has_city_1bit_type"},
-            "suppress": {"size": 1, "type": "suppress_1bit_type"},
+            "suppress": {"size": 1, "type": "suppress_1bit_type", "__hint": "See supplemental info for more information."},
             "road": {"size": 1, "type": "road_1bit_type"},
             "purchased": {"size": 1, "type": "purchased_1bit_type"},
             "pacific": {"size": 1, "type": "pacific_1bit_type"},
@@ -980,7 +1232,7 @@
         "bit_struct":
         {
             "region_id": {"size": 4, "type": "region_id_4bit_type"},
-            "visitor_nation": {"size": 4, "type": "nation_4bit_short_type"}
+            "visitor_nation": {"size": 4, "type": "nation_4bit_short_type", "__hint": "also used to suppress an LCR that was visited."}
         }
     },
     "SEEN":
@@ -999,12 +1251,53 @@
             "vis2du": {"size": 1, "type": "visible_to_dutch_1bit_type"}
         }
     },
-    "unknown_map38a": {"size": 18, "count": 14},
-    "unknown_map38b": {"size": 18, "count": 14},
-    "unknown39a": {"size": 104},
-    "unknown39b": {"size": 3},
-    "prime_resource_seed": {"size": 2},
-    "unknown39d": {"size": 1},
+    "CONNECTIVITY":
+    {
+        "__hint01": "See supplemental-info.md for description of the algorithm that populates these.",
+        "struct":
+        {
+            "sea_lane_connectivity":
+            {
+                "count": 18,
+                "cols": 15,
+                "compact": "|",
+                "bit_struct":
+                {
+                    "north": {"size": 1, "type": "connect_N_1bit_type"},
+                    "neast": {"size": 1, "type": "connect_NE_1bit_type"},
+                    "east": {"size": 1, "type": "connect_E_1bit_type"},
+                    "seast": {"size": 1, "type": "connect_SE_1bit_type"},
+                    "south": {"size": 1, "type": "connect_S_1bit_type"},
+                    "swest": {"size": 1, "type": "connect_SW_1bit_type"},
+                    "west": {"size": 1, "type": "connect_W_1bit_type"},
+                    "nwest": {"size": 1, "type": "connect_NW_1bit_type"}
+                }
+            },
+            "land_connectivity":
+            {
+                "count": 18,
+                "cols": 15,
+                "compact": "|",
+                "bit_struct":
+                {
+                    "north": {"size": 1, "type": "connect_N_1bit_type"},
+                    "neast": {"size": 1, "type": "connect_NE_1bit_type"},
+                    "east": {"size": 1, "type": "connect_E_1bit_type"},
+                    "seast": {"size": 1, "type": "connect_SE_1bit_type"},
+                    "south": {"size": 1, "type": "connect_S_1bit_type"},
+                    "swest": {"size": 1, "type": "connect_SW_1bit_type"},
+                    "west": {"size": 1, "type": "connect_W_1bit_type"},
+                    "nwest": {"size": 1, "type": "connect_NW_1bit_type"}
+                }
+            }
+        }
+    },
+    "unknown_map38c2": {"size": 2, "count": 9},
+    "unknown_map38c3": {"size": 16},
+    "strategy": {"size": 2, "type": "uint", "count": 14, "__hint": "these are the numbers that appear on screen when selecting 'show strategy' from the cheat menu."},
+    "unknown_map38d": {"size": 10},
+    "prime_resource_seed": {"size": 1, "type": "uint", "__hint": "seed for both prime resources and lost city rumors."},
+    "unknown39d": {"size": 1, "__hint": "Seems to be constant throughout the game.  Could be the high byte of the prime_resource_seed, though if it is then it would have no visible effect since the seed's value only matters mod 32."},
     "TRADE_ROUTE":
     {
         "count": 12,
