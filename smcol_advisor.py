@@ -5,9 +5,22 @@ from datetime import datetime
 from smcol_sav_converter import handle_metadata, read_sav_structure, REL_VER
 from smcol_sav_common import *
 
+TO_USE_COLORS = True
+
+if TO_USE_COLORS:
+    from colorama import *
+
+
+def ifcolor(ss: str):
+    """Function for disabling all coloring"""
+    return ss if TO_USE_COLORS else ""
+
+
+COLRESET = ifcolor(Style.RESET_ALL)
+
 
 def load_json_sav_data(fname: str):
-    with open(curr_last_filename, mode='rb') as sf:
+    with open(fname, mode='rb') as sf:
         latest_sav_data = sf.read()
 
     read_metadata = handle_metadata(json_sav_structure['__metadata'])
@@ -39,6 +52,25 @@ def get_all_and_players_units_count(json_sav_data, player_id):
     return cnt, pl_cnt
 
 
+def get_all_and_players_colonies_count(json_sav_data, player_id):
+    cnt = 0
+    pl_cnt = 0
+    for colony in json_sav_data['COLONY']:
+        cnt += 1
+        if int(colony['nation_id'], 16) == player_id:
+            pl_cnt += 1
+
+    return cnt, pl_cnt
+
+
+def get_rebel_val(colony, is_bolivar_present):
+    """Get rebel sentiment value"""
+    colony_rebel_val = int(colony['rebel_dividend'] / colony['rebel_divisor'] * 100)
+    if is_bolivar_present:
+        colony_rebel_val += 20
+    return 100 if colony_rebel_val > 100 else colony_rebel_val
+
+
 def run_advisor(json_sav_data, prev_json_sav_data):
     """Main advisor data output function"""
 
@@ -46,8 +78,43 @@ def run_advisor(json_sav_data, prev_json_sav_data):
     print(f"\n{caption_data['country_name']}, {caption_data['season'].capitalize()} of {caption_data['year']}, {caption_data['difficulty']} {caption_data['name']}, {caption_data['gold']} gold")
 
     units_counts = get_all_and_players_units_count(json_sav_data, caption_data['player_nation_id'])
+    colonies_counts = get_all_and_players_colonies_count(json_sav_data, caption_data['player_nation_id'])
     print(f"All units: {units_counts[0]}. Player's units: {units_counts[1]}")
+    print(f"All colonies: {colonies_counts[0]}. Player's colonies: {colonies_counts[1]}")
 
+    print()
+
+    num = 0
+    for colony in json_sav_data['COLONY']:
+        # if int(colony['nation_id'], 16) != caption_data['player_nation_id']:
+        #     continue
+        prev_colony = None
+        if prev_json_sav_data is not None:
+            for prev_col in prev_json_sav_data['COLONY']:
+                if prev_col['name'] == colony['name']:
+                    prev_colony = prev_col
+                    break
+        num += 1
+
+        col_name_color = ifcolor(Fore.LIGHTCYAN_EX) if colony['colony_flags']['level2_sol_bonus'] else ifcolor(Fore.LIGHTGREEN_EX) if colony['colony_flags']['level1_sol_bonus'] else ""
+        print(f"{num}.", col_name_color + colony['name'], COLRESET + f"({colony['population']}):", end=" ")
+
+        colony_rebel_val = get_rebel_val(colony, json_sav_data['NATION'][int(colony['nation_id'], 16)]['founding_fathers']['simon_bolivar'])
+        prev_colony_rebel_val = 0
+        if prev_colony:
+            prev_colony_rebel_val = get_rebel_val(prev_colony, prev_json_sav_data['NATION'][int(colony['nation_id'], 16)]['founding_fathers']['simon_bolivar'])
+
+        rebel_val_inc_str = f"+{colony_rebel_val - prev_colony_rebel_val}" if colony_rebel_val - prev_colony_rebel_val >= 0 else f"-{prev_colony_rebel_val - colony_rebel_val}"
+        print(f"Rebel: {colony_rebel_val}({rebel_val_inc_str})%.", end=" ")
+
+        if colony['building_in_production'] in FIELD_VALUES['production_type_inv']:
+            print("Building:", FIELD_VALUES['production_type_inv'][colony['building_in_production']], end=" ")
+            hammers_inc = 0 if prev_colony is None else colony['hammers'] - prev_colony['hammers']
+            print(f"[H: {colony['hammers']}(+{hammers_inc})]")
+        else:
+            print("Building: (Nothing)")
+
+    sys.exit(0)
     pass
 
 
@@ -56,6 +123,8 @@ def dummy_main():
 
 
 if __name__ == '__main__':
+    just_fix_windows_console()
+
     print()
     print("== Sid Meier's Colonization (1994) ADVISOR ==")
     print(f"      by Pavel Bel. Version {REL_VER}")
@@ -85,7 +154,7 @@ if __name__ == '__main__':
 
     WAIT_STR = "\nWaiting for updates of autosave files... Press Ctrl+C to abort"
     POLL_INTERVAL = 1 # secs
-    json_sav_data = []
+    json_sav_data = load_json_sav_data(os.path.join(settings['colonize_path'], 'COLONY00.SAV')) # None
     try:
         while True:
             curr_1_time_ns = os.stat(col_autosav_1_filename).st_mtime_ns

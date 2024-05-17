@@ -6,7 +6,7 @@ FIELD_VALUES = {
 "difficulty_type":  {"Discoverer": "00", "Explorer": "01", "Conquistador": "02", "Governor": "03", "Viceroy": "04"},
 "season_type":      {"autumn": "01 00", "spring": "00 00"},
 "nation_type":      {"England": "00", "France": "01", "Spain": "02", "Netherlands": "03", "Inca": "04", "Aztec": "05",
-                     "Awarak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
+                     "Arawak": "06", "Iroquois": "07", "Cherokee": "08", "Apache": "09", "Sioux": "0A", "Tupi": "0B", "None": "FF"},
 "profession_type":  {"expert farmer": "00", "master sugar planter": "01", "master tobacco planter": "02", "master cotton planter": "03",
                      "expert fur trapper": "04", "expert lumberjack": "05", "expert ore miner": "06", "expert silver miner": "07",
                      "expert fisherman": "08", "master distiller": "09", "master tobacconist": "0A", "master weaver": "0B",
@@ -17,7 +17,17 @@ FIELD_VALUES = {
 "unit_type":        {"colonist": "00", "soldier": "01", "pioneer": "02", "missionary": "03", "dragoon": "04", "scout": "05", "tory regular": "06",
                      "continental cavalry": "07", "tory cavalry": "08", "continental army": "09", "treasure": "0A", "artillery": "0B",
                      "wagon train": "0C", "caravel": "0D", "merchantman": "0E", "galeon": "0F", "privateer": "10", "frigate": "11",
-                     "man-o-war": "12", "brave": "13", "armed brave": "14", "mounted brave": "15", "mounted warrior": "16"}
+                     "man-o-war": "12", "brave": "13", "armed brave": "14", "mounted brave": "15", "mounted warrior": "16"},
+"production_type":  {"Stockade": "00", "Fort": "01", "Fortress": "02", "Armory": "03", "Magazine": "04", "Arsenal": "05",
+                     "Docks": "06", "Drydock": "07", "Shipyard": "08", "Town Hall 1": "09", "Town Hall 2": "0A", "Town Hall 3": "0B",
+                     "Schoolhouse": "0C", "College": "0D", "University": "0E", "Warehouse": "0F", "Warehouse Expansion": "10",
+                     "Stable": "11", "Custom House": "12", "Printing Press": "13", "Newspaper": "14", "Weaver's House": "15",
+                     "Weaver's Shop": "16", "Textile Mill": "17", "Tobacconist's House": "18", "Tobacconist's Shop": "19", "Cigar Factory": "1A",
+                     "Rum Distiller's House": "1B", "Rum Distillery": "1C", "Rum Factory": "1D", "Capitol": "1E", "Capitol Expansion": "1F",
+                     "Fur Trader's House": "20", "Fur Trading Post": "21", "Fur Factory": "22", "Carpenter's Shop": "23", "Lumber Mill": "24",
+                     "Church": "25", "Cathedral": "26", "Blacksmith's House": "27", "Blacksmith's Shop": "28", "Iron Works": "29",
+                     "Artillery": "2A", "Wagon Train": "2B", "Caravel": "2C", "Merchantman": "2D", "Galleon": "2E", "Privateer": "2F",
+                     "Frigate": "30"}
 }
 
 

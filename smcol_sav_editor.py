@@ -1014,7 +1014,7 @@ if __name__ == '__main__':
         bad_saves_idxs = []
         for i, sav_file_data in enumerate(sav_files_list, start=1):
             print(f"{i:2}. {sav_file_data['name']}", end=': ')
-            caption_data = get_caption_data(sav_file_data['data'])
+            caption_data = get_caption_data(sav_file_data['data'], FIELD_VALUES=FIELD_VALUES)
             if caption_data is None:
                 print('Corrupt')
                 bad_saves_idxs.append(i)
