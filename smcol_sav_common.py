@@ -16,7 +16,7 @@ FIELD_VALUES = {
                      "indentured servant": "19", "petty criminal": "1A", "indian convert": "1B", "free colonist": "1C"},
 "unit_type":        {"colonist": "00", "soldier": "01", "pioneer": "02", "missionary": "03", "dragoon": "04", "scout": "05", "tory regular": "06",
                      "continental cavalry": "07", "tory cavalry": "08", "continental army": "09", "treasure": "0A", "artillery": "0B",
-                     "wagon train": "0C", "caravel": "0D", "merchantman": "0E", "galeon": "0F", "privateer": "10", "frigate": "11",
+                     "wagon train": "0C", "caravel": "0D", "merchantman": "0E", "galleon": "0F", "privateer": "10", "frigate": "11",
                      "man-o-war": "12", "brave": "13", "armed brave": "14", "mounted brave": "15", "mounted warrior": "16"},
 "production_type":  {"Stockade": "00", "Fort": "01", "Fortress": "02", "Armory": "03", "Magazine": "04", "Arsenal": "05",
                      "Docks": "06", "Drydock": "07", "Shipyard": "08", "Town Hall 1": "09", "Town Hall 2": "0A", "Town Hall 3": "0B",
@@ -27,7 +27,7 @@ FIELD_VALUES = {
                      "Fur Trader's House": "20", "Fur Trading Post": "21", "Fur Factory": "22", "Carpenter's Shop": "23", "Lumber Mill": "24",
                      "Church": "25", "Cathedral": "26", "Blacksmith's House": "27", "Blacksmith's Shop": "28", "Iron Works": "29",
                      "Artillery": "2A", "Wagon Train": "2B", "Caravel": "2C", "Merchantman": "2D", "Galleon": "2E", "Privateer": "2F",
-                     "Frigate": "30"}
+                     "Frigate": "30", "(Nothing)": "FF"}
 }
 
 
