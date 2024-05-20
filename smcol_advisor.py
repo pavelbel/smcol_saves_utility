@@ -188,14 +188,15 @@ def get_diff_str(diff_value, width=1, coloring=True, custom_color="", result_len
     return diff_value_str if not coloring else color_str+diff_value_str+COL_RESET
 
 
-def get_stock_state_str(colony, prev_colony, stock_name, is_neg_critical=False, width=9):
+def get_stock_state_str(colony, prev_colony, stock_name, is_neg_critical=False, width=9, max_cap=1000000):
     """Get stock 'stock_name' state string"""
     stock_inc = 0 if prev_colony is None else colony['stock'][stock_name] - prev_colony['stock'][stock_name]
     next_val = colony['stock'][stock_name] + stock_inc
     custom_color_str = Back.LIGHTRED_EX if (is_neg_critical and next_val < 0) else ""
+    stock_val_color_str = COL_BRI if colony['stock'][stock_name] < max_cap else ifcolor(Fore.YELLOW)
     stock_val_str = str(colony['stock'][stock_name])
     diff_str_len = []
-    stock_state_str = f"{COL_BRI}({get_diff_str(stock_inc, custom_color=custom_color_str, result_len=diff_str_len)}{COL_BRI}){stock_val_str}{COL_RESET}"
+    stock_state_str = f"{COL_BRI}({get_diff_str(stock_inc, custom_color=custom_color_str, result_len=diff_str_len)}){stock_val_color_str}{stock_val_str}{COL_RESET}"
     full_stock_state_len = 1 + diff_str_len[0] + 1 + len(stock_val_str)
     if full_stock_state_len < width:
         stock_state_str += " " * (width - full_stock_state_len)
@@ -256,7 +257,9 @@ def run_advisor(json_sav_data, prev_json_sav_data):
         if colony['building_in_production'] not in FIELD_VALUES['production_type_inv']:
             colony['building_in_production'] = FIELD_VALUES['production_type']['(Nothing)']
 
-        print(f"Building: {COL_BRI}{FIELD_VALUES['production_type_inv'][colony['building_in_production']]}{COL_RESET}", end=" ")
+        print(f"Building: {COL_BRI}{ifcolor(Fore.LIGHTBLUE_EX)}{FIELD_VALUES['production_type_inv'][colony['building_in_production']]}{COL_RESET}", end=" ")
+
+        col_wrhs_capacity = (colony['warehouse_level'] + 1) * 100
 
         build_cost = building_costs[colony['building_in_production']]
 
@@ -293,28 +296,32 @@ def run_advisor(json_sav_data, prev_json_sav_data):
                                 ifcolor(Fore.LIGHTGREEN_EX) if tools_turns_remain <= 5 else \
                                 ifcolor(Fore.LIGHTRED_EX) if tools_turns_remain >= 10 else ""
 
-        print(f"Tool:{COL_BRI}({get_diff_str(tools_inc)}{COL_BRI}){colony['stock']['tools']}/{build_cost[1]}{COL_RESET}", end="")
+        if colony['stock']['tools'] >= col_wrhs_capacity:
+            col_tools_stock_color_str = ifcolor(Fore.YELLOW)
+        else:
+            col_tools_stock_color_str = COL_BRI
+        print(f"Tool:({COL_BRI}{get_diff_str(tools_inc)}){col_tools_stock_color_str}{str(colony['stock']['tools'])}{COL_RESET}/{COL_BRI}{build_cost[1]}{COL_RESET}", end="")
         print(f"[{COL_BRI}{tools_turns_color}{tools_turns_remain}{COL_RESET}t]")
 
         # Stock data
-        print(f"Food:{get_stock_state_str(colony, prev_colony, 'food', is_neg_critical=True)}", end=" ")
-        print(f"Lmbr:{get_stock_state_str(colony, prev_colony, 'lumber')}", end=" ")
-        print(f" Ore:{get_stock_state_str(colony, prev_colony, 'ore')}", end=" ")
+        print(f"Food:{get_stock_state_str(colony, prev_colony, 'food', is_neg_critical=True, max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"Lmbr:{get_stock_state_str(colony, prev_colony, 'lumber', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f" Ore:{get_stock_state_str(colony, prev_colony, 'ore', max_cap=col_wrhs_capacity)}", end=" ")
         print()
-        print(f"Sugr:{get_stock_state_str(colony, prev_colony, 'sugar')}", end=" ")
-        print(f" Rum:{get_stock_state_str(colony, prev_colony, 'rum')}", end=" ")
-        print(f" Tob:{get_stock_state_str(colony, prev_colony, 'tobacco')}", end=" ")
-        print(f" Cig:{get_stock_state_str(colony, prev_colony, 'cigars')}", end=" ")
+        print(f"Sugr:{get_stock_state_str(colony, prev_colony, 'sugar', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f" Rum:{get_stock_state_str(colony, prev_colony, 'rum', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f" Tob:{get_stock_state_str(colony, prev_colony, 'tobacco', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f" Cig:{get_stock_state_str(colony, prev_colony, 'cigars', max_cap=col_wrhs_capacity)}", end=" ")
         print()
-        print(f"Cott:{get_stock_state_str(colony, prev_colony, 'cotton')}", end=" ")
-        print(f"Clth:{get_stock_state_str(colony, prev_colony, 'cloth')}", end=" ")
-        print(f" Fur:{get_stock_state_str(colony, prev_colony, 'furs')}", end=" ")
-        print(f"Coat:{get_stock_state_str(colony, prev_colony, 'coats')}", end=" ")
+        print(f"Cott:{get_stock_state_str(colony, prev_colony, 'cotton', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"Clth:{get_stock_state_str(colony, prev_colony, 'cloth', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f" Fur:{get_stock_state_str(colony, prev_colony, 'furs', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"Coat:{get_stock_state_str(colony, prev_colony, 'coats', max_cap=col_wrhs_capacity)}", end=" ")
         print()
-        print(f"Hors:{get_stock_state_str(colony, prev_colony, 'horses')}", end=" ")
-        print(f"Mskt:{get_stock_state_str(colony, prev_colony, 'muskets')}", end=" ")
-        print(f"Slvr:{get_stock_state_str(colony, prev_colony, 'silver')}", end=" ")
-        print(f"TrGd:{get_stock_state_str(colony, prev_colony, 'trade_goods')}", end=" ")
+        print(f"Hors:{get_stock_state_str(colony, prev_colony, 'horses', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"Mskt:{get_stock_state_str(colony, prev_colony, 'muskets', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"Slvr:{get_stock_state_str(colony, prev_colony, 'silver', max_cap=col_wrhs_capacity)}", end=" ")
+        print(f"TrGd:{get_stock_state_str(colony, prev_colony, 'trade_goods', max_cap=col_wrhs_capacity)}", end=" ")
         print()
 
 
