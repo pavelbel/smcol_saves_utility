@@ -85,7 +85,7 @@ class SAVEditor:
     def load(self):
         self.json_sav_data, self.metadata = read_json_sav_data(self.sav_filepath, self.sav_structure)
         self.is_initialized = self.json_sav_data is not None
-        self.caption_data = get_caption_data(self.json_sav_data)
+        self.caption_data = get_caption_data(self.json_sav_data, FIELD_VALUES)
 
         self.unsaved_changes = []
 

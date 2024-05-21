@@ -65,7 +65,7 @@ def get_input(input_hint: str, res_type=str, check_fun=lambda x: True, error_str
             print(f"{error_str} '{inp_res}'")
 
 
-def get_caption_data(json_sav_data: dict, FIELD_VALUES: dict = FIELD_VALUES):
+def get_caption_data(json_sav_data: dict, FIELD_VALUES: dict):  # = FIELD_VALUES):
     if json_sav_data is None:
         return None
 
