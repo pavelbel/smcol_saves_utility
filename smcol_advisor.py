@@ -220,8 +220,8 @@ def run_advisor(json_sav_data, prev_json_sav_data):
 
     num = 0
     for colony in json_sav_data['COLONY']:
-        # if int(colony['nation_id'], 16) != caption_data['player_nation_id']:
-        #     continue
+        if int(colony['nation_id'], 16) != caption_data['player_nation_id']:
+            continue
         prev_colony = None
         if prev_json_sav_data is not None:
             for prev_col in prev_json_sav_data['COLONY']:
@@ -322,13 +322,13 @@ def run_advisor(json_sav_data, prev_json_sav_data):
         print(f"Mskt:{get_stock_state_str(colony, prev_colony, 'muskets', max_cap=col_wrhs_capacity)}", end=" ")
         print(f"Slvr:{get_stock_state_str(colony, prev_colony, 'silver', max_cap=col_wrhs_capacity)}", end=" ")
         print(f"TrGd:{get_stock_state_str(colony, prev_colony, 'trade_goods', max_cap=col_wrhs_capacity)}", end=" ")
-        print()
+        print('\n')
 
 
-        print()
+    print()
 
-    print("=" * 80)
-    sys.exit(0)
+    # print("=" * 80)
+    # sys.exit(0)
     pass
 
 
@@ -364,26 +364,28 @@ if __name__ == '__main__':
 
     col_autosav_1_filename = os.path.join(settings['colonize_path'], 'COLONY09.SAV')
     col_autosav_2_filename = os.path.join(settings['colonize_path'], 'COLONY08.SAV')
+    col_autosav_templ_filename = os.path.join(settings['colonize_path'], 'COLONY0!.SAV')
 
     curr_last_file_mtime_ns = max(os.stat(col_autosav_1_filename).st_mtime_ns, os.stat(col_autosav_2_filename).st_mtime_ns) - 1
 
     WAIT_STR = "\nWaiting for updates of autosave files... Press Ctrl+C to abort"
     POLL_INTERVAL = 1 # secs
-    json_sav_data = load_json_sav_data(os.path.join(settings['colonize_path'], 'COLONY00.SAV')) # None
+    prev_json_sav_data = None
+    json_sav_data = None  # load_json_sav_data(os.path.join(settings['colonize_path'], 'COLONY00.SAV')) #
+    curr_turn = -1  #json_sav_data['HEAD']['turn']
     try:
         while True:
-            curr_1_time_ns = os.stat(col_autosav_1_filename).st_mtime_ns
-            curr_2_time_ns = os.stat(col_autosav_2_filename).st_mtime_ns
-            if curr_1_time_ns > curr_2_time_ns:
-                curr_last_time_ns = curr_1_time_ns
-                curr_last_filename = col_autosav_1_filename
-            else:
-                curr_last_time_ns = curr_2_time_ns
-                curr_last_filename = col_autosav_2_filename
-
+            curr_times_ns = []
+            for k in range(10):
+                col_autosav_filename = col_autosav_templ_filename.replace('!', str(k))
+                curr_times_ns.append(os.stat(col_autosav_filename).st_mtime_ns)
+            curr_last_time_ns = max(curr_times_ns)
             if curr_last_time_ns <= curr_last_file_mtime_ns:
                 time.sleep(POLL_INTERVAL)
                 continue
+
+            last_file_index = curr_times_ns.index(curr_last_time_ns)
+            curr_last_filename = col_autosav_templ_filename.replace('!', str(last_file_index))
 
             # Make sure the curr_last_filename file is closed (can be opened for writing)
             try:
@@ -400,13 +402,25 @@ if __name__ == '__main__':
             print("\n=============================================================")
             print(f"SAV file '{curr_last_filename}' updated at {last_file_mod_dt}:")
 
-            prev_json_sav_data = json_sav_data.copy()
             try:
-                json_sav_data = load_json_sav_data(curr_last_filename)
+                new_json_sav_data = load_json_sav_data(curr_last_filename)
             except Exception as ex:
                 print(f"ERROR: {curr_last_filename} file read/parse error: {ex}")
-            else:
-                run_advisor(json_sav_data, prev_json_sav_data)
+                continue
+
+            new_turn = new_json_sav_data['HEAD']['turn']
+
+            if new_turn < curr_turn:
+                prev_json_sav_data = None
+            elif new_turn > curr_turn:
+                if json_sav_data is not None:
+                    prev_json_sav_data = json_sav_data.copy()
+                else:
+                    prev_json_sav_data = None
+
+            json_sav_data = new_json_sav_data
+            curr_turn = new_turn
+            run_advisor(json_sav_data, prev_json_sav_data)
 
             print(WAIT_STR)
 
