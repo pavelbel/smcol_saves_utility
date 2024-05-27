@@ -59,7 +59,7 @@ Some additions were made by me:
 - click_before_open_colony x, y field (coords of the point player clicked before entering some colony screen)
 - show_colony_prod_quantities (to show poduction quantities on colony screen flag)
 - relation byte field partially decoded: have met flag, peace signed flag, irritated by piracy flag and unclear attitude (?) value
-- some Foreign Affairs Report fields mapped: nations' population, merchant marine and ship count values
+- some Foreign Affairs Report fields mapped: nations' population, merchant marine, ship count, average colony size
 
 [**no-more-secrets**](https://github.com/no-more-secrets)'s additions:
 - Indian dwellings' growth counter
