@@ -1097,7 +1097,8 @@
                     "ship_counts": {"size": 1, "type": "uint", "cols": 4, "no_indent": true, "__hint": "Nations' ship counts. Updated at the beginning of each turn. Probably used for naval power calculations."}
                 }
             },
-            "unknown36ac": {"size": 520},
+            "unknown36ac": {"size": 512},
+            "average_colony": {"size": 2, "type": "uint", "cols": 4, "no_indent": true},
             "show_colony_prod_quantities": {"size": 1},
             "unknown_tribe_data_1":
             {
