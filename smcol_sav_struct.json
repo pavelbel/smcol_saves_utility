@@ -1082,11 +1082,10 @@
     {
         "struct":
         {
-            "unknown34": {"size": 15},
-            "counter_decreasing_on_new_colony": {"size": 2, "type": "uint"},
-            "unknown35": {"size": 2},
-            "counter_increasing_on_new_colony": {"size": 2, "type": "uint"},
-            "unknown36aa": {"size": 7},
+            "unknown34": {"size": 12},
+            "all_unit_counts":  {"size": 1, "type": "uint", "cols": 4, "no_indent": true},
+            "unknwn_nation_data_35": {"size": 1, "cols": 4, "no_indent": true},
+            "unknown36aa": {"size": 8},
             "foreign_affairs_report":
             {
                 "struct":
@@ -1097,7 +1096,36 @@
                     "ship_counts": {"size": 1, "type": "uint", "cols": 4, "no_indent": true, "__hint": "Nations' ship counts. Updated at the beginning of each turn. Probably used for naval power calculations."}
                 }
             },
-            "unknown36ac": {"size": 512},
+            "unknwn_nation_data_36ac1": {"size": 2, "cols": 4, "no_indent": true},
+            "unknwn_nation_data_36ac2": {"size": 2, "cols": 4, "no_indent": true},
+            "unknwn_nation_data_36ac3": {"size": 1, "cols": 4, "no_indent": true},
+            "unit_counts":
+            {
+                "count": 4,
+                "struct":
+                {
+                    "colonist_count": {"size": 1, "type": "uint"},
+                    "soldier_count": {"size": 1, "type": "uint"},
+                    "pioneer_count": {"size": 1, "type": "uint"},
+                    "missionary_count": {"size": 1, "type": "uint"},
+                    "dragoon_count": {"size": 1, "type": "uint"},
+                    "scout_count": {"size": 1, "type": "uint"},
+                    "tory_regular_count": {"size": 1, "type": "uint"},
+                    "cont_cavalry_count": {"size": 1, "type": "uint"},
+                    "tory_cavalry_count": {"size": 1, "type": "uint"},
+                    "cont_army_count": {"size": 1, "type": "uint"},
+                    "treasure_count": {"size": 1, "type": "uint"},
+                    "artillery_count": {"size": 1, "type": "uint"},
+                    "wagon_train_count": {"size": 1, "type": "uint"},
+                    "caravel_count": {"size": 1, "type": "uint"},
+                    "merchantman_count": {"size": 1, "type": "uint"},
+                    "galleon_count": {"size": 1, "type": "uint"},
+                    "privateer_count": {"size": 1, "type": "uint"},
+                    "frigate_count": {"size": 1, "type": "uint"},
+                    "mow_count": {"size": 1, "type": "uint"}
+                }
+            },
+            "unknown36ac": {"size": 416},
             "average_colony": {"size": 2, "type": "uint", "cols": 4, "no_indent": true},
             "show_colony_prod_quantities": {"size": 1},
             "unknown_tribe_data_1":
