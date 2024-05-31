@@ -1325,7 +1325,7 @@
     "unknown_map38c3": {"size": 16},
     "strategy": {"size": 2, "type": "uint", "count": 14, "__hint": "these are the numbers that appear on screen when selecting 'show strategy' from the cheat menu."},
     "unknown_map38d": {"size": 10},
-    "prime_resource_seed": {"size": 1, "type": "uint", "__hint": "seed for both prime resources and lost city rumors."},
+    "prime_resource_seed": {"size": 1, "__hint": "Seed for both prime resources and lost city rumors. Prime resources placement is defined by lower bits quad only."},
     "unknown39d": {"size": 1, "__hint": "Seems to be constant throughout the game.  Could be the high byte of the prime_resource_seed, though if it is then it would have no visible effect since the seed's value only matters mod 32."},
     "TRADE_ROUTE":
     {
