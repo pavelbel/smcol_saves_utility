@@ -817,7 +817,7 @@
             },
             "moves": {"size": 1, "type": "uint", "__hint": "'moves' count already made. One 'move' is one move by road"},
             "origin_settlement": {"size": 1, "type": "uint", "__hint": "index of COLONY (for colonist) or TRIBE (for brave) where is he from"},
-            "unknown16b": {"size": 1},
+            "ai_plan_mode": {"size": 1, "type": "str", "__hint": "Foreign AI planning modes flag character (ASCII), only for foreign powers"},
             "orders": {"size": 1, "type": "orders_type"},
             "goto_x": {"size": 1, "type": "uint"},
             "goto_y": {"size": 1, "type": "uint"},
