@@ -1005,7 +1005,15 @@
                 }
             },
             "population": {"size": 1, "type": "uint"},
-            "mission": {"size": 1, "type": "int", "__hint": "-1 if none. Otherwise nation idx (0,1,2,3)."},
+            "mission":
+            {
+                "bit_struct":
+                {
+                    "nation_id": {"size": 4, "type": "nation_4bit_type"},
+                    "expert": {"size": 1, "type": "bit_bool"},
+                    "unknown": {"size": 3}
+                }
+            },
             "growth_counter": {"size": 1, "type": "int", "__hint": "See supplemental-info.md for details"},
             "unknown28a": {"size": 1, "__hint": "always seems to be 0xff."},
             "last_bought": {"size": 1},
